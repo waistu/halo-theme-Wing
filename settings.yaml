@@ -37,3 +37,48 @@ spec:
             show: 显示
             hide: 隐藏
           value: show
+    - group: author
+      label: 作者卡片
+      formSchema:
+        - $formkit: text
+          name: cover
+          label: 封面图片
+          placeholder: 请输入封面图片URL
+        - $formkit: text
+          name: bio
+          label: 个人简介
+          placeholder: 请输入个人简介
+        - $formkit: array
+          name: socials
+          label: 社交媒体
+          help: 最多添加4个社交媒体链接
+          value:
+            - icon: czs-weibo
+              label: 微博
+              url: ''
+            - icon: czs-github-logo
+              label: GitHub
+              url: ''
+            - icon: czs-rss
+              label: RSS
+              url: ''
+            - icon: czs-bilibili
+              label: 哔哩哔哩
+              url: ''
+          itemLabels:
+            - type: text
+              label: "$value.label"
+          children:
+            - $formkit: text
+              name: icon
+              label: 图标
+              placeholder: czs-weibo
+              help: 图标类名，如 czs-weibo、czs-github-logo
+            - $formkit: text
+              name: label
+              label: 名称
+              placeholder: 微博
+            - $formkit: url
+              name: url
+              label: 链接
+              placeholder: https://
