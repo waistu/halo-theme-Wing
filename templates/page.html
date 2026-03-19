@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${singlePage.spec.title}"></title>
+  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+  <script th:src="@{/assets/js/dayjs.min.js}"></script>
+  <script th:src="@{/assets/js/relativeTime.js}"></script>
+  <script th:src="@{/assets/js/zh-cn.js}"></script>
+</head>
+
+<body>
+  <!-- 头部 -->
+  <div th:replace="includes/header :: header"></div>
+
+  <!-- 主体：侧边栏 + 内容区 -->
+  <div class="container">
+    <aside class="sidebar">
+      <div th:replace="includes/nav :: nav"></div>
+    </aside>
+
+    <!-- 右侧：主内容大盒子 -->
+    <div class="content">
+      <article class="age-article">
+        <!-- 封面图 -->
+        <th:block th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}">
+          <th:block th:if="${singlePage.spec.cover} and ${hideCover != 'true'}">
+            <div class="page-cover">
+              <img th:src="${singlePage.spec.cover}" alt="">
+            </div>
+          </th:block>
+        </th:block>
+
+        <!-- 页面头部信息 -->
+        <th:block
+          th:with="hideTitle=${#annotations.get(singlePage, 'hideTitle')}, hideMeta=${#annotations.get(singlePage, 'hideMeta')}">
+          <header class="page-header" th:unless="${hideTitle == 'true'}">
+            <h1 class="page-title" th:text="${singlePage.spec.title}"></h1>
+
+            <!-- 元信息：作者、发布时间、统计 -->
+            <div class="page-meta" th:unless="${hideMeta == 'true'}">
+              <span class="meta-item author" th:if="${singlePage.owner}">
+                <img th:src="${singlePage.owner.avatar}" alt="" class="avatar">
+                <span th:text="${singlePage.owner.displayName}"></span>
+              </span>
+              <span class="meta-item date">
+                <i class="czs-calendar"></i>
+                <span th:text="${#dates.format(singlePage.spec.publishTime, 'yyyy-MM-dd')}"></span>
+              </span>
+              <span class="meta-item visits">
+                <i class="czs-eye"></i>
+                <span th:text="${singlePage.stats.visit}"></span>
+              </span>
+              <th:block th:if="${singlePage.spec.allowComment}">
+                <span class="meta-item comments">
+                  <i class="czs-comment"></i>
+                  <span th:text="${singlePage.status.commentsCount}"></span>
+                </span>
+              </th:block>
+            </div>
+          </header>
+        </th:block>
+
+        <!-- 页面内容 -->
+        <div class="page-content" th:utext="${singlePage.content.content}"></div>
+      </article>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <div th:replace="includes/footer :: footer"></div>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+<!-- 侧边栏组件：菜单 + 小组件 -->
+<div th:fragment="sidebar" class="sidebar-inner">
+    <!-- 菜单区域 -->
+    <nav class="sidebar-menu">
+        <ul>
+            <li><a href="/">首页</a></li>
+            <li><a href="/works">作品</a></li>
+            <li><a href="/code">代码</a></li>
+            <li><a href="/notes">随笔</a></li>
+        </ul>
+    </nav>
+
+    <!-- 其他小组件（关于博主、链接、统计等） -->
+    <div class="sidebar-widgets">
+        <div class="widget about">关于博主</div>
+        <div class="widget links">友情链接</div>
+        <div class="widget stats">统计信息</div>
+    </div>
+</div>

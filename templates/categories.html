@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分类丨[[${site.title}]]</title>
+  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+  <script th:src="@{/assets/js/dayjs.min.js}"></script>
+  <script th:src="@{/assets/js/relativeTime.js}"></script>
+  <script th:src="@{/assets/js/zh-cn.js}"></script>
+  <script>
+    if (window.location.hash === '#open-search') {
+      setTimeout(() => {
+        if (window.SearchWidget) SearchWidget.open('');
+      }, 100);
+    }
+  </script>
+  <script th:src="@{/assets/js/main.js}"></script>
+</head>
+
+<body>
+  <!-- 头部 -->
+  <div th:replace="includes/header :: header"></div>
+
+  <!-- 主体：侧边栏 + 内容区 -->
+  <div class="container">
+    <aside class="sidebar">
+      <div th:replace="includes/nav :: nav"></div>
+    </aside>
+
+    <!-- 右侧：主内容大盒子 -->
+    <div class="content">
+      <div class="tags-wrapper">
+        <!-- 页面标题 -->
+        <div class="page-header">
+          <h1 class="page-title">分类</h1>
+        </div>
+
+        <!-- 分类列表 -->
+        <div class="tags-page" th:unless="${#lists.isEmpty(categories)}">
+          <div class="tags-cloud">
+            <a th:each="category : ${categories}" th:href="${category.status.permalink}" class="tag-block">
+              <span class="tag-icon">#</span>
+              <span class="tag-name" th:text="${category.spec.displayName}"></span>
+              <span class="tag-count" th:text="${category.postCount}"></span>
+            </a>
+          </div>
+        </div>
+        <div class="tags-empty" th:if="${#lists.isEmpty(categories)}">暂无分类</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <div th:replace="includes/footer :: footer"></div>
+</body>
+
+</html>

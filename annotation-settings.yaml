@@ -1,0 +1,41 @@
+apiVersion: v1alpha1
+kind: AnnotationSetting
+metadata:
+  name: theme-wring-menu-item
+spec:
+  targetRef:
+    group: ""
+    kind: MenuItem
+  formSchema:
+    - $formkit: text
+      name: icon
+      label: 图标icon
+      placeholder: "例如: czs czs-home-l"
+---
+apiVersion: v1alpha1
+kind: AnnotationSetting
+metadata:
+  name: theme-wring-page
+spec:
+  targetRef:
+    group: content.halo.run
+    kind: SinglePage
+  formSchema:
+    - $formkit: switch
+      name: hideCover
+      label: 隐藏封面图
+      value: false
+      onValue: "true"
+      offValue: "false"
+    - $formkit: switch
+      name: hideTitle
+      label: 隐藏标题
+      value: false
+      onValue: "true"
+      offValue: "false"
+    - $formkit: switch
+      name: hideMeta
+      label: 隐藏元信息
+      value: false
+      onValue: "true"
+      offValue: "false"

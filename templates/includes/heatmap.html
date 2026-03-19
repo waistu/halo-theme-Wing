@@ -1,0 +1,182 @@
+<aside th:fragment="heatmap" class="heatmap-card">
+
+    <!-- ① 数据节点（隐藏，服务端渲染） -->
+    <th:block th:with="allPosts = ${postFinder.listAll()}">
+        <th:block th:if="${not #lists.isEmpty(allPosts)}">
+            <th:block th:each="post : ${allPosts}">
+                <th:block th:with="pt = ${post.spec.publishTime}">
+                    <th:block th:if="${not #strings.isEmpty(pt)}">
+                        <th:block th:with="
+                            _year  = ${#strings.substring(pt, 0, 4)},
+                            _month = ${#strings.substring(pt, 5, 7)},
+                            _day   = ${#strings.substring(pt, 8, 10)}
+                        ">
+                            <div class="__hm_d"
+                                 th:data-date="${_year + '-' + _month + '-' + _day}"
+                                 th:data-comments="${post.status != null ? post.status.commentsCount : 0}"
+                                 style="display:none"></div>
+                        </th:block>
+                    </th:block>
+                </th:block>
+            </th:block>
+        </th:block>
+    </th:block>
+
+    <!-- ② 统计卡片 -->
+    <th:block th:with="posts = ${postFinder.list(1, 1)}">
+        <div class="stats-card" th:data-site-start="${theme.config.basic.site_start_date}">
+            <div class="stats-item">
+                <h5 class="stats-days">0</h5>
+                <span>DAYS</span>
+            </div>
+            <div class="stats-divider"></div>
+            <div class="stats-item">
+                <h5>0</h5>
+                <span>NOTES</span>
+            </div>
+            <div class="stats-divider"></div>
+            <div class="stats-item">
+                <h5 th:text="${posts.total}">0</h5>
+                <span>POSTS</span>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- ③ 热力图容器（必须在脚本之前！） -->
+    <div class="heatmap-map" id="heatmapMap"></div>
+
+    <!-- ④ 所有脚本放在容器之后，保证 getElementById 能取到节点 -->
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    (function () {
+        // --- 1. 收集文章日期数据 ---
+        window.heatmapData = {};
+        var cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 365);
+        var cutoffStr = cutoff.getFullYear() + '-' +
+            String(cutoff.getMonth() + 1).padStart(2, '0') + '-' +
+            String(cutoff.getDate()).padStart(2, '0');
+
+        var els = document.querySelectorAll('.__hm_d');
+        for (var i = 0; i < els.length; i++) {
+            var el = els[i];
+            var date = el.getAttribute('data-date');
+            if (date < cutoffStr) continue;
+            var comments = parseInt(el.getAttribute('data-comments') || '0', 10);
+            if (!window.heatmapData[date]) {
+                window.heatmapData[date] = { notes: 0, comments: 0 };
+            }
+            window.heatmapData[date].notes += 1;
+            window.heatmapData[date].comments += comments;
+        }
+
+        // --- 2. 渲染热力图（容器已在上方 DOM 中，此时可取到） ---
+        var container = document.getElementById('heatmapMap');
+        if (container) {
+            var data = window.heatmapData;
+            var html = '';
+
+            function fmtDate(d) {
+                return d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            }
+
+            for (var j = 59; j >= 0; j--) {
+                var day = new Date();
+                day.setDate(day.getDate() - j);
+                var dateStr = fmtDate(day);
+                var stats = data[dateStr] || { notes: 0, comments: 0 };
+
+                var innerClass = '';
+                if (stats.notes > 0) {
+                    innerClass = 'notes';
+                } else if (stats.comments > 0) {
+                    innerClass = 'comments';
+                }
+
+                // 存独立属性，JS 动态创建浮层
+                html += '<div class="heatmap-map__item" data-date="' + dateStr + '" data-notes="' + stats.notes + '" data-comments="' + stats.comments + '">' +
+                    (innerClass
+                        ? '<div class="heatmap-map__item-inner ' + innerClass + ' active"></div>'
+                        : '<div class="heatmap-map__item-block"></div>') +
+                    '</div>';
+            }
+
+            container.innerHTML = html;
+
+            // --- 2.1 绑定 hover 事件，创建浮层 ---
+            var tooltipEl = null;
+            container.addEventListener('mouseover', function (e) {
+                var item = e.target.closest('.heatmap-map__item');
+                if (!item) return;
+
+                // 已存在则复用
+                if (tooltipEl) {
+                    tooltipEl.remove();
+                }
+
+                var date = item.dataset.date || '';
+                var notes = parseInt(item.dataset.notes, 10) || 0;
+                var comments = parseInt(item.dataset.comments, 10) || 0;
+
+                // 创建浮层 DOM
+                tooltipEl = document.createElement('div');
+                tooltipEl.className = 'heatmap-tooltip';
+                tooltipEl.innerHTML = '<div class="tooltip-date">' + date + '</div>';
+                if (notes > 0) {
+                    tooltipEl.innerHTML += '<div class="tooltip-line">POST: ' + notes + '</div>';
+                }
+                if (comments > 0) {
+                    tooltipEl.innerHTML += '<div class="tooltip-line">COMMENTS: ' + comments + '</div>';
+                }
+                if (notes === 0 && comments === 0) {
+                    tooltipEl.innerHTML += '<div class="tooltip-empty">No activity</div>';
+                }
+
+                document.body.appendChild(tooltipEl);
+
+                // 定位：跟随格子
+                var rect = item.getBoundingClientRect();
+                tooltipEl.style.left = rect.left + rect.width / 2 + 'px';
+                tooltipEl.style.top = rect.top - 8 + 'px';
+                tooltipEl.style.transform = 'translate(-50%, -100%)';
+            });
+
+            container.addEventListener('mouseout', function (e) {
+                var item = e.target.closest('.heatmap-map__item');
+                if (item && tooltipEl) {
+                    tooltipEl.remove();
+                    tooltipEl = null;
+                }
+            });
+        }
+
+        // --- 3. 计算建站天数 ---
+        var statsCard = document.querySelector('.stats-card');
+        if (statsCard) {
+            var siteStart = statsCard.dataset.siteStart || new Date().toISOString().slice(0, 10);
+            var startDate = new Date(siteStart);
+            var nowDate = new Date();
+            var diffDays = Math.floor((nowDate - startDate) / 86400000) + 1;
+            var daysEl = statsCard.querySelector('.stats-days');
+            if (daysEl) daysEl.textContent = diffDays > 0 ? diffDays : 1;
+        }
+    })();
+    /*]]>*/
+    </script>
+
+    <!-- ⑤ 标签列表 -->
+    <th:block th:with="tags = ${tagFinder.listAll()}">
+        <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
+            <ul class="topic-items">
+                <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
+                    <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
+                    <span class="topic-count" th:text="${tag.postCount}">0</span>
+                </li>
+            </ul>
+        </div>
+        <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+    </th:block>
+
+</aside>

@@ -1,0 +1,52 @@
+<div th:fragment="nav" class="nav side-nav widget-box">
+    <!-- 获取主菜单 -->
+    <th:block th:with="menu = ${menuFinder.getPrimary()}">
+        <!-- 判断是否有自定义菜单 -->
+        <th:block th:if="${menu != null and not #lists.isEmpty(menu.menuItems)}">
+            <!-- 有自定义菜单：动态渲染 -->
+            <ul class="nav-list">
+                <li class="nav-item" th:each="menuItem : ${menu.menuItems}" th:data-path="${menuItem.status.href}">
+                    <a th:href="${menuItem.status.href}" th:target="${menuItem.spec.target?.value}">
+                        <!-- 使用元数据获取图标 -->
+                        <i th:if="${#annotations.contains(menuItem, 'icon')}"
+                            th:class="${#annotations.get(menuItem, 'icon')}"></i>
+                        <i th:unless="${#annotations.contains(menuItem, 'icon')}" class="czs czs-link-l"></i>
+                        <span th:text="${menuItem.status.displayName}"></span>
+                    </a>
+                </li>
+            </ul>
+        </th:block>
+
+        <!-- 没有自定义菜单：显示默认菜单 -->
+        <th:block th:unless="${menu != null and not #lists.isEmpty(menu.menuItems)}">
+            <ul class="nav-list">
+                <li class="nav-item" data-path="/">
+                    <a href="/"><i class="czs czs-home-l"></i>首页</a>
+                </li>
+                <li class="nav-item" data-path="/works">
+                    <a href="/archives"><i class="czs-clothes-l"></i>作品</a>
+                </li>
+                <li class="nav-item" data-path="/code">
+                    <a href="/archives"><i class="czs-code-l"></i>代码</a>
+                </li>
+                <li class="nav-item" data-path="/notes">
+                    <a href="/archives"><i class="czs-gift-l"></i>随笔</a>
+                </li>
+            </ul>
+        </th:block>
+    </th:block>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var currentPath = window.location.pathname;
+            var navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(function (item) {
+                var itemPath = item.getAttribute('data-path');
+                // 首页特殊处理：匹配 / 或 /index
+                if (itemPath && (currentPath === itemPath || 
+                    (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')))) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</div>
