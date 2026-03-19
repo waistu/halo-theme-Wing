@@ -246,12 +246,17 @@ html, body {
   width: 250px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 2px;
   position: sticky;
   top: 10px;
   max-height: calc(100vh - 20px);
   box-sizing: border-box;
   align-self: flex-start;
+}
+
+/* 给侧边栏小组件添加过渡动画 */
+.sidebar .widget-box {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .content {
@@ -278,6 +283,7 @@ html, body {
 
 /* 作者卡片 */
 .author-card {
+  margin-top: 22px;
   padding: 0;
   overflow: hidden;
 }
@@ -499,28 +505,40 @@ html, body {
   transition: transform 0.2s;
 }
 
-/* 二级子菜单容器 */
+/* 二级子菜单容器 - 使用 max-height 实现动画 */
 .nav-sublist {
-  display: none;
   list-style: none;
   padding: 0;
   margin: 0;
   padding-left: 20px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.3s ease-out,
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-10px);
 }
 
 /* 父级菜单 hover 时显示子菜单 */
 .nav-item:hover > .nav-sublist {
-  display: block;
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* 有 active 子菜单的一级菜单展开子菜单 */
 .nav-item:has(.nav-subitem.active) > .nav-sublist,
 .nav-item.has-active-child > .nav-sublist {
-  display: block;
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
 }
 
+/* 子菜单箭头旋转动画 */
 .nav-item:hover > a .sub-arrow {
   transform: rotate(180deg);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 有 active 子菜单时箭头旋转 */
@@ -2123,7 +2141,7 @@ html, body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: #6b7280;
 }
 
@@ -2144,10 +2162,16 @@ html, body {
 /* 侧边栏内容视图 - 目录和导航在同一位置切换 */
 .sidebar-content {
   display: none;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-content.active {
   display: block;
+  opacity: 1;
+  transform: translateX(0);
   z-index: 10;
 }
 
