@@ -141,25 +141,15 @@ let allPosts = [];
 document.addEventListener('DOMContentLoaded', function() {
   // 获取服务端渲染的所有文章数据
   allPosts = window.allPosts || [];
-  console.log('文章总数:', allPosts.length);
 
   // 处理骨架屏：等待一小段时间后隐藏，显示真实内容
   const skeletonContainer = document.getElementById('skeletonContainer');
   const articleList = document.getElementById('articleList');
 
-  console.log('骨架屏元素:', skeletonContainer);
-  console.log('文章列表元素:', articleList);
-  console.log('文章列表内容长度:', articleList ? articleList.children.length : 0);
-
   if (skeletonContainer && articleList) {
-    // 短暂延迟后切换显示
     setTimeout(function() {
-      console.log('切换显示 - 骨架屏:', skeletonContainer.style.display);
-      console.log('切换显示 - 文章列表:', articleList.style.display);
       skeletonContainer.style.display = 'none';
       articleList.style.display = 'block';
-      console.log('切换后 - 骨架屏:', skeletonContainer.style.display);
-      console.log('切换后 - 文章列表:', articleList.style.display);
     }, 100);
   }
 
@@ -242,8 +232,6 @@ function goToPage(page) {
   if (notesCore) {
     notesCore.scrollTop = 0;
   }
-
-  console.log('已加载第', page, '页', posts.length, '篇文章');
 
   isLoading = false;
 }

@@ -1,0 +1,54 @@
+<div th:fragment="authorCard(postCount, stats)" class="author-card widget-box">
+  <!-- 封面背景 -->
+  <div class="author-cover">
+    <img th:if="${not #strings.isEmpty(theme.config.author.cover)}" th:src="${theme.config.author.cover}" alt="封面">
+    <div th:unless="${not #strings.isEmpty(theme.config.author.cover)}" class="author-cover-gradient"></div>
+    <button class="author-follow-btn" title="关注">
+      <i class="czs czs-add"></i>
+    </button>
+  </div>
+
+  <!-- 头像 -->
+  <div class="author-avatar-wrap">
+    <img th:src="${site.logo ?: '/assets/images/default-avatar.png'}" alt="头像" class="author-avatar">
+  </div>
+
+  <!-- 作者信息 -->
+  <div class="author-info">
+    <h3 class="author-name" th:text="${site.title}">站点名称</h3>
+    <p class="author-bio"
+      th:text="${theme.config.author.bio ?: 'Product Designer who focuses on simplicity & usability.'}">简介</p>
+  </div>
+
+  <!-- 统计数据 -->
+  <div class="author-stats">
+    <div class="stat-item">
+      <span class="stat-value" th:with="upvote=${stats?.upvote ?: 0}"
+        th:text="${upvote >= 1000 ? T(java.lang.String).format('%.1fK', upvote / 1000.0) : upvote}">0</span>
+      <span class="stat-label">Like</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value"
+        th:text="${postCount >= 1000 ? T(java.lang.String).format('%.1fK', postCount / 1000.0) : postCount}">0</span>
+      <span class="stat-label">Posts</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" th:with="visit=${stats?.visit ?: 0}"
+        th:text="${visit >= 1000 ? T(java.lang.String).format('%.1fK', visit / 1000.0) : visit}">0</span>
+      <span class="stat-label">Views</span>
+    </div>
+  </div>
+
+  <!-- 社交链接 -->
+  <div class="author-social">
+    <th:block th:with="socials=${theme.config.author.socials}">
+      <th:block th:if="${#lists.isEmpty(socials)}">
+        <th:block th:with="socials=${theme.config.author.socials_default}"></th:block>
+      </th:block>
+      <a th:each="social : ${socials}" th:if="${not #strings.isEmpty(social.url)}" th:href="${social.url}"
+        target="_blank" class="social-link" th:title="${social.label}">
+        <i th:class="'czs ' + ${social.icon}"></i>
+      </a>
+    </th:block>
+  </div>
+</div>
