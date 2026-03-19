@@ -1,0 +1,21 @@
+apiVersion: theme.halo.run/v1alpha1
+kind: Theme
+metadata:
+  name: theme-wring
+spec:
+  displayName: Wring
+  author:
+    name: 二歪同学
+    website: "https://waistu.com"
+  description: 一款简洁流畅、数据驱动，响应式主题，移植自WordPress主题Wring
+  logo: "https://www.halo.run/logo"
+  homepage: "https://github.com/halo-dev/theme-starter#readme"
+  repo: "https://github.com/halo-dev/theme-starter"
+  issues: "https://github.com/halo-dev/theme-starter/issues"
+  settingName: "theme-wring-setting"
+  configMapName: "theme-wring-configMap"
+  version: "1.0.0"
+  requires: ">=2.0.0"
+  license:
+    - name: "GPL-3.0"
+      url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"

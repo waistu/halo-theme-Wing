@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>归档丨[[${site.title}]]</title>
+  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+  <script th:src="@{/assets/js/dayjs.min.js}"></script>
+  <script th:src="@{/assets/js/relativeTime.js}"></script>
+  <script th:src="@{/assets/js/zh-cn.js}"></script>
+  <script>
+    if (window.location.hash === '#open-search') {
+      setTimeout(() => {
+        if (window.SearchWidget) SearchWidget.open('');
+      }, 100);
+    }
+  </script>
+  <script th:src="@{/assets/js/main.js}"></script>
+</head>
+
+<body>
+  <div th:replace="includes/header :: header"></div>
+
+  <div class="container">
+    <aside class="sidebar">
+      <div th:replace="includes/nav :: nav"></div>
+    </aside>
+
+    <div class="content">
+      <div class="tags-wrapper">
+        <div class="page-header">
+          <h1 class="page-title">文章归档</h1>
+        </div>
+
+        <div class="archives-content">
+          <th:block th:each="archive : ${archives.items}">
+            <h1 class="archive-year-title">
+              <span class="year-text" th:text="${archive.year}"></span>
+            </h1>
+            <ul class="archive-list">
+              <th:block th:each="month : ${archive.months}">
+                <li th:each="post : ${month.posts}">
+                  <a th:href="@{${post.status.permalink}}">
+                    <span th:text="${post.spec.title}"></span>
+                    <span class="archive-date" th:text="${#strings.substring(post.spec.publishTime, 5, 10)}"></span>
+                  </a>
+                </li>
+              </th:block>
+            </ul>
+          </th:block>
+        </div>
+
+        <div class="archive-pagination" th:if="${archives.hasPrevious() or archives.hasNext()}">
+          <a th:href="@{${archives.prevUrl}}" th:if="${archives.hasPrevious()}">上一页</a>
+          <span th:text="${archives.page} + ' / ' + ${archives.totalPages}"></span>
+          <a th:href="@{${archives.nextUrl}}" th:if="${archives.hasNext()}">下一页</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var yearTitles = document.querySelectorAll('.archive-year-title');
+      var archiveLists = document.querySelectorAll('.archive-list');
+      yearTitles.forEach(function (title, index) {
+        var count = 0;
+        if (archiveLists[index]) {
+          var lis = archiveLists[index].querySelectorAll('li');
+          count = lis.length;
+        }
+        if (count > 0) {
+          title.innerHTML += '<span class="year-count">' + count + '</span>';
+        }
+      });
+    });
+  </script>
+
+  <div th:replace="includes/footer :: footer"></div>
+</body>
+
+</html>

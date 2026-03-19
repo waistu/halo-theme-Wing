@@ -1,0 +1,23 @@
+<div th:fragment="noteCard(type, title, excerpt, date, cover, permalink, comments)" class="noteCard">
+    <a th:href="${permalink}" class="article-card">
+        <!-- 标题单独一行 -->
+        <h3 class="card-title">[[${title}]]</h3>
+
+        <!-- 摘要和封面水平排列 -->
+        <div class="card-content">
+            <p class="card-excerpt">[[${excerpt}]]</p>
+            <div class="card-cover" th:if="${cover != null and cover != ''}">
+                <img th:src="${cover}" alt="封面">
+            </div>
+        </div>
+
+        <!-- 底部：时间和阅读全部 -->
+        <div class="card-meta">
+            <div class="meta-left">
+                <span class="time-ago" th:data-date="${date}">[[${date}]]</span>
+                <span th:if="${comments > 0}"> · 评论 [[${comments}]]</span>
+            </div>
+            <span class="read-more">阅读全文</span>
+        </div>
+    </a>
+</div>

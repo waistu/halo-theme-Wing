@@ -1,0 +1,35 @@
+<!-- 底部公共文件 → 被 th:replace 引用 -->
+<div th:fragment="footer" class="footer" id="footer">
+    <div class="footer-container">
+        <!-- 左侧：版权 + 网站标题 -->
+        <div class="footer-left">
+            <span>© 2026 <strong><a th:href="@{/}"
+                        th:text="${site.title != null ? site.title : '我的网站'}"></a></strong></span>
+
+            <!-- 只有用户设置了备案号才显示 -->
+            <th:block th:if="${theme.config.basic.icp != null and theme.config.basic.icp != ''}">
+                <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">
+                    <span class="icp" th:text="${theme.config.basic.icp}"></span>
+                </a>
+            </th:block>
+        </div>
+
+        <!-- 右侧：主题标识 -->
+        <div class="footer-right">
+            <span class="powered-by">
+                Powered by <a href="https://www.halo.run" target="_blank">Halo</a>
+            </span>
+            <span class="theme-by">Theme by <a href="https://github.com/waistu" class="theme-by-wing" target="_blank"
+                    rel="noopener noreferrer">
+                    <span>Wring</span>
+                    <span class="rainbow-bar"></span>
+                </a></span>
+
+        </div>
+    </div>
+    <!-- 搜索插件必须加载的JS -->
+    <div th:if="${pluginFinder.available('PluginSearchWidget')}">
+        <script th:src="@{/plugins/search-widget/assets/static/search-widget.iife.js}"></script>
+    </div>
+
+</div>

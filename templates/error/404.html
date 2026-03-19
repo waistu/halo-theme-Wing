@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 页面不存在</title>
+    <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+    <script th:src="@{/assets/js/main.js}"></script>
+</head>
+
+<body>
+    <div th:replace="includes/header :: header"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <div th:replace="includes/nav :: nav"></div>
+        </aside>
+        <main class="main-content content">
+            <div class="page-404">
+                <div class="container-404">
+                    <h1 class="code-404">404</h1>
+                    <p class="desc-404">抱歉，你访问的页面不存在或已被移除</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div th:replace="includes/footer :: footer"></div>
+</body>
+
+</html>

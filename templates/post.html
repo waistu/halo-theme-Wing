@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${post.spec.title} + ' - ' + ${site.title}"></title>
+  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+
+  <!-- Prism.js 代码高亮 - Okaidia 主题 -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <!-- 代码高亮核心 -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <!-- 语言支持（按依赖顺序） -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-csharp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-ruby.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-swift.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-kotlin.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-docker.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-nginx.min.js"></script>
+  <!-- 行号插件 -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div th:replace="~{includes/header :: header}"></div>
+
+  <div class="container">
+    <aside class="sidebar">
+      <!-- 侧边栏切换组件 -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="toc" title="文章目录">
+          <i class="czs-read-l"></i>
+        </button>
+        <button class="sidebar-tab" data-tab="nav" title="返回导航">
+          <i class="czs-choose-list-l"></i>
+        </button>
+      </div>
+
+      <!-- 目录视图 -->
+      <div class="sidebar-content active" id="sidebar-toc">
+        <div id="tocWidget" style="display: none;">
+          <div id="toc" class="toc-list"></div>
+        </div>
+        <div class="toc-empty" id="tocEmpty" style="display: none;">暂无目录</div>
+      </div>
+
+      <!-- 导航视图 -->
+      <div class="sidebar-content" id="sidebar-nav">
+        <div class="widget-box" th:replace="~{includes/nav :: nav}"></div>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div th:replace="~{includes/articleList :: articleContent(content = ${post.content.content})}"></div>
+    </div>
+  </div>
+  <div th:replace="~{includes/footer :: footer}"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Prism.js 代码高亮
+      if (window.Prism) {
+        Prism.highlightAll();
+      }
+
+      // 侧边栏切换功能
+      initSidebarTabs();
+
+      // 生成文章目录
+      generateTOC();
+    });
+
+    // 侧边栏切换
+    function initSidebarTabs() {
+      const tabs = document.querySelectorAll('.sidebar-tab');
+      const tocContent = document.getElementById('sidebar-toc');
+      const navContent = document.getElementById('sidebar-nav');
+
+      console.log('查找元素:', { tabs: tabs.length, tocContent, navContent });
+
+      if (tabs.length === 0) {
+        console.error('未找到侧边栏标签');
+        return;
+      }
+      if (!tocContent || !navContent) {
+        console.error('未找到侧边栏内容区域');
+        return;
+      }
+
+      // 初始状态
+      tocContent.classList.add('active');
+      navContent.classList.remove('active');
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = this.getAttribute('data-tab');
+          const isCurrentlyActive = this.classList.contains('active');
+
+          console.log('点击切换:', target, '当前active:', isCurrentlyActive);
+
+          // 移除所有 tab 的 active
+          tabs.forEach(function (t) { t.classList.remove('active'); });
+          // 给当前点击的 tab 添加 active
+          this.classList.add('active');
+
+          // 切换内容区域
+          if (target === 'toc') {
+            tocContent.classList.add('active');
+            navContent.classList.remove('active');
+            console.log('显示目录, toc class:', tocContent.className);
+          } else if (target === 'nav') {
+            tocContent.classList.remove('active');
+            navContent.classList.add('active');
+            console.log('显示导航, nav class:', navContent.className);
+          }
+        });
+      });
+    }
+
+    // 延迟生成目录，确保内容已加载
+    function generateTOC() {
+      // 多次尝试获取内容，因为可能是动态加载的
+      function tryGenerateTOC() {
+        const content = document.querySelector('.post-content');
+        const tocWidget = document.getElementById('tocWidget');
+        const tocEmpty = document.getElementById('tocEmpty');
+        const toc = document.getElementById('toc');
+
+        console.log('生成目录 - content:', content, 'tocWidget:', tocWidget, 'toc:', toc);
+
+        if (!content) {
+          console.log('未找到文章内容，尝试重新生成...');
+          setTimeout(tryGenerateTOC, 500);
+          return;
+        }
+
+        if (!tocWidget || !toc) return;
+
+        const headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        console.log('找到标题数量:', headings.length);
+
+        if (headings.length === 0) {
+          tocWidget.style.display = 'none';
+          tocEmpty.style.display = 'block';
+          tocEmpty.textContent = '文章暂无标题';
+          return;
+        }
+
+        tocWidget.style.display = 'block';
+        tocEmpty.style.display = 'none';
+
+        let html = '<ul class="toc-nav">';
+        let index = 0;
+
+        headings.forEach(function (heading) {
+          const tagName = heading.tagName.toLowerCase();
+          const level = parseInt(tagName.replace('h', ''));
+          const id = 'heading-' + index;
+          heading.id = id;
+
+          const indent = (level - 1) * 12;
+          html += '<li style="padding-left:' + indent + 'px"><a href="#' + id + '" class="toc-link" data-target="' + id + '">' + heading.textContent + '</a></li>';
+          index++;
+        });
+
+        html += '</ul>';
+        toc.innerHTML = html;
+
+        // 点击平滑滚动
+        toc.querySelectorAll('.toc-link').forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            if (target) {
+              const headerHeight = 80;
+              const top = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+              window.scrollTo({ top: top, behavior: 'smooth' });
+            }
+          });
+        });
+
+        // 滚动高亮
+        window.addEventListener('scroll', function () {
+          const scrollY = window.pageYOffset;
+          let current = null;
+
+          headings.forEach(function (heading) {
+            if (heading.offsetTop - 100 <= scrollY) {
+              current = heading.id;
+            }
+          });
+
+          toc.querySelectorAll('.toc-link').forEach(function (link) {
+            link.classList.remove('active');
+            if (link.getAttribute('data-target') === current) {
+              link.classList.add('active');
+            }
+          });
+        });
+      }
+
+      // 延迟执行
+      setTimeout(tryGenerateTOC, 100);
+    }
+  </script>
+</body>
+
+</html>

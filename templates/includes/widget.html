@@ -1,0 +1,5 @@
+<!-- 通用小组件盒子 → 引用一次就出一个盒子 -->
+<div th:fragment="widget" class="widget-box">
+    <!-- 内容由外面传进来 -->
+    <th:block th:include="this :: content"></th:block>
+</div>

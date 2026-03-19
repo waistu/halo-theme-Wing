@@ -1,0 +1,39 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: theme-wring-setting
+spec:
+  forms:
+    - group: basic
+      label: 基础设置
+      formSchema:
+        - $formkit: text
+          name: site_title
+          label: 网站标题
+          placeholder: 请输入网站标题
+          value:
+        - $formkit: text
+          name: icp
+          label: 备案号
+          placeholder: 粤ICP备xxxx号
+        - $formkit: datetime-local
+          name: site_start_date
+          label: 建站时间
+          placeholder: 选择建站日期
+          help: 用于计算网站运行天数
+        - $formkit: radio
+          name: sidebar_toggle
+          label: 左侧边栏
+          help: 是否显示左侧导航菜单
+          options:
+            show: 显示
+            hide: 隐藏
+          value: show
+        - $formkit: radio
+          name: right_sidebar_toggle
+          label: 右侧边栏
+          help: 是否显示右侧热力图
+          options:
+            show: 显示
+            hide: 隐藏
+          value: show
