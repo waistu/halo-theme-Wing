@@ -356,7 +356,8 @@ html, body {
 }
 
 /* 有 active 子菜单的一级菜单展开子菜单 */
-.nav-item:has(.nav-subitem.active) > .nav-sublist {
+.nav-item:has(.nav-subitem.active) > .nav-sublist,
+.nav-item.has-active-child > .nav-sublist {
   display: block;
 }
 
