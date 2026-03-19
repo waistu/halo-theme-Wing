@@ -12,7 +12,20 @@
                             th:class="${#annotations.get(menuItem, 'icon')}"></i>
                         <i th:unless="${#annotations.contains(menuItem, 'icon')}" class="czs czs-link-l"></i>
                         <span th:text="${menuItem.status.displayName}"></span>
+                        <!-- 显示子菜单箭头 -->
+                        <i th:if="${not #lists.isEmpty(menuItem.children)}" class="czs czs-down sub-arrow"></i>
                     </a>
+                    <!-- 二级子菜单 -->
+                    <ul class="nav-sublist" th:if="${not #lists.isEmpty(menuItem.children)}">
+                        <li class="nav-subitem" th:each="subItem : ${menuItem.children}" th:data-path="${subItem.status.href}">
+                            <a th:href="${subItem.status.href}" th:target="${subItem.spec.target?.value}">
+                                <i th:if="${#annotations.contains(subItem, 'icon')}"
+                                    th:class="${#annotations.get(subItem, 'icon')}"></i>
+                                <i th:unless="${#annotations.contains(subItem, 'icon')}" class="czs czs-link-l"></i>
+                                <span th:text="${subItem.status.displayName}"></span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </th:block>
@@ -38,13 +51,32 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var currentPath = window.location.pathname;
+            
+            // 处理一级菜单选中
             var navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(function (item) {
                 var itemPath = item.getAttribute('data-path');
-                // 首页特殊处理：匹配 / 或 /index
-                if (itemPath && (currentPath === itemPath || 
-                    (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')))) {
+                if (itemPath && currentPath === itemPath) {
                     item.classList.add('active');
+                }
+                // 首页特殊处理
+                if (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // 处理二级子菜单选中 - 只给当前精确匹配的项添加 active
+            var navSubItems = document.querySelectorAll('.nav-subitem');
+            navSubItems.forEach(function (item) {
+                var itemPath = item.getAttribute('data-path');
+                // 严格匹配当前路径
+                if (itemPath && currentPath === itemPath) {
+                    item.classList.add('active');
+                    // 父级一级菜单展开但不添加 active（保持正常样式）
+                    var parent = item.closest('.nav-item');
+                    if (parent) {
+                        parent.classList.add('has-active-child');
+                    }
                 }
             });
         });
