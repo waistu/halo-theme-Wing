@@ -27,16 +27,18 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/header :: header"></div>
   <!-- 页面主体容器 -->
-  <div class="container">
+  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
       <div th:replace="includes/nav :: nav"></div>
+      <!-- author card -->
+      <div th:replace="includes/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
     </aside>
     <!-- 右侧：主内容大盒子 -->
     <div class="content">
       <div id="notes" class="notes-layout">
-        <main class="notes-core" th:with="allPosts=${postFinder.listAll()}">
+        <main class="notes-core">
           <div class="notes-tabbar sticky bg-blur">
             <ul class="tab global-list">
               <li class="tab-item active" data-type="all"><a href="javascript:void(0);">全部</a></li>

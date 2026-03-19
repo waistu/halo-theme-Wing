@@ -28,8 +28,9 @@
 
   <!-- 主体：侧边栏 + 内容区 -->
   <div class="container">
-    <aside class="sidebar">
+    <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
       <div th:replace="includes/nav :: nav"></div>
+      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
     </aside>
 
     <!-- 右侧：主内容大盒子 -->

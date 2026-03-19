@@ -19,6 +19,11 @@
                     <i class="czs-eye"></i>
                     <span>0</span>
                 </span>
+                <!-- 点赞 -->
+                <span class="meta-item">
+                    <i class="czs-heart" id="post-like-btn" style="cursor: pointer;"></i>
+                    <span id="post-like-count" th:text="${post.stats?.upvote ?: 0}">0</span>
+                </span>
                 <!-- 评论 -->
                 <span class="meta-item">
                     <i class="czs-talk"></i>

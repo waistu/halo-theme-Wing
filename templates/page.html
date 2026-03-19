@@ -20,17 +20,20 @@
 
   <!-- 主体：侧边栏 + 内容区 -->
   <div class="container">
-    <aside class="sidebar">
+    <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
       <div th:replace="includes/nav :: nav"></div>
+      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
     </aside>
 
     <!-- 右侧：主内容大盒子 -->
     <div class="content">
       <article class="age-article">
         <!-- 封面图 -->
-        <th:block th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}, hasCover=${not #strings.isEmpty(singlePage.spec.cover)}">
+        <th:block
+          th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}, hasCover=${not #strings.isEmpty(singlePage.spec.cover)}">
           <div th:if="${hasCover and hideCover != 'true'}" class="page-cover">
-            <img th:src="${singlePage.spec.cover}" alt="" onerror="this.parentElement.className='page-cover-empty'; this.parentElement.innerHTML='<i class=\'czs-cup-l\'></i>'">
+            <img th:src="${singlePage.spec.cover}" alt=""
+              onerror="this.parentElement.className='page-cover-empty'; this.parentElement.innerHTML='<i class=\'czs-cup-l\'></i>'">
           </div>
           <div th:unless="${hasCover and hideCover != 'true'}" class="page-cover-empty">
             <i class="czs-cup-l"></i>
