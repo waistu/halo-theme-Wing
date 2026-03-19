@@ -5,7 +5,9 @@
         <th:block th:if="${menu != null and not #lists.isEmpty(menu.menuItems)}">
             <!-- 有自定义菜单：动态渲染 -->
             <ul class="nav-list">
-                <li class="nav-item" th:each="menuItem : ${menu.menuItems}" th:data-path="${menuItem.status.href}">
+                <li class="nav-item" th:each="menuItem : ${menu.menuItems}" 
+                    th:data-path="${menuItem.status.href}"
+                    th:classappend="${menuItem.status.href == currentPath || (menuItem.status.href == '/' && (currentPath == '/' || currentPath == '/index' || currentPath == '/index.html'))} ? 'active' : ''">
                     <a th:href="${menuItem.status.href}" th:target="${menuItem.spec.target?.value}">
                         <!-- 使用元数据获取图标 -->
                         <i th:if="${#annotations.contains(menuItem, 'icon')}"
@@ -17,7 +19,10 @@
                     </a>
                     <!-- 二级子菜单 -->
                     <ul class="nav-sublist" th:if="${not #lists.isEmpty(menuItem.children)}">
-                        <li class="nav-subitem" th:each="subItem : ${menuItem.children}" th:data-path="${subItem.status.href}">
+                        <li class="nav-subitem" th:each="subItem : ${menuItem.children}" 
+                            th:data-path="${subItem.status.href}"
+                            th:data-fullpath="${currentPath}"
+                            th:classappend="${subItem.status.href == currentPath} ? 'active'">
                             <a th:href="${subItem.status.href}" th:target="${subItem.spec.target?.value}">
                                 <i th:if="${#annotations.contains(subItem, 'icon')}"
                                     th:class="${#annotations.get(subItem, 'icon')}"></i>
@@ -49,36 +54,35 @@
         </th:block>
     </th:block>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        (function() {
             var currentPath = window.location.pathname;
             
             // 处理一级菜单选中
             var navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(function (item) {
+            for (var i = 0; i < navItems.length; i++) {
+                var item = navItems[i];
                 var itemPath = item.getAttribute('data-path');
                 if (itemPath && currentPath === itemPath) {
                     item.classList.add('active');
                 }
-                // 首页特殊处理
                 if (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')) {
                     item.classList.add('active');
                 }
-            });
+            }
             
-            // 处理二级子菜单选中 - 只给当前精确匹配的项添加 active
+            // 处理二级子菜单选中
             var navSubItems = document.querySelectorAll('.nav-subitem');
-            navSubItems.forEach(function (item) {
-                var itemPath = item.getAttribute('data-path');
-                // 严格匹配当前路径
-                if (itemPath && currentPath === itemPath) {
-                    item.classList.add('active');
-                    // 父级一级菜单展开但不添加 active（保持正常样式）
-                    var parent = item.closest('.nav-item');
+            for (var j = 0; j < navSubItems.length; j++) {
+                var subItem = navSubItems[j];
+                var subPath = subItem.getAttribute('data-path');
+                if (subPath && currentPath === subPath) {
+                    subItem.classList.add('active');
+                    var parent = subItem.closest('.nav-item');
                     if (parent) {
                         parent.classList.add('has-active-child');
                     }
                 }
-            });
-        });
+            }
+        })();
     </script>
 </div>
