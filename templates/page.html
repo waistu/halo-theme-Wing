@@ -28,12 +28,13 @@
     <div class="content">
       <article class="age-article">
         <!-- 封面图 -->
-        <th:block th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}">
-          <th:block th:if="${singlePage.spec.cover} and ${hideCover != 'true'}">
-            <div class="page-cover">
-              <img th:src="${singlePage.spec.cover}" alt="">
-            </div>
-          </th:block>
+        <th:block th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}, hasCover=${not #strings.isEmpty(singlePage.spec.cover)}">
+          <div th:if="${hasCover and hideCover != 'true'}" class="page-cover">
+            <img th:src="${singlePage.spec.cover}" alt="" onerror="this.parentElement.className='page-cover-empty'; this.parentElement.innerHTML='<i class=\'czs-cup-l\'></i>'">
+          </div>
+          <div th:unless="${hasCover and hideCover != 'true'}" class="page-cover-empty">
+            <i class="czs-cup-l"></i>
+          </div>
         </th:block>
 
         <!-- 页面头部信息 -->

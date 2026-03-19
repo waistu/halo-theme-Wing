@@ -1130,7 +1130,7 @@ html, body {
 }
 
 .page-title {
-  padding: 0;
+  padding: 40px 40px 10px 40px;
   font-size: 2rem;
   font-weight: 600;
   color: #333;
@@ -1406,6 +1406,22 @@ html, body {
   object-fit: cover;
 }
 
+/* 无封面时的默认背景 */
+.page-cover-empty {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.page-cover-empty .czs-cup-l {
+  font-size: 80px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .page-article .page-header {
   padding: 32px 40px 24px;
   border-bottom: 1px solid #f0f0f0;
@@ -1421,26 +1437,48 @@ html, body {
 
 .page-meta {
   display: flex;
-  padding: 10px 40px 10px 40px;
+  padding: 12px 40px;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
 }
-
 
 .meta-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.875rem;
-  color: #999;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.meta-item .czs {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.meta-item .czs-calendar {
+  color: #f59e0b;
+}
+
+.meta-item .czs-eye {
+  color: #10b981;
+}
+
+.meta-item .czs-comment {
+  color: #3b82f6;
+}
+
+.meta-item:hover {
+  color: #334155;
 }
 
 .meta-item .avatar {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
