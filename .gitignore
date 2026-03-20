@@ -20,6 +20,7 @@ npm-debug.log*
 .temp/
 tmp/
 temp/
+.workbuddy/
 
 # 环境变量（敏感信息）
 .env
