@@ -89,17 +89,29 @@
                       <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
                     </a>
                     <!-- 评论 -->
-                    <span class="action-item">
+                    <a class="action-item moment-comments-toggle" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
                       <i class="czs-comment-l"></i>
                       <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
-                        <span>[[${moment.stats.totalComment}]]</span>
+                        <span class="comment-count">[[${moment.stats.totalComment}]]</span>
                       </th:block>
-                    </span>
+                      <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
+                        <span class="comment-count"></span>
+                      </th:block>
+                    </a>
                   </div>
                   <div class="moment-source">
                     <i class="czs-image"></i>
                     <span>Write from Webpage</span>
                   </div>
+                </div>
+                <!-- Halo 官方评论组件（默认收起） -->
+                <div class="moment-comments-wrapper" th:id="'comments-wrapper-' + ${moment.metadata.name}" style="display: none;">
+                  <halo:comment
+                    group="moment.halo.run"
+                    kind="Moment"
+                    version="v1alpha1"
+                    th:attr="name=${moment.metadata.name}">
+                  </halo:comment>
                 </div>
               </div>
             </th:block>
@@ -322,6 +334,26 @@
           }).catch(function(err) {
             console.error('操作失败:', err);
           });
+        });
+      });
+    })();
+
+    // ==================== 瞬间评论展开/收起 ====================
+    (function() {
+      document.querySelectorAll('.moment-comments-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var momentName = this.dataset.momentName;
+          var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
+          var iconEl = this.querySelector('i');
+
+          if (wrapperEl.style.display === 'none') {
+            wrapperEl.style.display = 'block';
+            iconEl.classList.add('active');
+          } else {
+            wrapperEl.style.display = 'none';
+            iconEl.classList.remove('active');
+          }
         });
       });
     })();
