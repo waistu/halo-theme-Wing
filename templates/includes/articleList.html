@@ -1,4 +1,4 @@
-<th:block th:fragment="articleContent">
+<th:block th:fragment="articleContent(content, post)">
     <article class="post-article">
         <header class="post-header">
             <h1 class="post-title" th:text="${post.spec.title}"></h1>
@@ -27,7 +27,7 @@
                 <!-- 评论 -->
                 <span class="meta-item">
                     <i class="czs-talk"></i>
-                    <span th:text="${post.status.commentsCount} ?: 0">0</span>
+                    <span th:text="${post.stats?.comment ?: 0}">0</span>
                 </span>
             </div>
             <!-- 标签 -->

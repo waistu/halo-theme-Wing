@@ -17,13 +17,17 @@
                 Halo 官方评论组件标签
                 group: 资源分组，文章使用 content.halo.run
                 kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
-                name: 资源的唯一标识，使用 post.metadata.name 或 sheet.metadata.name
+                name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
             -->
-            <halo:comment
-                group="content.halo.run"
-                kind="Post"
-                th:attr="name=${post != null ? post.metadata.name : ''}"
-            />
+            <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
+                <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
+                    <halo:comment
+                        group="content.halo.run"
+                        th:kind="${commentKind}"
+                        th:attr="name=${commentName}"
+                    />
+                </th:block>
+            </th:block>
         </div>
     </th:block>
 
