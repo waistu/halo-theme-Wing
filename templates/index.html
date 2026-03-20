@@ -41,53 +41,25 @@
         <main class="notes-core">
           <div class="notes-tabbar sticky bg-blur">
             <ul class="tab global-list">
-              <li class="tab-item active" data-type="all"><a href="javascript:void(0);">全部</a></li>
-              <li class="tab-item" data-type="note"><a href="javascript:void(0);">笔记</a></li>
-              <li class="tab-item" data-type="post"><a href="javascript:void(0);">文章</a></li>
+              <li class="tab-item" data-type="all">
+                <a th:href="@{/}">全部</a>
+              </li>
+              <li class="tab-item" data-type="note">
+                <a th:href="@{/moments}">笔记</a>
+              </li>
+              <li class="tab-item" data-type="post">
+                <a th:href="@{/article}">文章</a>
+              </li>
             </ul>
           </div>
 
-          <!-- 骨架屏占位符 -->
-          <div class="article-list skeleton-container" id="skeletonContainer">
-            <th:block th:each="i : ${#numbers.sequence(1, 6)}">
-              <div class="skeleton-card">
-                <div class="skeleton-title"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton-text"></div>
-                  <div class="skeleton-text short"></div>
-                </div>
-                <div class="skeleton-meta">
-                  <div class="skeleton-date"></div>
-                  <div class="skeleton-btn"></div>
-                </div>
-              </div>
-            </th:block>
+          <!-- 文章列表区域（暂留空） -->
+          <div class="article-list" id="articleList">
+            <!-- 暂不显示文章列表 -->
           </div>
 
-          <!-- 服务端渲染前10篇文章，客户端分页加载 -->
-          <div class="article-list" id="articleList" style="display:none">
-            <th:block th:each="item, iterStat : ${allPosts}" th:if="${iterStat.index < 10}">
-              <div th:replace="includes/noteCard :: noteCard(
-                  type = 'post',
-                  title = ${item.spec.title},
-                  excerpt = ${item.status.excerpt},
-                  date = ${item.spec.publishTime},
-                  cover = ${item.spec.cover},
-                  permalink = ${item.status.permalink},
-                  comments = ${item.status.commentsCount}
-              )"></div>
-            </th:block>
-            <!-- 存储所有文章数据供客户端分页使用 -->
-            <script th:inline="javascript">
-              window.allPosts = /*[[${allPosts}]]*/ [];
-            </script>
-          </div>
-
-          <div class="pagination" id="pagination" th:style="${allPosts.size() > 10 ? 'display:flex' : 'display:none'}">
+          <div class="pagination" style="display:none">
             <span class="page-info">共 <span th:text="${allPosts.size()}">0</span> 篇文章</span>
-            <div class="page-numbers">
-              <span class="page-number active" data-page="1">1</span>
-            </div>
           </div>
         </main>
         <aside class="notes-aside" th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
@@ -100,6 +72,37 @@
   </div>
   <!-- 页脚部分 -->
   <div th:replace="includes/footer :: footer"></div>
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      var tabs = document.querySelectorAll('.notes-tabbar .tab-item');
+      tabs.forEach(function (tab) {
+        var link = tab.querySelector('a');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href) return;
+
+        // 首页
+        if (path === '/' || path === '' || path === '/index' || path === '/index.html') {
+          if (href === '/' || href.endsWith('/')) {
+            tab.classList.add('active');
+          }
+        }
+        // 笔记页面
+        else if (path.startsWith('/moments')) {
+          if (href === '/moments') {
+            tab.classList.add('active');
+          }
+        }
+        // 文章页面
+        else if (path.startsWith('/article')) {
+          if (href === '/article') {
+            tab.classList.add('active');
+          }
+        }
+      });
+    })();
+  </script>
 </body>
 
 </html>
