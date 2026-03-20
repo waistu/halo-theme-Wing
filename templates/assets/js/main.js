@@ -12,6 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    // 格式化瞬间时间
+    document.querySelectorAll('.moment-time').forEach(function(el) {
+      const date = el.dataset.date;
+      if (date) {
+        el.textContent = dayjs(date).fromNow();
+      }
+    });
+
     // 标签列表按文章数量排序，过滤掉数量为0的
       const topicItems = document.querySelectorAll('.topic-item');
       const topicList = document.querySelector('.topic-items');

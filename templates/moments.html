@@ -56,6 +56,14 @@
           <div class="article-list" id="articleList">
             <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
               <div class="moment-item">
+                <!-- 顶部：时间 -->
+                <div class="moment-header">
+                  <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
+                  <th:block th:if="${moment.stats != null}">
+                    <span class="moment-likes" th:if="${moment.stats.upvote > 0}"> ♥ [[${moment.stats.upvote}]]</span>
+                    <span class="moment-comments" th:if="${moment.stats.totalComment > 0}"> 💬 [[${moment.stats.totalComment}]]</span>
+                  </th:block>
+                </div>
                 <!-- 文字内容 -->
                 <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
                 <!-- 媒体内容 -->
@@ -76,14 +84,6 @@
                     </th:block>
                   </div>
                 </th:block>
-                <!-- 底部：时间和互动 -->
-                <div class="moment-meta">
-                  <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
-                  <th:block th:if="${moment.stats != null}">
-                    <span class="moment-likes" th:if="${moment.stats.upvote > 0}"> ♥ [[${moment.stats.upvote}]]</span>
-                    <span class="moment-comments" th:if="${moment.stats.totalComment > 0}"> 💬 [[${moment.stats.totalComment}]]</span>
-                  </th:block>
-                </div>
               </div>
             </th:block>
             <!-- 无瞬间时的提示 -->
@@ -103,6 +103,19 @@
   </div>
   <!-- 页脚部分 -->
   <div th:replace="includes/footer :: footer"></div>
+
+  <!-- 图片灯箱 -->
+  <div id="imageViewer" class="image-viewer" style="display: none;">
+    <div class="viewer-backdrop"></div>
+    <div class="viewer-content">
+      <img id="viewerImage" src="" alt="查看大图" />
+      <button class="viewer-prev" id="viewerPrev" style="display: none;">&#10094;</button>
+      <button class="viewer-next" id="viewerNext" style="display: none;">&#10095;</button>
+      <button class="viewer-close" id="viewerClose">&times;</button>
+      <div class="viewer-counter" id="viewerCounter" style="display: none;"></div>
+    </div>
+  </div>
+
   <script>
     (function () {
       var path = window.location.pathname;
@@ -130,6 +143,98 @@
           if (href === '/article') {
             tab.classList.add('active');
           }
+        }
+      });
+    })();
+
+    // ==================== 瞬间图片灯箱 ====================
+    (function() {
+      const viewer = document.getElementById('imageViewer');
+      const viewerImage = document.getElementById('viewerImage');
+      const viewerPrev = document.getElementById('viewerPrev');
+      const viewerNext = document.getElementById('viewerNext');
+      const viewerClose = document.getElementById('viewerClose');
+      const viewerCounter = document.getElementById('viewerCounter');
+      const backdrop = viewer.querySelector('.viewer-backdrop');
+
+      let currentImages = [];
+      let currentIndex = 0;
+
+      // 绑定所有瞬间图片点击事件
+      document.querySelectorAll('.moment-photos .photo-item img').forEach(function(img) {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', function(e) {
+          e.preventDefault();
+          // 找到该瞬间的所有图片
+          const photosContainer = img.closest('.moment-photos');
+          const images = Array.from(photosContainer.querySelectorAll('img')).map(function(i) {
+            return i.src;
+          });
+          currentImages = images;
+          currentIndex = images.indexOf(img.src);
+          openViewer();
+        });
+      });
+
+      function openViewer() {
+        viewer.style.display = 'flex';
+        updateImage();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeViewer() {
+        viewer.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      function updateImage() {
+        viewerImage.src = currentImages[currentIndex];
+
+        // 显示/隐藏切换按钮
+        if (currentImages.length > 1) {
+          viewerPrev.style.display = 'block';
+          viewerNext.style.display = 'block';
+          viewerCounter.style.display = 'block';
+          viewerCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length;
+        } else {
+          viewerPrev.style.display = 'none';
+          viewerNext.style.display = 'none';
+          viewerCounter.style.display = 'none';
+        }
+      }
+
+      function prevImage() {
+        currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+        updateImage();
+      }
+
+      function nextImage() {
+        currentIndex = (currentIndex + 1) % currentImages.length;
+        updateImage();
+      }
+
+      // 绑定事件
+      viewerClose.addEventListener('click', closeViewer);
+      backdrop.addEventListener('click', closeViewer);
+      viewerPrev.addEventListener('click', function(e) {
+        e.stopPropagation();
+        prevImage();
+      });
+      viewerNext.addEventListener('click', function(e) {
+        e.stopPropagation();
+        nextImage();
+      });
+
+      // ESC 关闭
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && viewer.style.display !== 'none') {
+          closeViewer();
+        }
+        if (e.key === 'ArrowLeft' && viewer.style.display !== 'none') {
+          prevImage();
+        }
+        if (e.key === 'ArrowRight' && viewer.style.display !== 'none') {
+          nextImage();
         }
       });
     })();
