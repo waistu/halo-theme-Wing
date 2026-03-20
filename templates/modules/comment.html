@@ -1,0 +1,37 @@
+<!--
+  评论区模块
+  遵循 Halo 官方评论组件插件规范：https://docs.halo.run/developer-guide/theme/template-tag#halocomment
+  插件地址：https://www.halo.run/store/apps/app-YXyaD
+
+  使用方式：
+  1. 安装 "评论组件" 插件
+  2. 在文章/页面设置中开启评论
+  3. 在模板中引入此模块
+-->
+<th:block th:fragment="comment">
+
+    <!-- 判断评论功能是否启用 -->
+    <th:block th:if="${haloCommentEnabled}">
+        <div class="article-comment round" id="comment-wrapper">
+            <!--
+                Halo 官方评论组件标签
+                group: 资源分组，文章使用 content.halo.run
+                kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
+                name: 资源的唯一标识，使用 post.metadata.name 或 sheet.metadata.name
+            -->
+            <halo:comment
+                group="content.halo.run"
+                kind="Post"
+                th:attr="name=${post != null ? post.metadata.name : ''}"
+            />
+        </div>
+    </th:block>
+
+    <!-- 评论未启用时的提示（可选） -->
+    <th:block th:unless="${haloCommentEnabled}">
+        <div class="article-comment-disabled" th:if="false">
+            <p>评论已关闭</p>
+        </div>
+    </th:block>
+
+</th:block>
