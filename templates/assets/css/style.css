@@ -2284,6 +2284,21 @@ html, body {
   margin-bottom: 10px;
   word-wrap: break-word;
   word-break: break-all;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.moment-content ol,
+.moment-content ul {
+  padding-left: 24px;
+  margin: 8px 0;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.moment-content li {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .moment-content p {
@@ -2348,6 +2363,59 @@ html, body {
 
 .moment-time {
   margin-right: 12px;
+}
+
+.moment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.moment-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.action-item:hover {
+  color: #666;
+}
+
+.moment-like:active i {
+  transform: scale(1.2);
+}
+
+/* 点赞后的红色图标 */
+.moment-like .czs-heart.liked {
+  color: #ff4d4f;
+}
+
+.action-item i {
+  font-size: 16px;
+}
+
+.moment-source {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #bbb;
+  font-size: 12px;
+}
+
+.moment-source i {
+  font-size: 14px;
 }
 
 .moment-likes,

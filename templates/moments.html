@@ -59,10 +59,6 @@
                 <!-- 顶部：时间 -->
                 <div class="moment-header">
                   <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
-                  <th:block th:if="${moment.stats != null}">
-                    <span class="moment-likes" th:if="${moment.stats.upvote > 0}"> ♥ [[${moment.stats.upvote}]]</span>
-                    <span class="moment-comments" th:if="${moment.stats.totalComment > 0}"> 💬 [[${moment.stats.totalComment}]]</span>
-                  </th:block>
                 </div>
                 <!-- 文字内容 -->
                 <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
@@ -84,6 +80,27 @@
                     </th:block>
                   </div>
                 </th:block>
+                <!-- 底部：互动和来源 -->
+                <div class="moment-footer">
+                  <div class="moment-actions">
+                    <!-- 点赞 -->
+                    <a class="action-item moment-like" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
+                      <i class="czs-heart-l"></i>
+                      <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
+                    </a>
+                    <!-- 评论 -->
+                    <span class="action-item">
+                      <i class="czs-comment-l"></i>
+                      <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
+                        <span>[[${moment.stats.totalComment}]]</span>
+                      </th:block>
+                    </span>
+                  </div>
+                  <div class="moment-source">
+                    <i class="czs-image"></i>
+                    <span>Write from Webpage</span>
+                  </div>
+                </div>
               </div>
             </th:block>
             <!-- 无瞬间时的提示 -->
@@ -236,6 +253,76 @@
         if (e.key === 'ArrowRight' && viewer.style.display !== 'none') {
           nextImage();
         }
+      });
+    })();
+
+    // ==================== 瞬间点赞功能 ====================
+    (function() {
+      // 点赞 API - 点赞
+      function likeMoment(momentName) {
+        return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            group: 'moment.halo.run',
+            plural: 'moments',
+            name: momentName
+          })
+        }).then(function(res) {
+          return res.json();
+        });
+      }
+
+      // 取消点赞 API
+      function unlikeMoment(momentName) {
+        return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            group: 'moment.halo.run',
+            plural: 'moments',
+            name: momentName
+          })
+        }).then(function(res) {
+          return res.json();
+        });
+      }
+
+      // 绑定点赞按钮点击事件
+      document.querySelectorAll('.moment-like').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var momentName = this.dataset.momentName;
+          var iconEl = this.querySelector('i');
+          var countEl = this.querySelector('.like-count');
+          var isLiked = iconEl.classList.contains('czs-heart') || iconEl.classList.contains('liked');
+          var currentCount = parseInt(countEl.textContent) || 0;
+
+          // 状态：已点赞 -> 取消点赞，未点赞 -> 点赞
+          var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
+
+          promise.then(function(result) {
+            // 更新 UI
+            var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
+            countEl.textContent = newCount;
+
+            if (isLiked) {
+              // 取消点赞成功
+              iconEl.classList.remove('czs-heart', 'liked');
+              iconEl.classList.add('czs-heart-l');
+            } else {
+              // 点赞成功
+              iconEl.classList.remove('czs-heart-l');
+              iconEl.classList.add('czs-heart', 'liked');
+            }
+          }).catch(function(err) {
+            console.error('操作失败:', err);
+          });
+        });
       });
     })();
   </script>
