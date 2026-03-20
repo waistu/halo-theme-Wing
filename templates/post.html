@@ -75,7 +75,7 @@
     </aside>
 
     <div class="content">
-      <div th:replace="~{includes/articleList :: articleContent(content = ${post.content.content})}"></div>
+      <div th:replace="~{includes/articleList :: articleContent(content = ${post.content.content}, post = ${post})}"></div>
 
       <!-- 评论区 -->
       <div th:replace="~{modules/comment :: comment}"></div>
