@@ -2268,3 +2268,95 @@ html, body {
 .article-comment {
   padding: 20px;
 }
+
+/* 瞬间列表样式 */
+.moment-item {
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+  line-height: 1.6;
+}
+
+.moment-item:last-child {
+  border-bottom: none;
+}
+
+.moment-content {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.moment-content p {
+  margin: 0 0 8px 0;
+}
+
+.moment-content p:last-child {
+  margin-bottom: 0;
+}
+
+.moment-media {
+  margin: 10px 0;
+}
+
+/* 朋友圈九宫格 */
+.moment-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.moment-photos.single {
+  grid-template-columns: 1fr;
+  max-width: 50%;
+}
+
+.moment-photos.single .photo-item {
+  aspect-ratio: 16 / 9;
+}
+
+.moment-photos.four {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.photo-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.moment-media video,
+.moment-media audio {
+  max-width: 100%;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.moment-meta {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
+
+.moment-time {
+  margin-right: 12px;
+}
+
+.moment-likes,
+.moment-comments {
+  margin-right: 12px;
+}
+
+.empty-moments {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}

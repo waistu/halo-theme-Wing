@@ -27,7 +27,7 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/header :: header"></div>
   <!-- 页面主体容器 -->
-  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}">
+  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, moments=${momentFinder.list(1, 20)}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -52,17 +52,48 @@
               </li>
             </ul>
           </div>
-
-          <!-- 文章列表区域（暂留空） -->
+          <!-- 瞬间列表 -->
           <div class="article-list" id="articleList">
-            <!-- 暂不显示文章列表 -->
-          </div>
-
-          <div class="pagination" style="display:none">
-            <span class="page-info">共 <span th:text="${allPosts.size()}">0</span> 篇文章</span>
+            <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
+              <div class="moment-item">
+                <!-- 文字内容 -->
+                <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
+                <!-- 媒体内容 -->
+                <th:block th:if="${not #lists.isEmpty(content.medium)}">
+                  <div class="moment-media">
+                    <!-- 九宫格图片 -->
+                    <div class="moment-photos">
+                      <th:block th:each="item : ${content.medium}">
+                        <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
+                          <img th:src="${item.url}" alt="瞬间图片" />
+                        </div>
+                      </th:block>
+                    </div>
+                    <!-- 视频 -->
+                    <th:block th:each="item : ${content.medium}">
+                      <video th:if="${item.type.name == 'VIDEO'}" th:src="${item.url}" controls></video>
+                      <audio th:if="${item.type.name == 'AUDIO'}" th:src="${item.url}" controls></audio>
+                    </th:block>
+                  </div>
+                </th:block>
+                <!-- 底部：时间和互动 -->
+                <div class="moment-meta">
+                  <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
+                  <th:block th:if="${moment.stats != null}">
+                    <span class="moment-likes" th:if="${moment.stats.upvote > 0}"> ♥ [[${moment.stats.upvote}]]</span>
+                    <span class="moment-comments" th:if="${moment.stats.totalComment > 0}"> 💬 [[${moment.stats.totalComment}]]</span>
+                  </th:block>
+                </div>
+              </div>
+            </th:block>
+            <!-- 无瞬间时的提示 -->
+            <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
+              <p>暂无瞬间</p>
+            </div>
           </div>
         </main>
-        <aside class="notes-aside" th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
+        <aside class="notes-aside"
+          th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
             <div th:replace="includes/heatmap :: heatmap"></div>
           </div>
