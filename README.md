@@ -1,3 +1,15 @@
+<div align="center">
+<!-- 主题Logo -->
+<img width="100px" src="templates/assets/img/logo.png">
+<!-- 主题名称 -->
+<h1>Halo-Theme-Wring</h1>
+<!-- 快捷导航 -->
+<p align="center">
+
+[主题预览](https://blog.waistu.com/) | [快速上手](#-安装使用) | [使用文档](https://www.yuque.com/liuzhihangs/halo-theme-hao) | [加入我们](#-讨论)
+
+</p>
+</div>
 # ℹ️ 简介
 
 [halo-theme-wring](https://github.com/waistu/halo-theme-wring) 基于 [Tokinx/Wing](https://github.com/tokinx/Wing) 移植、重构并适配 Halo 博客系统的主题。
