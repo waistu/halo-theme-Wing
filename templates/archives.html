@@ -28,13 +28,14 @@
   <div class="container">
     <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
       <div th:replace="includes/nav :: nav"></div>
-      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
+      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+      </div>
     </aside>
 
     <div class="content">
       <div class="tags-wrapper">
         <div class="page-header">
-          <h1 class="page-title">文章归档</h1>
+          <h1 class="tags-title">文章归档</h1>
         </div>
 
         <div class="archives-content">
