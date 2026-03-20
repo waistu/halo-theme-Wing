@@ -41,6 +41,10 @@ spec:
       label: 作者卡片
       formSchema:
         - $formkit: text
+          name: avatar
+          label: 头像图片
+          placeholder: 请输入头像图片URL
+        - $formkit: text
           name: cover
           label: 封面图片
           placeholder: 请输入封面图片URL

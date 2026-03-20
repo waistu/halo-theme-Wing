@@ -1,8 +1,12 @@
 <div th:fragment="authorCard(postCount, stats)" class="author-card widget-box">
   <!-- 封面背景 -->
   <div class="author-cover">
-    <img th:if="${not #strings.isEmpty(theme.config.author.cover)}" th:src="${theme.config.author.cover}" alt="封面">
-    <div th:unless="${not #strings.isEmpty(theme.config.author.cover)}" class="author-cover-gradient"></div>
+    <th:block th:if="${not #strings.isEmpty(theme.config.author.cover)}">
+      <img th:src="${theme.config.author.cover}" alt="封面">
+    </th:block>
+    <th:block th:unless="${not #strings.isEmpty(theme.config.author.cover)}">
+      <img th:src="@{/assets/img/authorCardbg.jpg}" alt="封面" class="author-cover-default">
+    </th:block>
     <button class="author-follow-btn" title="关注">
       <i class="czs czs-add"></i>
     </button>
@@ -10,7 +14,12 @@
 
   <!-- 头像 -->
   <div class="author-avatar-wrap">
-    <img th:src="${site.logo ?: '/assets/images/default-avatar.png'}" alt="头像" class="author-avatar">
+    <th:block th:if="${theme.config.author.avatar}">
+      <img th:src="${theme.config.author.avatar}" alt="头像" class="author-avatar">
+    </th:block>
+    <th:block th:unless="${theme.config.author.avatar}">
+      <img th:src="@{/assets/img/author-avatar.png}" alt="头像" class="author-avatar">
+    </th:block>
   </div>
 
   <!-- 作者信息 -->
