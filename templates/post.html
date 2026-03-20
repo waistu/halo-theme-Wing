@@ -69,12 +69,16 @@
       <!-- 导航视图 -->
       <div class="sidebar-content" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
         <div class="widget-box" th:replace="~{includes/nav :: nav}"></div>
-        <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
+        <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+        </div>
       </div>
     </aside>
 
     <div class="content">
       <div th:replace="~{includes/articleList :: articleContent(content = ${post.content.content})}"></div>
+
+      <!-- 评论区 -->
+      <div th:replace="~{modules/comment :: comment}"></div>
     </div>
   </div>
   <div th:replace="~{includes/footer :: footer}"></div>
@@ -101,24 +105,24 @@
       var likeCount = document.getElementById('post-like-count');
       if (!likeBtn || !likeCount) return;
 
-      likeBtn.addEventListener('click', function() {
+      likeBtn.addEventListener('click', function () {
         var postName = /*[[${post.metadata.name}]]*/ '';
         var currentCount = parseInt(likeCount.textContent) || 0;
-        
+
         fetch('/api/content/posts/' + postName + '/upvote', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           }
         })
-        .then(function(response) {
-          if (response.ok) {
-            likeCount.textContent = currentCount + 1;
-            likeBtn.classList.add('liked');
-          } else if (response.status === 401) {
-            alert('请先登录后再点赞');
-          }
-        });
+          .then(function (response) {
+            if (response.ok) {
+              likeCount.textContent = currentCount + 1;
+              likeBtn.classList.add('liked');
+            } else if (response.status === 401) {
+              alert('请先登录后再点赞');
+            }
+          });
       });
     }
 
