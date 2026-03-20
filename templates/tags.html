@@ -30,7 +30,8 @@
   <div class="container">
     <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
       <div th:replace="includes/nav :: nav"></div>
-      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
+      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+      </div>
     </aside>
 
     <!-- 右侧：主内容大盒子 -->
@@ -38,7 +39,7 @@
       <div class="tags-wrapper">
         <!-- 页面标题 -->
         <div class="page-header">
-          <h1 class="page-title">标签</h1>
+          <h1 class="tags-title">标签</h1>
         </div>
 
         <!-- 标签列表 -->
