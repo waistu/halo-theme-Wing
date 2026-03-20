@@ -19,3 +19,8 @@ spec:
   license:
     - name: "GPL-3.0"
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
+  customTemplates:
+    page:
+      - name: 文章页面
+        description: 文章列表页面模板
+        file: page_article.html
