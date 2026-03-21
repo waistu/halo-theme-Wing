@@ -400,6 +400,46 @@
 
     // ==================== 瞬间点赞功能 ====================
     (function () {
+      var LIKED_KEY = 'halo_moment_liked';
+      var isRequesting = false; // 页面状态：防止连续点击
+
+      // 获取 localStorage 中已点赞的列表
+      function getLikedMoments() {
+        try {
+          var stored = localStorage.getItem(LIKED_KEY);
+          return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      // 保存已点赞的列表到 localStorage
+      function saveLikedMoments(list) {
+        try {
+          localStorage.setItem(LIKED_KEY, JSON.stringify(list));
+        } catch (e) {
+          console.error('保存点赞状态失败:', e);
+        }
+      }
+
+      // 检查是否已点赞
+      function isMomentLiked(momentName) {
+        return getLikedMoments().indexOf(momentName) !== -1;
+      }
+
+      // 页面加载时：初始化已点赞状态
+      (function initLikedState() {
+        var likedList = getLikedMoments();
+        document.querySelectorAll('.moment-like').forEach(function (btn) {
+          var momentName = btn.dataset.momentName;
+          if (isMomentLiked(momentName)) {
+            var iconEl = btn.querySelector('i');
+            iconEl.classList.remove('czs-heart-l');
+            iconEl.classList.add('czs-heart', 'liked');
+          }
+        });
+      })();
+
       // 点赞 API - 点赞
       function likeMoment(momentName) {
         return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
@@ -413,6 +453,9 @@
             name: momentName
           })
         }).then(function (res) {
+          if (res.status === 204 || res.status === 200) {
+            return res.json().catch(function () { return { upvote: null }; });
+          }
           return res.json();
         });
       }
@@ -430,24 +473,63 @@
             name: momentName
           })
         }).then(function (res) {
+          if (res.status === 204 || res.status === 200) {
+            return res.json().catch(function () { return { upvote: null }; });
+          }
           return res.json();
         });
       }
 
+      // 防抖函数
+      function debounce(fn, delay) {
+        var timer = null;
+        return function () {
+          var context = this;
+          var args = arguments;
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            fn.apply(context, args);
+          }, delay);
+        };
+      }
+
       // 绑定点赞按钮点击事件
       document.querySelectorAll('.moment-like').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
+        btn.addEventListener('click', debounce(function (e) {
           e.preventDefault();
+
+          // 检查页面状态：防止连续点击
+          if (isRequesting) {
+            return;
+          }
+
           var momentName = this.dataset.momentName;
           var iconEl = this.querySelector('i');
           var countEl = this.querySelector('.like-count');
-          var isLiked = iconEl.classList.contains('czs-heart') || iconEl.classList.contains('liked');
+          var isLiked = isMomentLiked(momentName); // 使用 localStorage 检查状态
           var currentCount = parseInt(countEl.textContent) || 0;
 
           // 状态：已点赞 -> 取消点赞，未点赞 -> 点赞
           var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
 
+          // 设置请求状态
+          isRequesting = true;
+
           promise.then(function (result) {
+            // 更新 localStorage
+            var likedList = getLikedMoments();
+            if (isLiked) {
+              // 取消点赞：从列表中移除
+              var idx = likedList.indexOf(momentName);
+              if (idx !== -1) likedList.splice(idx, 1);
+            } else {
+              // 点赞成功：添加到列表
+              if (likedList.indexOf(momentName) === -1) {
+                likedList.push(momentName);
+              }
+            }
+            saveLikedMoments(likedList);
+
             // 更新 UI
             var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
             countEl.textContent = newCount;
@@ -463,8 +545,10 @@
             }
           }).catch(function (err) {
             console.error('操作失败:', err);
+          }).finally(function () {
+            isRequesting = false; // 重置请求状态
           });
-        });
+        }, 300));
       });
     })();
 
