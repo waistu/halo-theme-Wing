@@ -10,7 +10,8 @@
 
 </p>
 </div>
-# ℹ️ 简介
+
+## 1️⃣ 简介
 
 [halo-theme-wring](https://github.com/waistu/halo-theme-wring) 基于 [Tokinx/Wing](https://github.com/tokinx/Wing) 移植、重构并适配 Halo 博客系统的主题。
 
