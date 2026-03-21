@@ -1,6 +1,6 @@
-<aside th:fragment="heatmap" class="heatmap-card">
+<aside th:fragment="heatmap(momentTags, momentsForHeatmap)" class="heatmap-card">
 
-    <!-- ① 数据节点（隐藏，服务端渲染） -->
+    <!-- ① 文章数据节点（隐藏，服务端渲染） -->
     <th:block th:with="allPosts = ${postFinder.listAll()}">
         <th:block th:if="${not #lists.isEmpty(allPosts)}">
             <th:block th:each="post : ${allPosts}">
@@ -11,11 +11,30 @@
                             _month = ${#strings.substring(pt, 5, 7)},
                             _day   = ${#strings.substring(pt, 8, 10)}
                         ">
-                            <div class="__hm_d"
+                            <div class="__hm_d __hm_post"
                                  th:data-date="${_year + '-' + _month + '-' + _day}"
                                  th:data-comments="${post.status != null ? post.status.commentsCount : 0}"
                                  style="display:none"></div>
                         </th:block>
+                    </th:block>
+                </th:block>
+            </th:block>
+        </th:block>
+    </th:block>
+
+    <!-- ② 瞬间数据节点（隐藏，服务端渲染） -->
+    <th:block th:if="${momentsForHeatmap != null and not #lists.isEmpty(momentsForHeatmap.items)}">
+        <th:block th:each="moment : ${momentsForHeatmap.items}">
+            <th:block th:with="rt = ${moment.spec.releaseTime}">
+                <th:block th:if="${not #strings.isEmpty(rt)}">
+                    <th:block th:with="
+                        _year  = ${#strings.substring(rt, 0, 4)},
+                        _month = ${#strings.substring(rt, 5, 7)},
+                        _day   = ${#strings.substring(rt, 8, 10)}
+                    ">
+                        <div class="__hm_d __hm_moment"
+                             th:data-date="${_year + '-' + _month + '-' + _day}"
+                             style="display:none"></div>
                     </th:block>
                 </th:block>
             </th:block>
@@ -49,7 +68,7 @@
     <script th:inline="javascript">
     /*<![CDATA[*/
     (function () {
-        // --- 1. 收集文章日期数据 ---
+        // --- 1. 收集文章和瞬间日期数据 ---
         window.heatmapData = {};
         var cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - 365);
@@ -57,17 +76,30 @@
             String(cutoff.getMonth() + 1).padStart(2, '0') + '-' +
             String(cutoff.getDate()).padStart(2, '0');
 
-        var els = document.querySelectorAll('.__hm_d');
-        for (var i = 0; i < els.length; i++) {
-            var el = els[i];
+        // 收集文章数据
+        var postEls = document.querySelectorAll('.__hm_post');
+        for (var i = 0; i < postEls.length; i++) {
+            var el = postEls[i];
             var date = el.getAttribute('data-date');
             if (date < cutoffStr) continue;
             var comments = parseInt(el.getAttribute('data-comments') || '0', 10);
             if (!window.heatmapData[date]) {
-                window.heatmapData[date] = { notes: 0, comments: 0 };
+                window.heatmapData[date] = { posts: 0, moments: 0, comments: 0 };
             }
-            window.heatmapData[date].notes += 1;
+            window.heatmapData[date].posts += 1;
             window.heatmapData[date].comments += comments;
+        }
+
+        // 收集瞬间数据
+        var momentEls = document.querySelectorAll('.__hm_moment');
+        for (var j = 0; j < momentEls.length; j++) {
+            var mEl = momentEls[j];
+            var mDate = mEl.getAttribute('data-date');
+            if (mDate < cutoffStr) continue;
+            if (!window.heatmapData[mDate]) {
+                window.heatmapData[mDate] = { posts: 0, moments: 0, comments: 0 };
+            }
+            window.heatmapData[mDate].moments += 1;
         }
 
         // --- 2. 渲染热力图（容器已在上方 DOM 中，此时可取到） ---
@@ -82,21 +114,32 @@
                     String(d.getDate()).padStart(2, '0');
             }
 
-            for (var j = 59; j >= 0; j--) {
+            for (var k = 59; k >= 0; k--) {
                 var day = new Date();
-                day.setDate(day.getDate() - j);
+                day.setDate(day.getDate() - k);
                 var dateStr = fmtDate(day);
-                var stats = data[dateStr] || { notes: 0, comments: 0 };
+                var stats = data[dateStr] || { posts: 0, moments: 0, comments: 0 };
 
+                // 颜色逻辑：
+                // 只有文章：#FDBA74 (橙色)
+                // 只有瞬间：#A78BFA (紫色)
+                // 两者都有：#9333EA (深紫色)
                 var innerClass = '';
-                if (stats.notes > 0) {
-                    innerClass = 'notes';
+                var hasPosts = stats.posts > 0;
+                var hasMoments = stats.moments > 0;
+
+                if (hasPosts && hasMoments) {
+                    innerClass = 'both';
+                } else if (hasMoments) {
+                    innerClass = 'moments';
+                } else if (hasPosts) {
+                    innerClass = 'posts';
                 } else if (stats.comments > 0) {
                     innerClass = 'comments';
                 }
 
                 // 存独立属性，JS 动态创建浮层
-                html += '<div class="heatmap-map__item" data-date="' + dateStr + '" data-notes="' + stats.notes + '" data-comments="' + stats.comments + '">' +
+                html += '<div class="heatmap-map__item" data-date="' + dateStr + '" data-posts="' + stats.posts + '" data-moments="' + stats.moments + '" data-comments="' + stats.comments + '">' +
                     (innerClass
                         ? '<div class="heatmap-map__item-inner ' + innerClass + ' active"></div>'
                         : '<div class="heatmap-map__item-block"></div>') +
@@ -117,20 +160,24 @@
                 }
 
                 var date = item.dataset.date || '';
-                var notes = parseInt(item.dataset.notes, 10) || 0;
+                var posts = parseInt(item.dataset.posts, 10) || 0;
+                var moments = parseInt(item.dataset.moments, 10) || 0;
                 var comments = parseInt(item.dataset.comments, 10) || 0;
 
                 // 创建浮层 DOM
                 tooltipEl = document.createElement('div');
                 tooltipEl.className = 'heatmap-tooltip';
                 tooltipEl.innerHTML = '<div class="tooltip-date">' + date + '</div>';
-                if (notes > 0) {
-                    tooltipEl.innerHTML += '<div class="tooltip-line">POST: ' + notes + '</div>';
+                if (posts > 0) {
+                    tooltipEl.innerHTML += '<div class="tooltip-line">POST: ' + posts + '</div>';
+                }
+                if (moments > 0) {
+                    tooltipEl.innerHTML += '<div class="tooltip-line">MOMENTS: ' + moments + '</div>';
                 }
                 if (comments > 0) {
                     tooltipEl.innerHTML += '<div class="tooltip-line">COMMENTS: ' + comments + '</div>';
                 }
-                if (notes === 0 && comments === 0) {
+                if (posts === 0 && moments === 0 && comments === 0) {
                     tooltipEl.innerHTML += '<div class="tooltip-empty">No activity</div>';
                 }
 
@@ -167,13 +214,23 @@
     </script>
 
     <!-- ⑤ 标签列表 -->
-    <th:block th:with="tags = ${tagFinder.listAll()}">
+    <th:block th:with="tags = ${momentTags != null ? momentTags : tagFinder.listAll()}">
         <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
             <ul class="topic-items">
-                <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
-                    <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
-                    <span class="topic-count" th:text="${tag.postCount}">0</span>
-                </li>
+                <th:block th:if="${momentTags != null}">
+                    <!-- 瞬间标签 -->
+                    <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.momentCount}">
+                        <a th:href="@{/moments(tag=${tag.name})}" th:text="${tag.name}"></a>
+                        <span class="topic-count" th:text="${tag.momentCount}">0</span>
+                    </li>
+                </th:block>
+                <th:block th:unless="${momentTags != null}">
+                    <!-- 文章标签 -->
+                    <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
+                        <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
+                        <span class="topic-count" th:text="${tag.postCount}">0</span>
+                    </li>
+                </th:block>
             </ul>
         </div>
         <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
