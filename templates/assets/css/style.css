@@ -2971,6 +2971,26 @@ html, body {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #eee;
+  overflow: hidden;
+  display: block !important;
+  opacity: 1 !important;
+  max-height: 2000px !important;
+  transform: translateY(0) !important;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), margin-top 0.3s ease, padding-top 0.3s ease;
+}
+
+/* 评论区收起状态 - 默认隐藏 */
+body .moment-comments-wrapper.moment-comments-hidden,
+body .moment-item .moment-comments-wrapper.hidden {
+  display: block !important;
+  opacity: 0 !important;
+  max-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border-top: none !important;
+  transform: translateY(-10px) !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
 }
 /* 评论整体容器 */
 .post-comment-section {

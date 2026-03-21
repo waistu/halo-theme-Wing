@@ -172,8 +172,7 @@
                     </div>
                   </div>
                   <!-- Halo 官方评论组件（默认收起） -->
-                  <div class="moment-comments-wrapper" th:id="'comments-wrapper-' + ${moment.metadata.name}"
-                    style="display: none;">
+                  <div class="moment-comments-wrapper moment-comments-hidden" th:id="'comments-wrapper-' + ${moment.metadata.name}">
                     <halo:comment group="moment.halo.run" kind="Moment" version="v1alpha1"
                       th:attr="name=${moment.metadata.name}">
                     </halo:comment>
@@ -469,8 +468,12 @@
       });
     })();
 
-    // ==================== 瞬间评论展开/收起 ====================
+    // ==================== 瞬间评论展开/收起（互斥 + 动画） ====================
     (function () {
+      var currentOpenWrapper = null;
+      var currentOpenBtn = null;
+      var hiddenClass = 'moment-comments-hidden';
+
       document.querySelectorAll('.moment-comments-toggle').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
           e.preventDefault();
@@ -478,14 +481,41 @@
           var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
           var iconEl = this.querySelector('i');
 
-          if (wrapperEl.style.display === 'none') {
-            wrapperEl.style.display = 'block';
-            iconEl.classList.add('active');
-          } else {
-            wrapperEl.style.display = 'none';
+          // 如果点击的是已经打开的评论，则收起
+          if (currentOpenWrapper === wrapperEl && !wrapperEl.classList.contains(hiddenClass)) {
+            wrapperEl.classList.add(hiddenClass);
             iconEl.classList.remove('active');
+            currentOpenWrapper = null;
+            currentOpenBtn = null;
+            return;
           }
+
+          // 如果有其他评论打开，先收起
+          if (currentOpenWrapper && currentOpenWrapper !== wrapperEl) {
+            currentOpenWrapper.classList.add(hiddenClass);
+            if (currentOpenBtn) {
+              currentOpenBtn.querySelector('i').classList.remove('active');
+            }
+          }
+
+          // 展开当前评论
+          wrapperEl.classList.remove(hiddenClass);
+          iconEl.classList.add('active');
+          currentOpenWrapper = wrapperEl;
+          currentOpenBtn = this;
         });
+      });
+
+      // 点击页面其他位置收起评论
+      document.addEventListener('click', function (e) {
+        if (currentOpenWrapper && !e.target.closest('.moment-item')) {
+          currentOpenWrapper.classList.add(hiddenClass);
+          if (currentOpenBtn) {
+            currentOpenBtn.querySelector('i').classList.remove('active');
+          }
+          currentOpenWrapper = null;
+          currentOpenBtn = null;
+        }
       });
     })();
   </script>
