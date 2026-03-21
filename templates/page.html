@@ -32,20 +32,22 @@
         <!-- 封面图 -->
         <th:block
           th:with="hideCover=${#annotations.get(singlePage, 'hideCover')}, hasCover=${not #strings.isEmpty(singlePage.spec.cover)}">
-          <div th:if="${hasCover and hideCover != 'true'}" class="page-cover">
-            <img th:src="${singlePage.spec.cover}" alt=""
-              onerror="this.parentElement.className='page-cover-empty'; this.parentElement.innerHTML='<i class=\'czs-cup-l\'></i>'">
-          </div>
-          <div th:unless="${hasCover and hideCover != 'true'}" class="page-cover-empty">
-            <i class="czs-cup-l"></i>
-          </div>
+          <th:block th:if="${hideCover != 'true'}">
+            <div th:if="${hasCover}" class="page-cover">
+              <img th:src="${singlePage.spec.cover}" alt=""
+                onerror="this.parentElement.className='page-cover-empty'; this.parentElement.innerHTML='<i class=\'czs-cup-l\'></i>'">
+            </div>
+            <div th:unless="${hasCover}" class="page-cover-empty">
+              <i class="czs-cup-l"></i>
+            </div>
+          </th:block>
         </th:block>
 
         <!-- 页面头部信息 -->
         <th:block
           th:with="hideTitle=${#annotations.get(singlePage, 'hideTitle')}, hideMeta=${#annotations.get(singlePage, 'hideMeta')}">
           <header class="page-header" th:unless="${hideTitle == 'true'}">
-            <h1 class="page-title" th:text="${singlePage.spec.title}"></h1>
+            <h1 class="entry-title" th:text="${singlePage.spec.title}"></h1>
 
             <!-- 元信息：作者、发布时间、统计 -->
             <div class="page-meta" th:unless="${hideMeta == 'true'}">
