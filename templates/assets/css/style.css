@@ -814,15 +814,7 @@ html, body {
   color: #3366FF;
 }
 
-/* 分页导航 */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  flex-wrap: wrap;
-}
+/* 分页通用按钮（tag/category 页面使用） */
 .page-btn {
   padding: 8px 16px;
   background: #f5f5f5;
@@ -834,45 +826,6 @@ html, body {
 .page-btn:hover {
   background: #3366FF;
   color: #fff !important;
-}
-.page-numbers {
-  display: flex;
-  gap: 4px;
-}
-.page-num {
-  padding: 8px 12px;
-  background: #f5f5f5;
-  color: #666;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-.page-num:hover {
-  background: #3366FF;
-  color: #fff;
-}
-.page-num.active {
-  background: #3366FF;
-  color: #fff;
-}
-.page-jump {
-  display: flex;
-  gap: 4px;
-}
-.page-jump input {
-  width: 50px;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  text-align: center;
-}
-.page-jump button {
-  padding: 6px 12px;
-  background: #3366FF;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 /* 标签栏容器 */
