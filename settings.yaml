@@ -1,7 +1,7 @@
 apiVersion: v1alpha1
 kind: Setting
 metadata:
-  name: theme-Wing-setting
+  name: theme-wing-setting
 spec:
   forms:
     - group: basic

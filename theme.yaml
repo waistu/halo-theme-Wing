@@ -1,7 +1,7 @@
 apiVersion: theme.halo.run/v1alpha1
 kind: Theme
 metadata:
-  name: theme-Wing
+  name: theme-wing
   annotations:
     theme-wing/link-group-style: "友链卡片样式: default=默认, recommend=推荐, lost=失联"
 spec:
@@ -14,8 +14,8 @@ spec:
   homepage: "https://github.com/waistu/halo-theme-Wing#readme"
   repo: "https://github.com/waistu/halo-theme-Wing"
   issues: "https://github.com/waistu/halo-theme-Wing/issues"
-  settingName: "theme-Wing-setting"
-  configMapName: "theme-Wing-configMap"
+  settingName: "theme-wing-setting"
+  configMapName: "theme-wing-configMap"
   version: "0.9.6"
   requires: ">=2.0.0"
   license:
