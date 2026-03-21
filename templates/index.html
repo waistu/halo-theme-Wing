@@ -27,7 +27,8 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/header :: header"></div>
   <!-- 页面主体容器 -->
-  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
+  <div class="container"
+    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, momentsList=${momentFinder != null ? momentFinder.list(1, 20) : null}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -42,24 +43,25 @@
           <div class="notes-tabbar sticky bg-blur">
             <ul class="tab global-list">
               <li class="tab-item" data-type="all">
-                <a th:href="@{/}">全部</a>
+                <a th:href="@{/}">文章</a>
               </li>
               <li class="tab-item" data-type="note" th:with="pluginInstalled=${momentFinder != null}">
                 <a th:if="${pluginInstalled}" th:href="@{/moments}">笔记</a>
                 <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()">笔记</a>
               </li>
-              <li class="tab-item" data-type="post">
-                <a th:href="@{/article}">文章</a>
-              </li>
             </ul>
           </div>
 
+          <!-- 数据容器 -->
+          <script th:inline="javascript">
+            /*<![CDATA[*/
+            var momentsData = /*[[${momentsList != null ? momentsList.items : {}}]]*/ {};
+            window.momentsData = momentsData || [];
+            /*]]>*/
+          </script>
+
           <!-- 文章列表区域 -->
           <div class="article-list" id="articleList">
-            <!-- 空态提示 -->
-            <div th:if="${!hasPosts}" class="empty-state">
-              <p>暂无文章</p>
-            </div>
             <!-- 文章卡片列表 -->
             <th:block th:if="${hasPosts}" th:each="post : ${posts.items}">
               <div th:replace="includes/noteCard :: noteCard(
@@ -72,6 +74,12 @@
                 comments=${post.stats.comment}
               )"></div>
             </th:block>
+            <!-- 空态提示 -->
+            <div id="emptyState" class="empty-state" th:unless="${hasPosts}" style="display: none;">
+              <p>暂无内容</p>
+            </div>
+            <!-- 瞬间卡片容器（JS 追加） -->
+            <div id="momentsContainer"></div>
           </div>
 
           <!-- 分页 -->
@@ -82,16 +90,13 @@
               <span th:text="${posts.total}">0</span> 篇文章
             </span>
             <div class="page-nav">
-              <a class="page-prev"
-                 th:if="${posts.hasPrevious}"
-                 th:href="${posts.prevUrl}">← 上一页</a>
-              <a class="page-next"
-                 th:if="${posts.hasNext}"
-                 th:href="${posts.nextUrl}">下一页 →</a>
+              <a class="page-prev" th:if="${posts.hasPrevious}" th:href="${posts.prevUrl}">← 上一页</a>
+              <a class="page-next" th:if="${posts.hasNext}" th:href="${posts.nextUrl}">下一页 →</a>
             </div>
           </div>
         </main>
-        <aside class="notes-aside" th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
+        <aside class="notes-aside"
+          th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
             <div th:replace="includes/heatmap :: heatmap(${null}, ${momentsForHeatmap})"></div>
           </div>
@@ -123,12 +128,6 @@
             tab.classList.add('active');
           }
         }
-        // 文章页面
-        else if (path.startsWith('/article')) {
-          if (href === '/article') {
-            tab.classList.add('active');
-          }
-        }
       });
     })();
   </script>
@@ -140,7 +139,7 @@
       <button class="plugin-notice-close" onclick="closePluginNotice()">&times;</button>
       <div class="plugin-notice-icon">📦</div>
       <h3>请安装瞬间插件</h3>
-      <p>瞬间功能需要安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 才能正常使用</p>
+      <p>笔记功能需要安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 才能正常使用</p>
       <p class="plugin-notice-hint">安装插件后，点击导航栏"笔记"即可查看瞬间</p>
     </div>
   </div>
@@ -154,7 +153,7 @@
       document.body.style.overflow = '';
     }
     // ESC 关闭
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closePluginNotice();
     });
   </script>

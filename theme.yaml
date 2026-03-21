@@ -21,6 +21,9 @@ spec:
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
   customTemplates:
     page:
-      - name: 文章页面
-        description: 文章列表页面模板
-        file: article.html
+      - name: 友情链接页面模板
+        description: 适配友情链接模板
+        file: links.html
+      - name: 关于页面模板
+        description: 自定义关于博主页面
+        file: about.html
