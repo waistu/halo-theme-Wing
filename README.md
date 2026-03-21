@@ -2,7 +2,7 @@
 <!-- 主题Logo -->
 <img width="100px" src="templates/assets/img/logo.png">
 <!-- 主题名称 -->
-<h1>Halo-Theme-Wring</h1>
+<h1>Halo-Theme-Wing</h1>
 <!-- 快捷导航 -->
 <p align="center">
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[[${singlePage.spec.title}]]丨[[${site.title}]]</title>
+    <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+    <script th:src="@{/assets/js/dayjs.min.js}"></script>
+    <script th:src="@{/assets/js/relativeTime.js}"></script>
+    <script th:src="@{/assets/js/zh-cn.js}"></script>
+    <!-- 打开搜索弹窗 -->
+    <script>
+        if (window.location.hash === '#open-search') {
+            setTimeout(() => {
+                if (window.SearchWidget) SearchWidget.open('');
+            }, 100);
+        }
+    </script>
+    <script th:src="@{/assets/js/main.js}"></script>
+</head>
+
+<body>
+    <!-- 插入头部组件 -->
+    <div th:replace="includes/header :: header"></div>
+    <!-- 页面主体容器 -->
+    <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}">
+        <!-- 左侧：窄栏（菜单 + 小组件） -->
+        <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+            <!-- nav -->
+            <div th:replace="includes/nav :: nav"></div>
+            <!-- author card -->
+            <div th:replace="includes/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+        </aside>
+        <!-- 右侧：主内容大盒子 -->
+        <div class="content">
+            <!-- 页面内容 -->
+            <div class="page-content" th:utext="${singlePage.content.content}"></div>
+        </div>
+    </div>
+    <!-- 页脚部分 -->
+    <div th:replace="includes/footer :: footer"></div>
+    <script>
+        (function () {
+            var path = window.location.pathname;
+            var tabs = document.querySelectorAll('.notes-tabbar .tab-item');
+            tabs.forEach(function (tab) {
+                var link = tab.querySelector('a');
+                if (!link) return;
+                var href = link.getAttribute('href');
+                if (!href) return;
+
+                // 首页
+                if (path === '/' || path === '' || path === '/index' || path === '/index.html') {
+                    if (href === '/' || href.endsWith('/')) {
+                        tab.classList.add('active');
+                    }
+                }
+                // 笔记页面
+                else if (path.startsWith('/moments')) {
+                    if (href === '/moments') {
+                        tab.classList.add('active');
+                    }
+                }
+                // 文章页面
+                else if (path.startsWith('/article')) {
+                    if (href === '/article') {
+                        tab.classList.add('active');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

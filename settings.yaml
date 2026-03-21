@@ -1,7 +1,7 @@
 apiVersion: v1alpha1
 kind: Setting
 metadata:
-  name: theme-wring-setting
+  name: theme-wing-setting
 spec:
   forms:
     - group: basic
@@ -59,16 +59,16 @@ spec:
           value:
             - icon: czs-weibo
               label: 微博
-              url: ''
+              url: ""
             - icon: czs-github-logo
               label: GitHub
-              url: ''
+              url: ""
             - icon: czs-rss
               label: RSS
-              url: ''
+              url: ""
             - icon: czs-bilibili
               label: 哔哩哔哩
-              url: ''
+              url: ""
           itemLabels:
             - type: text
               label: "$value.label"

@@ -3,17 +3,17 @@ kind: Theme
 metadata:
   name: theme-wring
 spec:
-  displayName: Wring
+  displayName: Wing
   author:
     name: 二歪同学
     website: "https://waistu.com"
   description: 一款简洁流畅、数据驱动，响应式主题，移植自WordPress主题Wring
   logo: "/themes/theme-wring/assets/img/logo.png"
-  homepage: "https://github.com/waistu/halo-theme-wring#readme"
-  repo: "https://github.com/waistu/halo-theme-wring"
-  issues: "https://github.com/waistu/halo-theme-wring/issues"
-  settingName: "theme-wring-setting"
-  configMapName: "theme-wring-configMap"
+  homepage: "https://github.com/waistu/halo-theme-wing#readme"
+  repo: "https://github.com/waistu/halo-theme-wing"
+  issues: "https://github.com/waistu/halo-theme-wing/issues"
+  settingName: "theme-wing-setting"
+  configMapName: "theme-wing-configMap"
   version: "1.0.1"
   requires: ">=2.0.0"
   license:
