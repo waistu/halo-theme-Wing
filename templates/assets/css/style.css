@@ -830,6 +830,9 @@ html, body {
 
 /* 标签栏容器 */
 .notes-tabbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
   padding: 0 20px;
   position: sticky;
@@ -2294,6 +2297,95 @@ html, body {
   margin-bottom: 8px;
 }
 
+/* 视频容器 - 16:9 自适应 */
+.moment-video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.moment-video-wrapper.vertical {
+  /* 竖屏视频：显示封面+播放按钮，点击弹窗 */
+  cursor: pointer;
+}
+.moment-video-wrapper.vertical .moment-video {
+  display: none;
+}
+.moment-video-wrapper.vertical .moment-video-overlay {
+  display: flex !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+.moment-video-play-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #333;
+  padding-left: 4px; /* 视觉居中 */
+}
+.moment-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 视频弹窗 */
+.video-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.video-viewer-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+}
+.video-viewer-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+.video-viewer-content video {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+}
+.video-viewer-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+}
+
 .moment-header {
   font-size: 12px;
   color: #999;
@@ -2302,6 +2394,69 @@ html, body {
 
 .moment-time {
   margin-right: 12px;
+}
+
+/* 瞬间标签 */
+.moment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.moment-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f7ff;
+  color: #0052d9;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.moment-tag:hover {
+  background: #3366ff;
+  color: #fff !important;
+}
+
+/* 标签筛选提示条 - 蓝色圆角矩形 */
+.moment-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: #e6f0ff;
+  border: 1px solid #3366ff;
+  border-radius: 16px;
+  font-size: 13px;
+  margin-left: auto;
+}
+.moment-filter-tag {
+  font-weight: 500;
+  color: #3366ff;
+}
+.moment-filter-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  color: #3366ff;
+  text-decoration: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+.moment-filter-clear::before {
+  content: "×";
+  font-size: 14px;
+  line-height: 1;
+  font-weight: bold;
+}
+.moment-filter-clear:hover {
+  background: #fff;
 }
 
 .moment-footer {
