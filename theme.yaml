@@ -14,7 +14,7 @@ spec:
   issues: "https://github.com/waistu/halo-theme-Wing/issues"
   settingName: "theme-Wing-setting"
   configMapName: "theme-Wing-configMap"
-  version: "1.0.1"
+  version: "0.9.5"
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
@@ -23,4 +23,4 @@ spec:
     page:
       - name: 文章页面
         description: 文章列表页面模板
-        file: page_article.html
+        file: article.html
