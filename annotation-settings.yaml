@@ -39,3 +39,23 @@ spec:
       value: false
       onValue: "true"
       offValue: "false"
+---
+apiVersion: v1alpha1
+kind: AnnotationSetting
+metadata:
+  name: theme-wing-link-group
+spec:
+  targetRef:
+    group: core.halo.run
+    kind: LinkGroup
+  formSchema:
+    - $formkit: select
+      name: theme-wing/link-group-style
+      label: 卡片样式
+      options:
+        - label: 默认样式
+          value: "default"
+        - label: 推荐样式
+          value: "recommend"
+        - label: 失联样式
+          value: "lost"
