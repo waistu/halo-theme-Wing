@@ -1354,6 +1354,9 @@ html, body {
   color: #333;
   margin: 0;
 }
+.entry-title {
+  padding: 12px 40px;
+}
  
 .tags-title  {
   padding: 0;
