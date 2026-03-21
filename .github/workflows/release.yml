@@ -1,0 +1,19 @@
+name: Auto Release
+on:
+  push:
+    tags:
+      - "v*" # 推送 v 开头的 tag 时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 1. 构建/打包（按项目语言替换）
+      - name: Zip source code
+        run: zip -r project-${{ github.ref_name }}.zip . -x "*.git*"
+      # 2. 自动创建 Release 并上传文件
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: project-${{ github.ref_name }}.zip
