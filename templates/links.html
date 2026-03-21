@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友链丨[[${site.title}]]</title>
+    <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+    <script th:src="@{/assets/js/dayjs.min.js}"></script>
+    <script th:src="@{/assets/js/relativeTime.js}"></script>
+    <script th:src="@{/assets/js/zh-cn.js}"></script>
+    <!-- 打开搜索弹窗 -->
+    <script>
+        if (window.location.hash === '#open-search') {
+            setTimeout(() => {
+                if (window.SearchWidget) SearchWidget.open('');
+            }, 100);
+        }
+    </script>
+    <script th:src="@{/assets/js/main.js}"></script>
+</head>
+
+<body>
+    <!-- 插入头部组件 -->
+    <div th:replace="includes/header :: header"></div>
+    <!-- 页面主体容器 -->
+    <div class="container"
+        th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, linkGroups=${linkFinder.groupBy()}">
+        <!-- 左侧：窄栏（菜单 + 小组件） -->
+        <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+            <!-- nav -->
+            <div th:replace="includes/nav :: nav"></div>
+            <!-- author card -->
+            <div th:replace="includes/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+        </aside>
+        <!-- 右侧：主内容大盒子 -->
+        <div class="content">
+            <div id="notes" class="notes-layout">
+                <main class="notes-core full-width">
+                    <div class="page-header">
+                        <h1 class="page-title">友链</h1>
+                        <p class="page-description">交换友链请联系博主</p>
+                    </div>
+                    <!-- 友链列表区域 -->
+                    <div class="links-list" th:if="${#lists.isEmpty(linkGroups)}">
+                        <div class="empty-state">
+                            <p>暂无友链</p>
+                        </div>
+                    </div>
+                    <!-- 友链分组列表 -->
+                    <th:block th:each="group : ${linkGroups}">
+                        <th:block th:with="groupStyle=${group.metadata.annotations['theme-wing/link-group-style']}">
+                            <div class="link-group" th:if="${not #lists.isEmpty(group.links)}">
+                                <h2 class="link-group-title" th:text="${group.spec.displayName}">分组名称</h2>
+                                <div class="link-items">
+                                    <a th:each="link : ${group.links}" th:href="${link.spec.url}"
+                                        th:title="${link.spec.displayName}" class="link-item"
+                                        th:classappend="${groupStyle == 'recommend' ? ' style-recommend' : (groupStyle == 'lost' ? ' style-lost' : '')}"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <div class="link-logo">
+                                            <img th:src="${link.spec.logo}" th:alt="${link.spec.displayName}"
+                                                onerror="this.src='/assets/images/default-avatar.png'" />
+                                        </div>
+                                        <div class="link-info">
+                                            <h3 class="link-name" th:text="${link.spec.displayName}">网站名称</h3>
+                                            <p class="link-desc" th:text="${link.spec.description}">网站描述</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </th:block>
+
+                    </th:block>
+                    <!-- 评论区 -->
+                    <div class="post-comment-section">
+                        <halo:comment group="${singlePage.group}" kind="${singlePage.kind}" name="${singlePage.name}">
+                        </halo:comment>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <!-- 页脚部分 -->
+    <div th:replace="includes/footer :: footer"></div>
+    <script>
+        (function () {
+            var path = window.location.pathname;
+            var tabs = document.querySelectorAll('.notes-tabbar .tab-item');
+            tabs.forEach(function (tab) {
+                var link = tab.querySelector('a');
+                if (!link) return;
+                var href = link.getAttribute('href');
+                if (!href) return;
+
+                // 首页
+                if (path === '/' || path === '' || path === '/index' || path === '/index.html') {
+                    if (href === '/' || href.endsWith('/')) {
+                        tab.classList.add('active');
+                    }
+                }
+                // 笔记页面
+                else if (path.startsWith('/moments')) {
+                    if (href === '/moments') {
+                        tab.classList.add('active');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
