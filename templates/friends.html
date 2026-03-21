@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,7 @@
     <div th:replace="includes/header :: header"></div>
     <!-- 页面主体容器 -->
     <div class="container"
-        th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
+        th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, pageParam=${#strings.isEmpty(#strings.toString(param.page)) ? 1 : #strings.toString(param.page)}, friends=${friendFinder != null ? friendFinder.list({page: pageParam, size: 20}) : null}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
         <!-- 左侧：窄栏（菜单 + 小组件） -->
         <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
             <!-- nav -->
@@ -38,6 +38,62 @@
         </aside>
         <!-- 右侧：主内容大盒子 -->
         <div class="content">
+            <div id="notes" class="notes-layout">
+                <main class="notes-core">
+                    <div class="page-header">
+                        <h1 class="page-title">朋友圈</h1>
+                        <p class="page-description">关注博主的友链更新</p>
+                    </div>
+                    <!-- 朋友圈列表 -->
+                    <th:block th:if="${friends == null}">
+                        <div class="empty-state">
+                            <p>暂无朋友圈动态</p>
+                        </div>
+                    </th:block>
+                    <th:block th:unless="${friends == null}">
+                        <th:block th:if="${#lists.isEmpty(friends.items)}">
+                            <div class="empty-state">
+                                <p>暂无朋友圈动态</p>
+                            </div>
+                        </th:block>
+                        <!-- 朋友圈内容 -->
+                        <th:block th:unless="${#lists.isEmpty(friends.items)}" th:each="friend : ${friends.items}">
+                            <div class="friend-card">
+                                <div class="friend-header">
+                                    <img class="friend-avatar" th:src="${friend.spec.logo}" th:alt="${friend.spec.author}"
+                                        onerror="this.src='/assets/images/default-avatar.png'" />
+                                    <div class="friend-info">
+                                        <a class="friend-author" th:href="${friend.spec.authorUrl}" target="_blank"
+                                            th:text="${friend.spec.author}">作者</a>
+                                        <span class="friend-date"
+                                            th:text="${#dates.format(friend.spec.pubDate, 'yyyy-MM-dd HH:mm')}">发布日期</span>
+                                    </div>
+                                </div>
+                                <a class="friend-content" th:href="${friend.spec.postLink}" target="_blank">
+                                    <h3 class="friend-title" th:text="${friend.spec.title}">文章标题</h3>
+                                    <p class="friend-desc" th:text="${friend.spec.description}">文章描述</p>
+                                </a>
+                            </div>
+                        </th:block>
+                        <!-- 分页 -->
+                        <th:block th:if="${friends.hasPrevious or friends.hasNext}">
+                            <div class="friends-pagination">
+                                <a th:if="${friends.hasPrevious}" th:href="@{/friends(page=${friends.page - 1})}"
+                                    class="pagination-btn">上一页</a>
+                                <span class="pagination-info" th:text="${friends.page} + ' / ' + ${friends.totalPages}">1 / 1</span>
+                                <a th:if="${friends.hasNext}" th:href="@{/friends(page=${friends.page + 1})}"
+                                    class="pagination-btn">下一页</a>
+                            </div>
+                        </th:block>
+                    </th:block>
+                    <!-- 评论区 -->
+                    <div class="post-comment-section" th:if="${singlePage != null}">
+                        <halo:comment group="${singlePage.group}" kind="${singlePage.kind}"
+                            name="${singlePage.name}">
+                        </halo:comment>
+                    </div>
+                </main>
+            </div>
         </div>
     </div>
     <!-- 页脚部分 -->
@@ -58,9 +114,9 @@
                         tab.classList.add('active');
                     }
                 }
-                // 笔记页面
-                else if (path.startsWith('/moments')) {
-                    if (href === '/moments') {
+                // 朋友圈页面
+                else if (path.startsWith('/friends')) {
+                    if (href === '/friends') {
                         tab.classList.add('active');
                     }
                 }
