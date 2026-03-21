@@ -914,6 +914,66 @@ html, body {
   animation: card-fade-up 0.4s ease both;
 }
 
+/* 瞬间卡片样式 */
+.noteCard-moment {
+  background: #fafafa;
+  border-left: 3px solid #A78BFA;
+}
+.noteCard-moment .noteCard-content {
+  padding: 16px;
+}
+.moment-card-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+.moment-card-content img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+.noteCard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.noteCard-tag {
+  font-size: 12px;
+  color: #A78BFA;
+  background: rgba(167, 139, 250, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+.noteCard-tag:hover {
+  background: rgba(167, 139, 250, 0.2);
+}
+.moment-link {
+  font-size: 12px;
+  color: #999;
+  text-decoration: none;
+  margin-left: auto;
+}
+.moment-link:hover {
+  color: #3366ff;
+}
+
+/* 首页混合卡片：瞬间摘要有更好的展示 */
+.moment-excerpt {
+  color: #333;
+  line-height: 1.6;
+}
+.moment-excerpt img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+.moment-tags-inline {
+  color: #A78BFA;
+  font-size: 12px;
+}
+
 /* 交错延迟：前 8 条依次错开 */
 .noteCard:nth-child(1)  { animation-delay: 0.04s; }
 .noteCard:nth-child(2)  { animation-delay: 0.08s; }

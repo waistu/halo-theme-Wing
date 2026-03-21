@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title th:text="${site.title}"></title>
+  <title>笔记丨[[${site.title}]]</title>
   <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
   <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
@@ -27,7 +27,8 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/header :: header"></div>
   <!-- 页面主体容器 -->
-  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)}, momentTags=${tags}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, pluginInstalled=${momentFinder != null}, momentsUrl='/moments'">
+  <div class="container"
+    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)}, momentTags=${tags}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, pluginInstalled=${momentFinder != null}, momentsUrl='/moments'">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -49,150 +50,149 @@
           </div>
           <!-- 插件已安装时显示内容 -->
           <th:block th:if="${pluginInstalled}">
-          <div class="notes-tabbar sticky bg-blur">
-            <ul class="tab global-list">
-              <li class="tab-item" data-type="all">
-                <a th:href="@{/}">全部</a>
-              </li>
-              <li class="tab-item" data-type="note">
-                <a th:href="${momentsUrl}">笔记</a>
-              </li>
-              <li class="tab-item" data-type="post">
-                <a th:href="@{/article}">文章</a>
-              </li>
-            </ul>
-            <!-- 标签筛选提示 -->
-            <div class="moment-filter-bar" th:if="${tagParam != null}">
-              <span class="moment-filter-tag" th:text="${tagParam}"></span>
-              <a class="moment-filter-clear" th:href="${momentsUrl}"></a>
+            <div class="notes-tabbar sticky bg-blur">
+              <ul class="tab global-list">
+                <li class="tab-item" data-type="all">
+                  <a th:href="@{/}">文章</a>
+                </li>
+                <li class="tab-item" data-type="note">
+                  <a th:href="${momentsUrl}">笔记</a>
+                </li>
+              </ul>
+              <!-- 标签筛选提示 -->
+              <div class="moment-filter-bar" th:if="${tagParam != null}">
+                <span class="moment-filter-tag" th:text="${tagParam}"></span>
+                <a class="moment-filter-clear" th:href="${momentsUrl}"></a>
+              </div>
             </div>
-          </div>
-          <!-- 瞬间列表 -->
-          <div class="article-list" id="articleList">
-            <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
-              <div class="moment-item">
-                <!-- 顶部：时间 -->
-                <div class="moment-header">
-                  <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
-                </div>
-                <!-- 文字内容 -->
-                <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
-                <!-- 标签（带 #，可点击筛选） -->
-                <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
-                  <div class="moment-tags">
-                    <th:block th:each="tag : ${moment.spec.tags}">
-                      <a class="moment-tag" th:href="${momentsUrl} + '?tag=' + ${tag}" th:text="'#' + ${tag}"></a>
-                    </th:block>
+            <!-- 瞬间列表 -->
+            <div class="article-list" id="articleList">
+              <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
+                <div class="moment-item">
+                  <!-- 顶部：时间 -->
+                  <div class="moment-header">
+                    <span class="moment-time"
+                      th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
                   </div>
-                </th:block>
-                <!-- 媒体内容 -->
-                <th:block th:if="${not #lists.isEmpty(content.medium)}">
-                  <div class="moment-media">
-                    <!-- 图片 PHOTO -->
-                    <div class="moment-photos">
-                      <th:block th:each="item : ${content.medium}">
-                        <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
-                          <img th:src="${item.url}" alt="瞬间图片" />
-                        </div>
+                  <!-- 文字内容 -->
+                  <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}">
+                  </div>
+                  <!-- 标签（带 #，可点击筛选） -->
+                  <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
+                    <div class="moment-tags">
+                      <th:block th:each="tag : ${moment.spec.tags}">
+                        <a class="moment-tag" th:href="${momentsUrl} + '?tag=' + ${tag}" th:text="'#' + ${tag}"></a>
                       </th:block>
                     </div>
-                    <!-- 视频 VIDEO -->
-                    <th:block th:each="item : ${content.medium}">
-                      <th:block th:if="${item.type.name == 'VIDEO'}">
-                        <div class="moment-video-wrapper" th:data-video-src="${item.url}">
-                          <video class="moment-video"
-                                 th:src="${item.url}"
-                                 th:data-src="${item.url}"
-                                 controls
-                                 onloadedmetadata="handleVideoMetadata(this)"></video>
-                          <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
-                            <div class="moment-video-play-icon">▶</div>
+                  </th:block>
+                  <!-- 媒体内容 -->
+                  <th:block th:if="${not #lists.isEmpty(content.medium)}">
+                    <div class="moment-media">
+                      <!-- 图片 PHOTO -->
+                      <div class="moment-photos">
+                        <th:block th:each="item : ${content.medium}">
+                          <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
+                            <img th:src="${item.url}" alt="瞬间图片" />
                           </div>
-                          <div class="moment-media-badge">
-                            <span class="media-icon">🎬</span>
-                            <span class="media-label">视频</span>
-                          </div>
-                        </div>
-                      </th:block>
-                    </th:block>
-                    <!-- 音频 AUDIO -->
-                    <th:block th:each="item : ${content.medium}">
-                      <div class="moment-audio-wrapper" th:if="${item.type.name == 'AUDIO'}">
-                        <audio th:src="${item.url}" controls></audio>
-                        <div class="moment-media-badge">
-                          <span class="media-icon">🎵</span>
-                          <span class="media-label">音频</span>
-                        </div>
+                        </th:block>
                       </div>
-                    </th:block>
-                    <!-- 文章 POST -->
-                    <th:block th:each="item : ${content.medium}">
-                      <a class="moment-post-link" th:if="${item.type.name == 'POST'}" th:href="${item.url}" target="_blank">
-                        <div class="moment-post-card">
-                          <div class="moment-post-cover" th:if="${item.cover}">
-                            <img th:src="${item.cover}" alt="封面" />
-                          </div>
-                          <div class="moment-post-info">
-                            <h4 class="moment-post-title" th:text="${item.title}">文章标题</h4>
-                            <p class="moment-post-excerpt" th:if="${item.excerpt}" th:text="${item.excerpt}">文章摘要</p>
-                            <div class="moment-post-meta">
-                              <span class="moment-media-badge">
-                                <span class="media-icon">📄</span>
-                                <span class="media-label">文章</span>
-                              </span>
+                      <!-- 视频 VIDEO -->
+                      <th:block th:each="item : ${content.medium}">
+                        <th:block th:if="${item.type.name == 'VIDEO'}">
+                          <div class="moment-video-wrapper" th:data-video-src="${item.url}">
+                            <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls
+                              onloadedmetadata="handleVideoMetadata(this)"></video>
+                            <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
+                              <div class="moment-video-play-icon">▶</div>
+                            </div>
+                            <div class="moment-media-badge">
+                              <span class="media-icon">🎬</span>
+                              <span class="media-label">视频</span>
                             </div>
                           </div>
+                        </th:block>
+                      </th:block>
+                      <!-- 音频 AUDIO -->
+                      <th:block th:each="item : ${content.medium}">
+                        <div class="moment-audio-wrapper" th:if="${item.type.name == 'AUDIO'}">
+                          <audio th:src="${item.url}" controls></audio>
+                          <div class="moment-media-badge">
+                            <span class="media-icon">🎵</span>
+                            <span class="media-label">音频</span>
+                          </div>
                         </div>
+                      </th:block>
+                      <!-- 文章 POST -->
+                      <th:block th:each="item : ${content.medium}">
+                        <a class="moment-post-link" th:if="${item.type.name == 'POST'}" th:href="${item.url}"
+                          target="_blank">
+                          <div class="moment-post-card">
+                            <div class="moment-post-cover" th:if="${item.cover}">
+                              <img th:src="${item.cover}" alt="封面" />
+                            </div>
+                            <div class="moment-post-info">
+                              <h4 class="moment-post-title" th:text="${item.title}">文章标题</h4>
+                              <p class="moment-post-excerpt" th:if="${item.excerpt}" th:text="${item.excerpt}">文章摘要</p>
+                              <div class="moment-post-meta">
+                                <span class="moment-media-badge">
+                                  <span class="media-icon">📄</span>
+                                  <span class="media-label">文章</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                      </th:block>
+                    </div>
+                  </th:block>
+                  <!-- 底部：互动和来源 -->
+                  <div class="moment-footer">
+                    <div class="moment-actions">
+                      <!-- 点赞 -->
+                      <a class="action-item moment-like" href="javascript:;"
+                        th:data-moment-name="${moment.metadata.name}">
+                        <i class="czs-heart-l"></i>
+                        <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
                       </a>
-                    </th:block>
+                      <!-- 评论 -->
+                      <a class="action-item moment-comments-toggle" href="javascript:;"
+                        th:data-moment-name="${moment.metadata.name}">
+                        <i class="czs-comment-l"></i>
+                        <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
+                          <span class="comment-count">[[${moment.stats.totalComment}]]</span>
+                        </th:block>
+                        <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
+                          <span class="comment-count"></span>
+                        </th:block>
+                      </a>
+                    </div>
+                    <div class="moment-source">
+                      <i class="czs-image"></i>
+                      <span>Write from Webpage</span>
+                    </div>
                   </div>
-                </th:block>
-                <!-- 底部：互动和来源 -->
-                <div class="moment-footer">
-                  <div class="moment-actions">
-                    <!-- 点赞 -->
-                    <a class="action-item moment-like" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
-                      <i class="czs-heart-l"></i>
-                      <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
-                    </a>
-                    <!-- 评论 -->
-                    <a class="action-item moment-comments-toggle" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
-                      <i class="czs-comment-l"></i>
-                      <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
-                        <span class="comment-count">[[${moment.stats.totalComment}]]</span>
-                      </th:block>
-                      <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
-                        <span class="comment-count"></span>
-                      </th:block>
-                    </a>
-                  </div>
-                  <div class="moment-source">
-                    <i class="czs-image"></i>
-                    <span>Write from Webpage</span>
+                  <!-- Halo 官方评论组件（默认收起） -->
+                  <div class="moment-comments-wrapper" th:id="'comments-wrapper-' + ${moment.metadata.name}"
+                    style="display: none;">
+                    <halo:comment group="moment.halo.run" kind="Moment" version="v1alpha1"
+                      th:attr="name=${moment.metadata.name}">
+                    </halo:comment>
                   </div>
                 </div>
-                <!-- Halo 官方评论组件（默认收起） -->
-                <div class="moment-comments-wrapper" th:id="'comments-wrapper-' + ${moment.metadata.name}" style="display: none;">
-                  <halo:comment
-                    group="moment.halo.run"
-                    kind="Moment"
-                    version="v1alpha1"
-                    th:attr="name=${moment.metadata.name}">
-                  </halo:comment>
-                </div>
+              </th:block>
+              <!-- 无瞬间时的提示 -->
+              <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
+                <p>暂无瞬间</p>
               </div>
-            </th:block>
-            <!-- 无瞬间时的提示 -->
-            <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
-              <p>暂无瞬间</p>
             </div>
-          </div>
           </th:block>
         </main>
         <aside class="notes-aside"
           th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
-            <div th:replace="includes/heatmap :: heatmap(momentTags=${momentTags}, momentsForHeatmap=${momentsForHeatmap})"></div>
+            <div
+              th:replace="includes/heatmap :: heatmap(momentTags=${momentTags}, momentsForHeatmap=${momentsForHeatmap})">
+            </div>
           </div>
         </aside>
       </div>
@@ -244,17 +244,11 @@
             tab.classList.add('active');
           }
         }
-        // 文章页面
-        else if (path.startsWith('/article')) {
-          if (href === '/article') {
-            tab.classList.add('active');
-          }
-        }
       });
     })();
 
     // ==================== 瞬间图片灯箱 ====================
-    (function() {
+    (function () {
       const viewer = document.getElementById('imageViewer');
       const viewerImage = document.getElementById('viewerImage');
       const viewerPrev = document.getElementById('viewerPrev');
@@ -267,13 +261,13 @@
       let currentIndex = 0;
 
       // 绑定所有瞬间图片点击事件
-      document.querySelectorAll('.moment-photos .photo-item img').forEach(function(img) {
+      document.querySelectorAll('.moment-photos .photo-item img').forEach(function (img) {
         img.style.cursor = 'pointer';
-        img.addEventListener('click', function(e) {
+        img.addEventListener('click', function (e) {
           e.preventDefault();
           // 找到该瞬间的所有图片
           const photosContainer = img.closest('.moment-photos');
-          const images = Array.from(photosContainer.querySelectorAll('img')).map(function(i) {
+          const images = Array.from(photosContainer.querySelectorAll('img')).map(function (i) {
             return i.src;
           });
           currentImages = images;
@@ -322,17 +316,17 @@
       // 绑定事件
       viewerClose.addEventListener('click', closeViewer);
       backdrop.addEventListener('click', closeViewer);
-      viewerPrev.addEventListener('click', function(e) {
+      viewerPrev.addEventListener('click', function (e) {
         e.stopPropagation();
         prevImage();
       });
-      viewerNext.addEventListener('click', function(e) {
+      viewerNext.addEventListener('click', function (e) {
         e.stopPropagation();
         nextImage();
       });
 
       // ESC 关闭
-      document.addEventListener('keydown', function(e) {
+      document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && viewer.style.display !== 'none') {
           closeViewer();
         }
@@ -346,14 +340,14 @@
     })();
 
     // ==================== 视频弹窗 ====================
-    (function() {
+    (function () {
       const videoViewer = document.getElementById('videoViewer');
       const viewerVideo = document.getElementById('viewerVideo');
       const videoViewerClose = document.getElementById('videoViewerClose');
       const videoViewerBackdrop = videoViewer.querySelector('.video-viewer-backdrop');
 
       // 视频比例检测：竖屏(>1)则弹窗播放
-      window.handleVideoMetadata = function(video) {
+      window.handleVideoMetadata = function (video) {
         const wrapper = video.closest('.moment-video-wrapper');
         if (!wrapper) return;
 
@@ -368,14 +362,14 @@
       };
 
       // 备用方案：视频加载完成后也检测一次
-      document.querySelectorAll('.moment-video').forEach(function(video) {
-        video.addEventListener('loadedmetadata', function() {
+      document.querySelectorAll('.moment-video').forEach(function (video) {
+        video.addEventListener('loadedmetadata', function () {
           window.handleVideoMetadata(video);
         });
       });
 
       // 打开视频弹窗
-      window.openVideoPopup = function(overlay) {
+      window.openVideoPopup = function (overlay) {
         const wrapper = overlay.closest('.moment-video-wrapper');
         const videoSrc = wrapper.dataset.videoSrc;
         if (!videoSrc) return;
@@ -398,7 +392,7 @@
       videoViewerBackdrop.addEventListener('click', closeVideoViewer);
 
       // ESC 关闭
-      document.addEventListener('keydown', function(e) {
+      document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && videoViewer.style.display !== 'none') {
           closeVideoViewer();
         }
@@ -406,7 +400,7 @@
     })();
 
     // ==================== 瞬间点赞功能 ====================
-    (function() {
+    (function () {
       // 点赞 API - 点赞
       function likeMoment(momentName) {
         return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
@@ -419,7 +413,7 @@
             plural: 'moments',
             name: momentName
           })
-        }).then(function(res) {
+        }).then(function (res) {
           return res.json();
         });
       }
@@ -436,14 +430,14 @@
             plural: 'moments',
             name: momentName
           })
-        }).then(function(res) {
+        }).then(function (res) {
           return res.json();
         });
       }
 
       // 绑定点赞按钮点击事件
-      document.querySelectorAll('.moment-like').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
+      document.querySelectorAll('.moment-like').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
           e.preventDefault();
           var momentName = this.dataset.momentName;
           var iconEl = this.querySelector('i');
@@ -454,7 +448,7 @@
           // 状态：已点赞 -> 取消点赞，未点赞 -> 点赞
           var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
 
-          promise.then(function(result) {
+          promise.then(function (result) {
             // 更新 UI
             var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
             countEl.textContent = newCount;
@@ -468,7 +462,7 @@
               iconEl.classList.remove('czs-heart-l');
               iconEl.classList.add('czs-heart', 'liked');
             }
-          }).catch(function(err) {
+          }).catch(function (err) {
             console.error('操作失败:', err);
           });
         });
@@ -476,9 +470,9 @@
     })();
 
     // ==================== 瞬间评论展开/收起 ====================
-    (function() {
-      document.querySelectorAll('.moment-comments-toggle').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
+    (function () {
+      document.querySelectorAll('.moment-comments-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
           e.preventDefault();
           var momentName = this.dataset.momentName;
           var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
