@@ -2,6 +2,8 @@ apiVersion: theme.halo.run/v1alpha1
 kind: Theme
 metadata:
   name: theme-Wing
+  annotations:
+    theme-wing/link-group-style: "友链卡片样式: default=默认, recommend=推荐, lost=失联"
 spec:
   displayName: Wing
   author:
@@ -14,15 +16,18 @@ spec:
   issues: "https://github.com/waistu/halo-theme-Wing/issues"
   settingName: "theme-Wing-setting"
   configMapName: "theme-Wing-configMap"
-  version: "0.9.5"
+  version: "0.9.6"
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
   customTemplates:
     page:
-      - name: 友情链接页面模板
-        description: 适配友情链接模板
+      - name: 朋友圈页面模板
+        description: 适配 Halo 朋友圈插件
+        file: friends.html
+      - name: 友链页面模板
+        description: 适配 Halo 链接管理插件
         file: links.html
       - name: 关于页面模板
         description: 自定义关于博主页面
