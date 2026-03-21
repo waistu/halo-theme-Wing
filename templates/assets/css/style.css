@@ -152,6 +152,21 @@ a:active {
     --halo-cw-base-rounded: 12px;
     /* 头像尺寸 */
     --halo-cw-avatar-size: 40px;
+
+      /* 主题主色（你自己改） */
+  --theme-color: #1677ff;
+  --theme-light-color: #e8f3ff;
+  --theme-dark-color: #0958d9;
+
+  /* 评论插件官方变量 */
+  --halo-cw-primary-color: var(--theme-color);
+  --halo-cw-primary-hover-color: var(--theme-dark-color);
+  --halo-cw-bg-color: #ffffff;
+  --halo-cw-text-color: #333333;
+  --halo-cw-text-secondary-color: #666666;
+  --halo-cw-border-color: #eeeeee;
+  --halo-cw-radius: 8px;
+  --halo-cw-shadow: none;
 }
 
 /* 只清除 .global-list 列表的小圆点，不影响文章！ */
@@ -2656,4 +2671,99 @@ html, body {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #eee;
+}
+/* 评论整体容器 */
+.post-comment-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--halo-cw-border-color);
+}
+
+/* 评论插件外层 */
+.halo-comment-widget {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 评论标题 */
+.halo-comment-widget-header {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-bottom: 20px !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* 评论输入框 */
+.halo-comment-widget-input-area {
+  border-radius: var(--halo-cw-radius) !important;
+  border-color: var(--halo-cw-border-color) !important;
+}
+.halo-comment-widget-input-area:focus-within {
+  border-color: var(--theme-color) !important;
+  box-shadow: 0 0 0 2px var(--theme-light-color) !important;
+}
+
+/* 提交按钮 */
+.halo-comment-widget-submit-btn {
+  background: var(--theme-color) !important;
+  border-radius: 6px !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+}
+.halo-comment-widget-submit-btn:hover {
+  background: var(--theme-dark-color) !important;
+}
+
+/* 单条评论 */
+.halo-comment-widget-item {
+  padding: 16px 0 !important;
+  border-bottom: 1px solid var(--halo-cw-border-color) !important;
+}
+.halo-comment-widget-item:last-child {
+  border-bottom: none !important;
+}
+
+/* 评论用户名 */
+.halo-comment-widget-author-name {
+  font-weight: 500 !important;
+  color: #222 !important;
+}
+
+/* 评论时间 */
+.halo-comment-widget-time {
+  font-size: 12px !important;
+  color: #999 !important;
+}
+
+/* 评论内容 */
+.halo-comment-widget-content {
+  margin-top: 8px !important;
+  line-height: 1.7 !important;
+  color: #333 !important;
+}
+
+/* 回复按钮 */
+.halo-comment-widget-reply-btn {
+  color: var(--theme-color) !important;
+  font-size: 12px !important;
+}
+.halo-comment-widget-reply-btn:hover {
+  color: var(--theme-dark-color) !important;
+  background: transparent !important;
+}
+
+/* 嵌套回复缩进 */
+.halo-comment-widget-children {
+  margin-left: 40px !important;
+}
+.halo-comment-widget-children .halo-comment-widget-item {
+  padding: 12px 0 !important;
+}
+
+/* 加载更多 */
+.halo-comment-widget-loadmore {
+  color: var(--theme-color) !important;
 }

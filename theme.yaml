@@ -7,13 +7,13 @@ spec:
   author:
     name: 二歪同学
     website: "https://waistu.com"
-  description: 一款简洁流畅、数据驱动，响应式主题，移植自WordPress主题Wring
-  logo: "/themes/theme-wring/assets/img/logo.png"
-  homepage: "https://github.com/waistu/halo-theme-wing#readme"
-  repo: "https://github.com/waistu/halo-theme-wing"
-  issues: "https://github.com/waistu/halo-theme-wing/issues"
-  settingName: "theme-wing-setting"
-  configMapName: "theme-wing-configMap"
+  description: 一款简洁流畅、数据驱动，响应式主题，移植自WordPress主题Wing
+  logo: "/themes/theme-wing/assets/img/logo.png"
+  homepage: "https://github.com/waistu/halo-theme-Wing#readme"
+  repo: "https://github.com/waistu/halo-theme-Wing"
+  issues: "https://github.com/waistu/halo-theme-Wing/issues"
+  settingName: "theme-Wing-setting"
+  configMapName: "theme-Wing-configMap"
   version: "1.0.1"
   requires: ">=2.0.0"
   license:
