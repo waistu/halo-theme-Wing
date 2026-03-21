@@ -27,7 +27,7 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/header :: header"></div>
   <!-- 页面主体容器 -->
-  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}">
+  <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -53,13 +53,41 @@
             </ul>
           </div>
 
-          <!-- 文章列表区域（暂留空） -->
+          <!-- 文章列表区域 -->
           <div class="article-list" id="articleList">
-            <!-- 暂不显示文章列表 -->
+            <!-- 空态提示 -->
+            <div th:if="${!hasPosts}" class="empty-state">
+              <p>暂无文章</p>
+            </div>
+            <!-- 文章卡片列表 -->
+            <th:block th:if="${hasPosts}" th:each="post : ${posts.items}">
+              <div th:replace="includes/noteCard :: noteCard(
+                type='post',
+                title=${post.spec.title},
+                excerpt=${post.status.excerpt},
+                date=${post.spec.publishTime},
+                cover=${post.spec.cover},
+                permalink=${post.status.permalink},
+                comments=${post.stats.comment}
+              )"></div>
+            </th:block>
           </div>
 
-          <div class="pagination" style="display:none">
-            <span class="page-info">共 <span th:text="${allPosts.size()}">0</span> 篇文章</span>
+          <!-- 分页 -->
+          <div class="pagination" th:if="${hasPosts}">
+            <span class="page-info">
+              第 <span th:text="${posts.page}">1</span> 页，
+              共 <span th:text="${posts.totalPages}">1</span> 页 ·
+              <span th:text="${posts.total}">0</span> 篇文章
+            </span>
+            <div class="page-nav">
+              <a class="page-prev"
+                 th:if="${posts.hasPrevious}"
+                 th:href="${posts.prevUrl}">← 上一页</a>
+              <a class="page-next"
+                 th:if="${posts.hasNext}"
+                 th:href="${posts.nextUrl}">下一页 →</a>
+            </div>
           </div>
         </main>
         <aside class="notes-aside" th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
