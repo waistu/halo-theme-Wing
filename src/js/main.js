@@ -1,7 +1,5 @@
 // 导入主样式（Vite 会处理 Tailwind CSS）
 import '../css/main.css'
-// 导入旧版完整样式（保留原有设计）
-import '../css/style.css'
 
 document.addEventListener('DOMContentLoaded', function () {
   // 初始化 dayjs 相对时间
