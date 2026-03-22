@@ -20,54 +20,6 @@
       }, 100);
     }
   </script>
-  <!-- Header 样式：防止遮挡内容 + 滚动隐藏 -->
-  <style>
-    #header {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      z-index: 1000;
-      transition: transform 0.3s ease;
-    }
-    .container {
-      margin-top: 100px !important;
-    }
-    #header.header-hidden {
-      transform: translateY(-100%);
-    }
-  </style>
-  <!-- Header 滚动隐藏脚本 -->
-  <script>
-    (function() {
-      var header = document.getElementById('header');
-      if (!header) return;
-      var lastScrollY = 0;
-      var ticking = false;
-      
-      function updateHeader() {
-        var currentScrollY = window.scrollY;
-        if (currentScrollY > 100) {
-          if (currentScrollY > lastScrollY) {
-            header.classList.add('header-hidden');
-          } else {
-            header.classList.remove('header-hidden');
-          }
-        } else {
-          header.classList.remove('header-hidden');
-        }
-        lastScrollY = currentScrollY;
-        ticking = false;
-      }
-      
-      window.addEventListener('scroll', function() {
-        if (!ticking) {
-          requestAnimationFrame(updateHeader);
-          ticking = true;
-        }
-      }, { passive: true });
-    })();
-  </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 

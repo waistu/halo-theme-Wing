@@ -187,7 +187,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  padding-top: 100px;
   overflow-x: hidden;
 }
 
@@ -253,19 +252,11 @@ a:active {
 
 /* Header 基础布局 */
 #header {
-  position: fixed !important;
-  top: 0;
-  width: 100% !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 20px 80px !important;
-  height: auto !important;
-  min-height: 80px !important;
-  box-sizing: border-box;
-  z-index: 1000;
-  background: #F7F7F8;
-  transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px 80px;
+  background-color: #f7f7f8;
 }
 /* Header 隐藏状态 */
 #header.header-hidden {
@@ -292,7 +283,7 @@ a:active {
 .search-box {
   display: flex;
   align-items: center;
-  gap: 80px;
+  gap: 0;
 }
 
 /* 搜索图标 */
@@ -300,8 +291,8 @@ a:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: transparent;
   border-radius: 50%;
@@ -3612,35 +3603,45 @@ body .moment-item .moment-comments-wrapper.hidden {
   #header {
     padding: 0 16px;
     height: 56px;
-    background-color: #000000;
-
+    background-color: #f7f7f8;
   }
 
-  /* 内容容器：移动端去掉两侧大 padding */
+  /* 内容容器：保持水平排列（左边栏 + 内容区并排） */
   .container {
     padding: 12px 16px;
-    flex-direction: column;
-    gap: 0;
+    flex-direction: row;
+    gap: 12px;
   }
 
-  /* 侧边栏：移动端隐藏 */
+  /* 左边栏：移动端保持显示，固定宽度 */
+  .sidebar {
+    flex: 0 0 200px;
+    width: 200px;
+    position: static;
+    max-height: none;
+  }
+
+  /* 右边侧栏：移动端隐藏 */
   .notes-aside {
     display: none;
   }
 
-  /* 内容区：移动端占满宽度 */
+  /* notes-layout 布局调整 */
+  .notes-layout {
+    flex: 1;
+    width: auto;
+  }
+
+  /* 内容区：占满剩余空间 */
   .content {
+    flex: 1;
     min-height: auto;
     border-radius: 8px;
+    padding: 16px;
   }
 
   /* 搜索框：移动端宽度缩小 */
   .search-input.show {
     width: 140px;
-  }
-
-  /* 内容主体 padding 缩小 */
-  .content {
-    padding: 16px;
   }
 }
