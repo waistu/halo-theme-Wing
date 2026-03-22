@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" class="scroll-smooth">
 
 <head>
   <meta charset="UTF-8">
@@ -23,7 +23,7 @@
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 
-<body>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
@@ -40,14 +40,14 @@
     <div class="content">
       <div id="notes" class="notes-layout">
         <main class="notes-core">
-          <div class="notes-tabbar sticky bg-blur">
+          <div class="notes-tabbar sticky bg-blur bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <ul class="tab global-list">
               <li class="tab-item" data-type="all">
-                <a th:href="@{/}">文章</a>
+                <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
               </li>
               <li class="tab-item" data-type="note" th:with="pluginInstalled=${momentFinder != null}">
-                <a th:if="${pluginInstalled}" th:href="@{/moments}">笔记</a>
-                <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()">笔记</a>
+                <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
+                <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()" class="text-gray-700 dark:text-gray-300">笔记</a>
               </li>
             </ul>
           </div>

@@ -46,7 +46,7 @@
   <script th:src="@{/assets/vendor/zh-cn.js}"></script>
 </head>
 
-<body>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
   <div th:replace="~{includes/components/header :: header}"></div>
 
   <div class="container">
@@ -62,23 +62,27 @@
       </div>
 
       <!-- 目录视图 -->
-      <div class="sidebar-content active" id="sidebar-toc">
+      <div class="sidebar-content active bg-white dark:bg-gray-800" id="sidebar-toc">
         <div id="tocWidget" style="display: none;">
           <div id="toc" class="toc-list"></div>
         </div>
-        <div class="toc-empty" id="tocEmpty" style="display: none;">暂无目录</div>
+        <div class="toc-empty text-gray-500 dark:text-gray-400" id="tocEmpty" style="display: none;">暂无目录</div>
       </div>
 
       <!-- 导航视图 -->
-      <div class="sidebar-content" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
+      <div class="sidebar-content bg-white dark:bg-gray-800" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
         <div class="widget-box" th:replace="~{includes/components/nav :: nav}"></div>
-        <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+        <div
+          th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
         </div>
       </div>
+
     </aside>
 
     <div class="content">
-      <div th:replace="~{includes/components/articleList :: articleContent(content = ${post.content.content}, post = ${post})}"></div>
+      <div
+        th:replace="~{includes/components/articleList :: articleContent(content = ${post.content.content}, post = ${post})}">
+      </div>
 
       <!-- 评论区 -->
       <div th:replace="~{includes/comment/comment :: comment}"></div>
@@ -243,14 +247,15 @@
 
       setTimeout(tryGenerateTOC, 100);
     }
+
   </script>
   <!-- Header 滚动隐藏脚本 -->
   <script>
-    (function() {
+    (function () {
       var header = document.getElementById('header');
       if (!header) return;
       var lastScrollY = 0;
-      window.onscroll = function() {
+      window.onscroll = function () {
         var currentScrollY = window.scrollY;
         if (currentScrollY > 100) {
           if (currentScrollY > lastScrollY) {

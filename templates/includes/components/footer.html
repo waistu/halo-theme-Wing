@@ -1,14 +1,14 @@
 <!-- 底部公共文件 → 被 th:replace 引用 -->
-<div th:fragment="footer" class="footer" id="footer">
+<div th:fragment="footer" class="footer bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" id="footer">
     <div class="footer-container">
         <!-- 左侧：版权 + 网站标题 -->
         <div class="footer-left">
-            <span>© 2026 <strong><a th:href="@{/}"
+            <span>© 2026 <strong><a th:href="@{/}" class="text-gray-900 dark:text-white hover:text-rose-500 dark:hover:text-rose-400"
                         th:text="${site.title != null ? site.title : '我的网站'}"></a></strong></span>
 
             <!-- 只有用户设置了备案号才显示 -->
             <th:block th:if="${theme.config.basic.icp != null and theme.config.basic.icp != ''}">
-                <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">
+                <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-300">
                     <span class="icp" th:text="${theme.config.basic.icp}"></span>
                 </a>
             </th:block>
@@ -17,9 +17,9 @@
         <!-- 右侧：主题标识 -->
         <div class="footer-right">
             <span class="powered-by">
-                Powered by <a href="https://www.halo.run" target="_blank">Halo</a>
+                Powered by <a href="https://www.halo.run" target="_blank" class="text-rose-500 dark:text-rose-400 hover:underline">Halo</a>
             </span>
-            <span class="theme-by">Theme by <a href="https://github.com/waistu/halo-theme-Wing" class="theme-by-wing"
+            <span class="theme-by">Theme by <a href="https://github.com/waistu/halo-theme-Wing" class="theme-by-wing text-rose-500 dark:text-rose-400 hover:underline"
                     target="_blank" rel="noopener noreferrer">
                     <span>Wing</span>
                     <span class="rainbow-bar"></span>

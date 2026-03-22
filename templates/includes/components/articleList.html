@@ -1,9 +1,9 @@
 <th:block th:fragment="articleContent(content, post)">
-    <article class="post-article">
+    <article class="post-article bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
         <header class="post-header">
-            <h1 class="post-title" th:text="${post.spec.title}"></h1>
+            <h1 class="post-title text-gray-900 dark:text-white" th:text="${post.spec.title}"></h1>
             <!-- 文章 meta 信息 -->
-            <div class="post-meta">
+            <div class="post-meta text-gray-500 dark:text-gray-400">
                 <!-- 作者 -->
                 <span class="meta-item">
                     <i class="czs-user"></i>
@@ -32,10 +32,10 @@
             </div>
             <!-- 标签 -->
             <div class="post-tags" th:if="${post.tags}">
-                <a th:each="tag : ${post.tags}" th:href="${tag.status.permalink}" class="post-tag"
+                <a th:each="tag : ${post.tags}" th:href="${tag.status.permalink}" class="post-tag bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-800"
                     th:text="${tag.spec.displayName}"></a>
             </div>
         </header>
-        <div id="content" class="post-content" th:utext="${content}"></div>
+        <div id="content" class="post-content text-gray-800 dark:text-gray-200" th:utext="${content}"></div>
     </article>
 </th:block>

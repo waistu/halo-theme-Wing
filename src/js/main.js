@@ -193,8 +193,16 @@ class ThemeManager {
     document.querySelectorAll('.theme-toggle').forEach(btn => {
       const sunIcon = btn.querySelector('.icon-sun')
       const moonIcon = btn.querySelector('.icon-moon')
-      if (sunIcon) sunIcon.style.display = isDark ? 'block' : 'none'
-      if (moonIcon) moonIcon.style.display = isDark ? 'none' : 'block'
+      if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'block'
+      if (moonIcon) moonIcon.style.display = isDark ? 'block' : 'none'
+    })
+    
+    // 更新 Header 主题切换按钮的图标
+    document.querySelectorAll('.theme-toggle-header').forEach(btn => {
+      const sunIcon = btn.querySelector('.icon-sun')
+      const moonIcon = btn.querySelector('.icon-moon')
+      if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'flex'
+      if (moonIcon) moonIcon.style.display = isDark ? 'flex' : 'none'
     })
   }
 
@@ -259,6 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 绑定深色模式切换按钮
   document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.themeManager.toggleTheme()
+    })
+  })
+  
+  // 绑定 Header 主题切换按钮
+  document.querySelectorAll('.theme-toggle-header').forEach(btn => {
     btn.addEventListener('click', () => {
       window.themeManager.toggleTheme()
     })
