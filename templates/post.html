@@ -11,36 +11,35 @@
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
 
   <!-- Prism.js 代码高亮 - Okaidia 主题 -->
-  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/assets/vendor/prism-okaidia.min.css}" />
   <!-- 代码高亮核心 -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script th:src="@{/assets/vendor/prism.min.js}"></script>
   <!-- 语言支持（按依赖顺序） -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-csharp.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-ruby.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-swift.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-kotlin.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-docker.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-nginx.min.js"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-markup.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-css.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-clike.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-javascript.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-typescript.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-java.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-python.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-bash.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-json.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-sql.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-yaml.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-markdown.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-go.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-rust.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-c.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-cpp.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-csharp.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-ruby.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-swift.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-kotlin.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-docker.min.js}"></script>
+  <script th:src="@{/assets/vendor/prism-components/prism-nginx.min.js}"></script>
   <!-- 行号插件 -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css"
-    rel="stylesheet" />
+  <script th:src="@{/assets/vendor/prism-line-numbers.min.js}"></script>
+  <link rel="stylesheet" th:href="@{/assets/vendor/prism-line-numbers.css}" />
   <!-- 公共 vendor JS -->
   <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
   <script th:src="@{/assets/vendor/relativeTime.js}"></script>

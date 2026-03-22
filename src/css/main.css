@@ -1,9 +1,6 @@
 /* Tailwind v4 基础导入 */
 @import "tailwindcss";
 
-/* 引入自定义样式 */
-@import "./style.css";
-
 /* ========== 自定义主题变量（Tailwind v4 方式） ========== */
 @theme {
   /* 主色调 */
@@ -1972,7 +1969,7 @@ html, body {
       margin-top: 24px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 920px) {
       .article-list {
         display: block;
       }
@@ -2076,7 +2073,7 @@ html, body {
   color: #fff !important;
   border-radius: 4px;
 }
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   .post-card-list {
     grid-template-columns: 1fr;
   }
@@ -3610,11 +3607,13 @@ body .moment-item .moment-comments-wrapper.hidden {
 }
 
 /* ========== 响应式断点：移动端 ========== */
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   /* Header 移动端：减小内边距 */
   #header {
-    padding: 0 16px !important;
-    height: 56px !important;
+    padding: 0 16px;
+    height: 56px;
+    background-color: #000000;
+
   }
 
   /* 内容容器：移动端去掉两侧大 padding */
@@ -3625,7 +3624,7 @@ body .moment-item .moment-comments-wrapper.hidden {
   }
 
   /* 侧边栏：移动端隐藏 */
-  .sidebar {
+  .notes-aside {
     display: none;
   }
 
