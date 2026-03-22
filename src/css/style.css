@@ -113,8 +113,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  padding-top: 100px;
   overflow-x: hidden;
-  transition: all 0.3s ease;
 }
 
 /* 全局标题 */
@@ -175,88 +175,133 @@ a:active {
   padding-left: 0;    /* 去掉默认缩进 */
   margin: 0;          /* 去掉默认间距 */
 }
-/* 头部布局（修复） */
-.justify-between {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  height: 120px;
-  padding:30px 80px  50px 80px;
+/* ========== Header ========== */
+
+/* Header 基础布局 */
+#header {
+  position: fixed !important;
+  top: 0;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 80px !important;
+  height: auto !important;
+  min-height: 80px !important;
+  box-sizing: border-box;
+  z-index: 1000;
+  background: #F7F7F8;
+  transition: transform 0.3s ease;
+}
+/* Header 隐藏状态 */
+#header.header-hidden {
+  transform: translateY(-100%);
 }
 
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* Logo 区域 */
 .fullname {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    height: 100px;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
-
+.fullname h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+}
 .fullname h1 a {
   color: #66758c !important;
   text-decoration: none !important;
 }
 
-/* 父级选择器：统一基础样式 */
+/* 搜索框区域 */
 .search-box {
   display: flex;
   align-items: center;
-}
-.search-box input {
-  /* 这里面不要写覆盖性样式！只保留基础样式 */
-  font-size: 14px;
-  height: 40px;
-  outline: none;
-  border-radius: 30px; /* 👈 圆角写在这里，永久生效 */
+  gap: 80px;
 }
 
-/* 搜索输入框：默认隐藏 */
+/* 搜索图标 */
+.search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #66758c;
+  transition: all 0.2s ease;
+}
+.search-icon:hover {
+  background: #3366FF;
+  color: #ffffff;
+}
+
+/* 深色模式切换按钮 */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #66758c;
+  transition: all 0.2s ease;
+}
+.theme-toggle:hover {
+  background: #3366FF;
+  color: #ffffff;
+}
+
+/* 搜索输入框：展开/收起动画（Tailwind 无法表达状态过渡，保留在此） */
 .search-input {
   width: 0;
   padding: 0;
   border: none;
   opacity: 0;
-  transition: all 0.3s ease-out;
+  font-size: 14px;
+  height: 36px;
+  outline: none;
+  border-radius: 30px;
+  background: transparent;
+  transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, transform 0.3s ease-out;
   transform: translateX(10px);
   pointer-events: none;
   overflow: hidden;
 }
-
-/* 展开状态：保留所有动画 + 圆角 */
 .search-input.show {
-  width: 220px;
-  padding: 0 15px;
-  margin-right: 8px;
-  border: 1px solid #ddd;
+  width: 200px;
+  padding: 0 14px;
+  margin-right: 6px;
+  border: 1px solid #e2e8f0;
   opacity: 1;
   pointer-events: all;
   transform: translateX(0);
+  background: #fff;
 }
-.search-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: transparent; /* 默认透明 */
-  border-radius: 50%;       /* 先设为圆形，方便过渡 */
-  cursor: pointer;
-  color: #66758c;
-  transition: all 0.2s ease; /* 平滑过渡 */
+/* 深色模式下的搜索框 */
+[data-theme="dark"] .search-input.show {
+  border-color: #4b5563;
+  background: #374151;
+  color: #e5e7eb;
 }
-.search-icon:hover {
-    background: #3366FF; /* 浅灰背景，可自定义颜色 */
-    color: #ffffff;              /* 图标颜色加深 */
+
+/* 深色模式图标切换（sun/moon 显示逻辑由 JS 控制） */
+.icon-sun,
+.icon-moon {
+  display: none;
+  pointer-events: none;
 }
 
 /* 全局：保证页面撑满高度，页脚贴底 */
 html, body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -3485,4 +3530,41 @@ body .moment-item .moment-comments-wrapper.hidden {
   font-size: 14px;
   color: #666;
   margin: 0;
+}
+
+/* ========== 响应式断点：移动端 ========== */
+@media (max-width: 768px) {
+  /* Header 移动端：减小内边距 */
+  #header {
+    padding: 0 16px !important;
+    height: 56px !important;
+  }
+
+  /* 内容容器：移动端去掉两侧大 padding */
+  .container {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* 侧边栏：移动端隐藏 */
+  .sidebar {
+    display: none;
+  }
+
+  /* 内容区：移动端占满宽度 */
+  .content {
+    min-height: auto;
+    border-radius: 8px;
+  }
+
+  /* 搜索框：移动端宽度缩小 */
+  .search-input.show {
+    width: 140px;
+  }
+
+  /* 内容主体 padding 缩小 */
+  .content {
+    padding: 16px;
+  }
 }

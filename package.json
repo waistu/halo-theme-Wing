@@ -1,0 +1,32 @@
+{
+  "name": "theme-wing",
+  "version": "1.0.0",
+  "description": "<div align=\"center\"> <!-- 主题Logo --> <img width=\"100px\" src=\"templates/assets/img/logo.png\"> <!-- 主题名称 --> <h1>Halo-Theme-Wing</h1> <!-- 快捷导航 --> <p align=\"center\">",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waistu/halo-theme-Wing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/waistu/halo-theme-Wing/issues"
+  },
+  "homepage": "https://github.com/waistu/halo-theme-Wing#readme",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.1"
+  }
+}

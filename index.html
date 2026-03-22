@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THEME-WING 开发测试</title>
+    <!-- 引入开发环境中的 CSS -->
+    <link rel="stylesheet" href="/src/css/main.css">
+    <style>
+        /* 临时样式用于验证 */
+        .test-card {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .dark .test-card {
+            background: #1f2937;
+            color: #f9fafb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
+    <div class="test-card">
+        <h1 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+            🎉 开发服务器运行正常！
+        </h1>
+
+        <div class="space-y-4 mb-6">
+            <div class="p-4 bg-green-100 dark:bg-green-900 rounded-lg">
+                <p class="font-semibold">✅ Vite + Tailwind 配置成功</p>
+                <p class="text-sm mt-1">开发服务器已启动在端口 5173</p>
+            </div>
+
+            <div class="p-4 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                <p class="font-semibold">📁 项目结构验证</p>
+                <ul class="text-sm mt-1 space-y-1">
+                    <li>• tailwind.config.js ✓</li>
+                    <li>• vite.config.js ✓</li>
+                    <li>• src/css/main.css ✓</li>
+                    <li>• package.json ✓</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="p-4 border rounded-lg">
+                <h3 class="font-bold mb-2">Tailwind 样式测试</h3>
+                <button class="btn-primary mt-2">主要按钮</button>
+                <button class="ml-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded">
+                    次要按钮
+                </button>
+            </div>
+
+            <div class="p-4 border rounded-lg">
+                <h3 class="font-bold mb-2">深色模式测试</h3>
+                <p class="text-sm">切换 HTML 的 dark 类测试效果</p>
+                <div class="mt-2 flex space-x-2">
+                    <button onclick="document.documentElement.classList.add('dark')"
+                        class="px-3 py-1 bg-gray-800 text-white rounded text-sm">
+                        深色模式
+                    </button>
+                    <button onclick="document.documentElement.classList.remove('dark')"
+                        class="px-3 py-1 bg-gray-200 rounded text-sm">
+                        浅色模式
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-sm text-gray-600 dark:text-gray-400 border-t pt-4">
+            <p>📌 <strong>下一步：</strong></p>
+            <ol class="list-decimal pl-5 mt-2 space-y-1">
+                <li>修改 <code>src/css/main.css</code> 添加自定义样式</li>
+                <li>在 <code>src/js/main.js</code> 中添加交互逻辑</li>
+                <li>运行 <code>npm run build</code> 构建生产文件</li>
+                <li>将构建文件复制到 Halo 主题的 static 目录</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- 引入 JS 文件（如果有） -->
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+
+</html>

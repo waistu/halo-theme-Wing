@@ -1,0 +1,77 @@
+/* Tailwind v4 基础导入 */
+@import "tailwindcss";
+
+/* 引入自定义样式 */
+@import "./style.css";
+
+/* ========== 自定义主题变量（Tailwind v4 方式） ========== */
+@theme {
+  /* 主色调 */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  /* 自定义断点 */
+  --breakpoint-xs: 475px;
+  --breakpoint-3xl: 1920px;
+
+  /* 字体 */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ========== 深色模式配置 ========== */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ========== 基础样式覆盖 ========== */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 深色模式过渡效果 */
+  :root {
+    color-scheme: light;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  /* 全局过渡 */
+  html, body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* ========== 自定义组件类 ========== */
+@layer components {
+  /* 卡片组件 */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700;
+  }
+
+  /* 按钮基础 */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg font-medium bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-200;
+  }
+
+  /* 导航链接 */
+  .nav-link {
+    @apply text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors;
+  }
+}
+
+/* ========== 自定义工具类 ========== */
+@layer utilities {
+  /* 滚动条美化 */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}

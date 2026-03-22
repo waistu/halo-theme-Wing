@@ -6,9 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${post.spec.title} + ' - ' + ${site.title}"></title>
-  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
-  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
-  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
 
   <!-- Prism.js 代码高亮 - Okaidia 主题 -->
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
@@ -41,10 +41,14 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css"
     rel="stylesheet" />
+  <!-- 公共 vendor JS -->
+  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
+  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
+  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
 </head>
 
 <body>
-  <div th:replace="~{includes/header :: header}"></div>
+  <div th:replace="~{includes/components/header :: header}"></div>
 
   <div class="container">
     <aside class="sidebar">
@@ -68,20 +72,20 @@
 
       <!-- 导航视图 -->
       <div class="sidebar-content" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
-        <div class="widget-box" th:replace="~{includes/nav :: nav}"></div>
-        <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+        <div class="widget-box" th:replace="~{includes/components/nav :: nav}"></div>
+        <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
         </div>
       </div>
     </aside>
 
     <div class="content">
-      <div th:replace="~{includes/articleList :: articleContent(content = ${post.content.content}, post = ${post})}"></div>
+      <div th:replace="~{includes/components/articleList :: articleContent(content = ${post.content.content}, post = ${post})}"></div>
 
       <!-- 评论区 -->
-      <div th:replace="~{modules/comment :: comment}"></div>
+      <div th:replace="~{includes/comment/comment :: comment}"></div>
     </div>
   </div>
-  <div th:replace="~{includes/footer :: footer}"></div>
+  <div th:replace="~{includes/components/footer :: footer}"></div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Prism.js 代码高亮
@@ -241,6 +245,29 @@
       setTimeout(tryGenerateTOC, 100);
     }
   </script>
+  <!-- Header 滚动隐藏脚本 -->
+  <script>
+    (function() {
+      var header = document.getElementById('header');
+      if (!header) return;
+      var lastScrollY = 0;
+      window.onscroll = function() {
+        var currentScrollY = window.scrollY;
+        if (currentScrollY > 100) {
+          if (currentScrollY > lastScrollY) {
+            header.classList.add('header-hidden');
+          } else {
+            header.classList.remove('header-hidden');
+          }
+        } else {
+          header.classList.remove('header-hidden');
+        }
+        lastScrollY = currentScrollY;
+      };
+    })();
+  </script>
+  <!-- 主脚本 -->
+  <script th:src="@{/assets/dist/js/main.js}"></script>
 </body>
 
 </html>

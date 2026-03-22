@@ -5,7 +5,7 @@
       <img th:src="${theme.config.author.cover}" alt="封面">
     </th:block>
     <th:block th:unless="${not #strings.isEmpty(theme.config.author.cover)}">
-      <img th:src="@{/assets/img/authorCardbg.jpg}" alt="封面" class="author-cover-default">
+      <img th:src="@{/assets/images/authorCardbg.jpg}" alt="封面" class="author-cover-default">
     </th:block>
     <button class="author-follow-btn" title="关注">
       <i class="czs czs-add"></i>
@@ -18,7 +18,7 @@
       <img th:src="${theme.config.author.avatar}" alt="头像" class="author-avatar">
     </th:block>
     <th:block th:unless="${theme.config.author.avatar}">
-      <img th:src="@{/assets/img/author-avatar.png}" alt="头像" class="author-avatar">
+      <img th:src="@{/assets/images/author-avatar.png}" alt="头像" class="author-avatar">
     </th:block>
   </div>
 
