@@ -335,7 +335,25 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 })
+// 等页面加载完再执行
+document.addEventListener('DOMContentLoaded', function () {
+  const menuIcon = document.getElementById('menuIcon');
+  const sidebar = document.querySelector('.sidebar');
 
+  if (menuIcon && sidebar) {
+    // 点击图标 → 开关侧边栏
+    menuIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('active');
+    });
 
+    // 点击空白处 → 关闭
+    document.addEventListener('click', (e) => {
+      if (!sidebar.contains(e.target) && !menuIcon.contains(e.target)) {
+        sidebar.classList.remove('active');
+      }
+    });
+  }
+});
 
 
