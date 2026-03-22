@@ -1,4 +1,4 @@
-<div th:fragment="authorCard(postCount, stats)" class="author-card widget-box">
+<div th:fragment="authorCard(postCount, stats)" class="author-card widget-box bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
   <!-- 封面背景 -->
   <div class="author-cover">
     <th:block th:if="${not #strings.isEmpty(theme.config.author.cover)}">
@@ -24,27 +24,27 @@
 
   <!-- 作者信息 -->
   <div class="author-info">
-    <h3 class="author-name" th:text="${site.title}">站点名称</h3>
-    <p class="author-bio"
+    <h3 class="author-name text-gray-900 dark:text-white" th:text="${site.title}">站点名称</h3>
+    <p class="author-bio text-gray-600 dark:text-gray-400"
       th:text="${theme.config.author.bio ?: 'Product Designer who focuses on simplicity & usability.'}">简介</p>
   </div>
 
   <!-- 统计数据 -->
   <div class="author-stats">
     <div class="stat-item">
-      <span class="stat-value" th:with="upvote=${stats?.upvote ?: 0}"
+      <span class="stat-value text-gray-900 dark:text-white" th:with="upvote=${stats?.upvote ?: 0}"
         th:text="${upvote >= 1000 ? T(java.lang.String).format('%.1fK', upvote / 1000.0) : upvote}">0</span>
-      <span class="stat-label">Like</span>
+      <span class="stat-label text-gray-500 dark:text-gray-400">Like</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value"
+      <span class="stat-value text-gray-900 dark:text-white"
         th:text="${postCount >= 1000 ? T(java.lang.String).format('%.1fK', postCount / 1000.0) : postCount}">0</span>
-      <span class="stat-label">Posts</span>
+      <span class="stat-label text-gray-500 dark:text-gray-400">Posts</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value" th:with="visit=${stats?.visit ?: 0}"
+      <span class="stat-value text-gray-900 dark:text-white" th:with="visit=${stats?.visit ?: 0}"
         th:text="${visit >= 1000 ? T(java.lang.String).format('%.1fK', visit / 1000.0) : visit}">0</span>
-      <span class="stat-label">Views</span>
+      <span class="stat-label text-gray-500 dark:text-gray-400">Views</span>
     </div>
   </div>
 
@@ -55,7 +55,7 @@
         <th:block th:with="socials=${theme.config.author.socials_default}"></th:block>
       </th:block>
       <a th:each="social : ${socials}" th:if="${not #strings.isEmpty(social.url)}" th:href="${social.url}"
-        target="_blank" class="social-link" th:title="${social.label}">
+        target="_blank" class="social-link text-gray-600 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400" th:title="${social.label}">
         <i th:class="'czs ' + ${social.icon}"></i>
       </a>
     </th:block>
