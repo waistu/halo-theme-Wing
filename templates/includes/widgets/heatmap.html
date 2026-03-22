@@ -209,6 +209,21 @@
             var daysEl = statsCard.querySelector('.stats-days');
             if (daysEl) daysEl.textContent = diffDays > 0 ? diffDays : 1;
         }
+
+        // --- 4. 保护机制：使用 requestAnimationFrame 确保最后执行 ---
+        // 多次尝试渲染，防止被其他 JS 覆盖
+        function guardRender() {
+            if (container) {
+                var firstChild = container.children[0];
+                // 检查是否被破坏（只有文本节点，没有内部 div）
+                if (!firstChild || (firstChild.childNodes.length === 1 && firstChild.childNodes[0].nodeType === 3)) {
+                    container.innerHTML = html;
+                }
+            }
+            requestAnimationFrame(guardRender);
+        }
+        // 延迟 100ms 后开始保护，确保初始渲染完成
+        setTimeout(guardRender, 100);
     })();
     /*]]>*/
     </script>

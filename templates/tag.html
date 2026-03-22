@@ -6,18 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${tag.spec.displayName} + ' - ' + ${site.title}"></title>
-  <link rel="stylesheet" th:href="@{/assets/css/normalize.css}" />
-  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
-  <link rel="stylesheet" th:href="@{/assets/css/tag.css}" />
-  <link rel="stylesheet" th:href="@{/assets/iconfont/caomei/style.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
 </head>
 
 <body>
-  <div th:replace="~{includes/header :: header}"></div>
+  <div th:replace="~{includes/components/header :: header}"></div>
   <div class="container">
     <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
-      <div th:replace="~{includes/nav :: nav}"></div>
-      <div th:replace="includes/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
+      <div th:replace="~{includes/components/nav :: nav}"></div>
+      <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})"></div>
     </aside>
 
     <div class="content">
@@ -75,7 +74,29 @@
     </div>
   </div>
 
-  <div th:replace="~{includes/footer :: footer}"></div>
+  <div th:replace="~{includes/components/footer :: footer}"></div>
+  <!-- Header 滚动隐藏脚本 -->
+  <script>
+    (function() {
+      var header = document.getElementById('header');
+      if (!header) return;
+      var lastScrollY = 0;
+      window.onscroll = function() {
+        var currentScrollY = window.scrollY;
+        if (currentScrollY > 100) {
+          if (currentScrollY > lastScrollY) {
+            header.classList.add('header-hidden');
+          } else {
+            header.classList.remove('header-hidden');
+          }
+        } else {
+          header.classList.remove('header-hidden');
+        }
+        lastScrollY = currentScrollY;
+      };
+    })();
+  </script>
+  <script th:src="@{/assets/dist/js/main.js}"></script>
 </body>
 
 </html>

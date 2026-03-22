@@ -14,10 +14,14 @@
     <title th:text="${site.title}"></title>
     <link
       rel="stylesheet"
-      th:href="@{/assets/css/style.css?v={version}(version=${theme.spec.version})}"
+      th:href="@{/assets/vendor/normalize.css}"
+    />
+    <link
+      rel="stylesheet"
+      th:href="@{/assets/dist/css/main.css}"
     />
     <script
-      th:src="@{/assets/js/main.js?v={version}(version=${theme.spec.version})}"
+      th:src="@{/assets/dist/js/main.js}"
     ></script>
     <th:block th:if="${head != null}">
       <th:block th:replace="${head}" />

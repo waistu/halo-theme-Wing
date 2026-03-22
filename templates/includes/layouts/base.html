@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN" class="scroll-smooth"
+    th:with="currentTheme=${theme.config.basic?.theme ?: 'light'}" th:classappend="${currentTheme}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" th:content="${site.description}">
+
+    <!-- 网站标题 -->
+    <title th:text="${site_title} + (${post.title} ? ' - ' + ${post.title} : '')" th:remove="tag">
+        网站标题
+    </title>
+
+    <!-- 引入构建后的 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">
+    <!-- Header 样式：防止遮挡内容 + 滚动隐藏 -->
+    <style>
+      body {
+        padding-top: 100px !important;
+      }
+      #header {
+        transition: transform 0.3s ease;
+      }
+      #header.header-hidden {
+        transform: translateY(-100%);
+      }
+    </style>
+
+    <!-- 可选的额外样式 -->
+    <link th:if="${theme.config.custom_css}" rel="stylesheet" th:href="@{${theme.config.custom_css}}">
+
+    <!-- 预加载关键资源 -->
+    <link rel="preload" th:href="@{/assets/dist/js/main.js}" as="script">
+
+    <!-- 主题颜色 -->
+    <meta name="theme-color" th:content="${theme.config.basic?.primary_color} ?: '#3b82f6'">
+
+    <!-- RSS 订阅 -->
+    <link rel="alternate" type="application/rss+xml" th:href="@{/atom.xml}" title="RSS">
+</head>
+
+<body
+    class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <!-- 头部导航栏 -->
+    <header th:replace="~{includes/components/header :: header}"></header>
+
+    <!-- 主内容区域（由子模板填充） -->
+    <main class="flex-grow" th:fragment="content">
+        <!-- 这里的内容会被子模板替换 -->
+        <div th:replace="${content}"></div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer th:replace="~{includes/components/footer :: footer}"></footer>
+
+    <!-- 移动端导航菜单（可选） -->
+    <div th:replace="~{includes/components/mobile-nav :: mobile-nav}"></div>
+
+    <!-- 引入构建后的 JavaScript -->
+    <script th:src="@{/assets/dist/js/main.js}"></script>
+    <!-- Header 滚动隐藏脚本 -->
+    <script>
+      (function() {
+        var header = document.getElementById('header');
+        if (!header) return;
+        var lastScrollY = 0;
+        var ticking = false;
+        
+        function updateHeader() {
+          var currentScrollY = window.scrollY;
+          if (currentScrollY > 100) {
+            if (currentScrollY > lastScrollY) {
+              header.classList.add('header-hidden');
+            } else {
+              header.classList.remove('header-hidden');
+            }
+          } else {
+            header.classList.remove('header-hidden');
+          }
+          lastScrollY = currentScrollY;
+          ticking = false;
+        }
+        
+        window.addEventListener('scroll', function() {
+          if (!ticking) {
+            requestAnimationFrame(updateHeader);
+            ticking = true;
+          }
+        }, { passive: true });
+      })();
+    </script>
+
+    <!-- 自定义脚本（如果有） -->
+    <script th:if="${theme.config.custom_js}" th:src="@{${theme.config.custom_js}}"></script>
+
+    <!-- 统计代码（如果有） -->
+    <div th:utext="${theme.config.analytics_code}" th:remove="tag"></div>
+</body>
+
+</html>
