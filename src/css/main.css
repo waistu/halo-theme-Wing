@@ -4442,6 +4442,11 @@ html.dark .link-item.style-lost,
     background-color: var(--bg-card);
   }
 
+  /* 显示移动端菜单按钮 */
+  .menu-icon {
+    display: flex !important;
+  }
+
   /* 内容容器：保持水平排列（左边栏 + 内容区并排） */
   .container {
     padding: 12px 16px;
@@ -4488,14 +4493,20 @@ html.dark .link-item.style-lost,
     transform: scale(0.85) translateY(105px);
   }
     /* Header 移动端：减小内边距 */
-  #header {
-    padding: 12px 16px;
-    margin-top: 30px;
-    height: 56px;
-    background-color: var(--bg-card);
-  }
-  .fullname h1 {
-    font-size: 24px;
+    #header {
+      padding: 12px 16px;
+      margin-top: 30px;
+      height: 56px;
+      background-color: var(--bg-card);
+    }
+    .fullname h1 {
+      font-size: 24px;
+    }
+
+  /* 内容容器：小屏幕下进一步减小内边距 */
+  .container {
+    padding: 10px 12px;
+    gap: 10px;
   }
 
   /* 侧边栏：移动端默认隐藏（滑出屏幕外） */
@@ -4528,7 +4539,7 @@ html.dark .link-item.style-lost,
     border-radius: 12px;
     padding: 20px;
   }
-  
+
   /* widget-box 默认状态 */
   .sidebar .widget-box {
     transform: scale(0.85) translateY(105px);
@@ -4536,7 +4547,7 @@ html.dark .link-item.style-lost,
     opacity: 0;
     transition: opacity 0.3s ease 0.2s;
   }
-  
+
   /* widget-box 激活状态：渐显 */
   .sidebar.active .widget-box {
     opacity: 1;
