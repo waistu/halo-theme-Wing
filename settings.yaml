@@ -21,6 +21,28 @@ spec:
           label: 建站时间
           placeholder: 选择建站日期
           help: 用于计算网站运行天数
+        - $formkit: select
+          name: color_scheme
+          label: 主题配色
+          help: 选择网站的主题强调色
+          value: rose
+          options:
+            - label: 玫瑰红 (Rose)
+              value: rose
+            - label: 蓝色 (Blue)
+              value: blue
+            - label: 翠绿 (Emerald)
+              value: emerald
+            - label: 紫罗兰 (Violet)
+              value: violet
+            - label: 琥珀橙 (Amber)
+              value: amber
+            - label: 灰褐 (Taupe)
+              value: taupe
+            - label: 洋红 (Fuchsia)
+              value: fuchsia
+            - label: 石板灰 (Slate)
+              value: slate
         - $formkit: radio
           name: sidebar_toggle
           label: 左侧边栏

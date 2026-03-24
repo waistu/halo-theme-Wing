@@ -445,12 +445,6 @@ html.dark :root,
   justify-content: space-between;
   padding: 30px 80px;
 }
-
-html.dark #header,
-[data-theme="dark"] #header {
-  background-color: var(--bg-card-dark);
-  border-color: var(--border-color-dark);
-}
 /* Header 隐藏状态 */
 #header.header-hidden {
   transform: translateY(-100%);
@@ -787,7 +781,7 @@ html.dark .widget-box,
 /* 图标 */
 .author-follow-btn .czs {
   font-size: 14px;
-  color: #667eea;
+  color: var(--color-primary-600);
   flex-shrink: 0;
   transition: color 0.2s;
 }
@@ -3191,8 +3185,12 @@ html.dark .post-tag,
   box-shadow: 0 4px 12px rgba(51, 102, 255, 0.25);
 }
 
+/* 评论样式覆盖 */
 .article-comment {
   padding: 20px;
+}
+.form-account {
+  display: none;
 }
 
 /* 瞬间列表样式 */

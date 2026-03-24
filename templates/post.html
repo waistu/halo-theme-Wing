@@ -7,16 +7,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${post.spec.title} + ' - ' + ${site.title}"></title>
   <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
-  <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+  <script>try { var t = localStorage.getItem('theme'); if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark') } catch (e) { }</script>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <!-- 主题配色方案 -->
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
   <style>
     /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
-    html { background-color: var(--bg-page, #f9fafb); }
-    html.dark { background-color: var(--bg-page-dark, #111827); }
-    body { background-color: var(--bg-page, #f9fafb); color: var(--text-secondary, #4b5563); }
-    html.dark body { background-color: var(--bg-page-dark, #111827); color: var(--text-secondary-dark, #d1d5db); }
+    html {
+      background-color: var(--bg-page, #f9fafb);
+    }
+
+    html.dark {
+      background-color: var(--bg-page-dark, #111827);
+    }
+
+    body {
+      background-color: var(--bg-page, #f9fafb);
+      color: var(--text-secondary, #4b5563);
+    }
+
+    html.dark body {
+      background-color: var(--bg-page-dark, #111827);
+      color: var(--text-secondary-dark, #d1d5db);
+    }
   </style>
 
   <!-- Prism.js 代码高亮 - Okaidia 主题 -->
@@ -94,6 +109,7 @@
       </div>
 
       <!-- 评论区 -->
+      <h2>留言评论:</h2>
       <div th:replace="~{includes/comment/comment :: comment}"></div>
     </div>
   </div>

@@ -7,8 +7,6 @@
 
 # 依赖包（不用推远程）
 node_modules/
-package-lock.json
-yarn.lock
 
 # 日志
 logs/
