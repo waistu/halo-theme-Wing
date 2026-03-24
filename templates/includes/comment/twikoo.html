@@ -1,0 +1,48 @@
+<!--
+  Twikoo 评论模块
+  官网：https://twikoo.js.org/
+  需要先在 Twikoo 官网或 Vercel 部署获取环境 ID
+-->
+<th:block th:fragment="twikoo">
+
+    <div class="article-comment round" id="comment-wrapper">
+        <div id="twikoo-container"></div>
+    </div>
+    
+    <!-- Twikoo JS -->
+    <script th:inline="javascript">
+        (function() {
+            var envId = /*[[${theme.config.comment?.twikoo_config?.twikoo_env_id}]]*/ '';
+            var jsUrl = /*[[${theme.config.comment?.twikoo_config?.twikoo_js_url}]]*/ 'https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js';
+            
+            if (!envId) {
+                console.warn('Twikoo: 环境 ID 未配置，请在主题设置中填写');
+                document.getElementById('twikoo-container').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: #999;">' +
+                    '<p>Twikoo 评论未配置</p>' +
+                    '<p style="font-size: 12px;">请在主题设置 → 评论设置中填写环境 ID</p>' +
+                    '</div>';
+                return;
+            }
+            
+            // 加载 Twikoo
+            var script = document.createElement('script');
+            script.src = jsUrl || 'https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js';
+            script.async = true;
+            script.onload = function() {
+                twikoo.init({
+                    envId: envId,
+                    el: '#twikoo-container',
+                    path: window.location.pathname,
+                    lang: 'zh-CN'
+                });
+            };
+            script.onerror = function() {
+                document.getElementById('twikoo-container').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: #999;">Twikoo 加载失败</div>';
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
+
+</th:block>

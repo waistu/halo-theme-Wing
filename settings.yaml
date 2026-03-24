@@ -81,6 +81,51 @@ spec:
               value: funky
             - label: Solarized Light (亮色护眼)
               value: solarizedlight
+    - group: comment
+      label: 评论设置
+      formSchema:
+        - $formkit: select
+          name: comment_provider
+          id: comment_provider
+          key: comment_provider
+          label: 评论系统
+          help: 选择要使用的评论系统，默认使用 Halo 官方评论
+          value: halo
+          options:
+            - label: Halo 官方评论
+              value: halo
+            - label: Twikoo 评论
+              value: twikoo
+        - $formkit: group
+          if: $get(comment_provider).value == 'twikoo'
+          name: twikoo_config
+          key: twikoo_config
+          label: Twikoo 评论配置
+          help: 文档：https://twikoo.js.org/
+          value:
+            twikoo_env_id: ""
+            twikoo_token: ""
+            twikoo_js_url: "https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js"
+          children:
+            - $formkit: url
+              name: twikoo_env_id
+              key: twikoo_env_id
+              label: Twikoo 评论 - 环境id/后端URL
+              placeholder: https://twikoo.xxx.com/
+              help: 详情请查看文档 (后缀带 / )
+            - $formkit: text
+              name: twikoo_token
+              key: twikoo_token
+              label: Twikoo 评论 - 管理员令牌
+              placeholder: 在浏览器F12的控制台中获取
+              help: 用于显示弹幕，详情请查看文档
+            - $formkit: url
+              name: twikoo_js_url
+              key: twikoo_js_url
+              label: Twikoo 评论 - JS 地址
+              placeholder: https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js
+              help: 主题的 Twikoo 版本是最新版本(如果你使用的不是最新版本请自己引入js文件)
+              value: https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js
     - group: author
       label: 作者卡片
       formSchema:

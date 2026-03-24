@@ -1,41 +1,52 @@
 <!--
   评论区模块
-  遵循 Halo 官方评论组件插件规范：https://docs.halo.run/developer-guide/theme/template-tag#halocomment
-  插件地址：https://www.halo.run/store/apps/app-YXyaD
-
-  使用方式：
-  1. 安装 "评论组件" 插件
-  2. 在文章/页面设置中开启评论
-  3. 在模板中引入此模块
+  支持 Halo 官方评论和 Twikoo 评论，通过主题设置切换
+  
+  Halo 官方评论：https://www.halo.run/store/apps/app-YXyaD
+  Twikoo 评论：https://twikoo.js.org/
 -->
 <th:block th:fragment="comment">
 
-    <!-- 判断评论功能是否启用 -->
-    <th:block th:if="${haloCommentEnabled}">
-        <div class="article-comment round" id="comment-wrapper">
-            <!--
-                Halo 官方评论组件标签
-                group: 资源分组，文章使用 content.halo.run
-                kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
-                name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
-            -->
-            <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
-                <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
-                    <halo:comment
-                        group="content.halo.run"
-                        th:kind="${commentKind}"
-                        th:attr="name=${commentName}"
-                    />
-                </th:block>
+    <!-- 根据主题设置选择评论系统 -->
+    <th:block th:switch="${theme.config.basic?.comment_provider}">
+        
+        <!-- Twikoo 评论 -->
+        <th:block th:case="'twikoo'">
+            <!-- Twikoo 有自己的配置检查逻辑 -->
+            <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+        </th:block>
+        
+        <!-- Halo 官方评论（默认） -->
+        <th:block th:case="*">
+            <!-- 仅在评论插件启用时显示 Halo 官方评论 -->
+            <th:block th:if="${haloCommentEnabled}">
+                <div class="article-comment round" id="comment-wrapper">
+                    <!--
+                        Halo 官方评论组件标签
+                        group: 资源分组，文章使用 content.halo.run
+                        kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
+                        name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
+                    -->
+                    <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
+                        <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
+                            <halo:comment
+                                group="content.halo.run"
+                                th:kind="${commentKind}"
+                                th:attr="name=${commentName}"
+                            />
+                        </th:block>
+                    </th:block>
+                </div>
             </th:block>
-        </div>
-    </th:block>
-
-    <!-- 评论未启用时的提示（可选） -->
-    <th:block th:unless="${haloCommentEnabled}">
-        <div class="article-comment-disabled" th:if="false">
-            <p>评论已关闭</p>
-        </div>
+            
+            <!-- 评论插件未启用时的提示 -->
+            <th:block th:unless="${haloCommentEnabled}">
+                <div class="article-comment-disabled" th:if="false">
+                    <p>评论已关闭</p>
+                </div>
+            </th:block>
+        </th:block>
+        
     </th:block>
 
 </th:block>
