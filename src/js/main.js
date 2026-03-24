@@ -1,153 +1,6 @@
 // 导入主样式（Vite 会处理 Tailwind CSS）
 import '../css/main.css'
 
-document.addEventListener('DOMContentLoaded', function () {
-  // 初始化 dayjs 相对时间
-  if (dayjs) {
-    dayjs.extend(dayjs_plugin_relativeTime);
-    dayjs.locale('zh-cn');
-    
-    // 格式化所有时间
-    document.querySelectorAll('.time-ago').forEach(function(el) {
-      const date = el.dataset.date;
-      if (date) {
-        el.textContent = dayjs(date).fromNow();
-      }
-    });
-
-    // 格式化瞬间时间
-    document.querySelectorAll('.moment-time').forEach(function(el) {
-      const date = el.dataset.date;
-      if (date) {
-        el.textContent = dayjs(date).fromNow();
-      }
-    });
-
-    // 标签列表按文章数量排序，过滤掉数量为0的
-      const topicItems = document.querySelectorAll('.topic-item');
-      const topicList = document.querySelector('.topic-items');
-      if (topicItems.length > 0 && topicList) {
-        const items = Array.from(topicItems);
-        const validItems = items.filter(item => {
-          const count = parseInt(item.getAttribute('data-count'), 10);
-          return !isNaN(count) && count > 0;
-        });
-        
-        validItems.sort((a, b) => {
-          const countA = parseInt(a.getAttribute('data-count'), 10) || 0;
-          const countB = parseInt(b.getAttribute('data-count'), 10) || 0;
-          return countB - countA;
-        });
-        
-        if (validItems.length > 0) {
-          topicList.innerHTML = '';
-          validItems.forEach(item => topicList.appendChild(item));
-        } else {
-          topicList.parentElement.style.display = 'none';
-        }
-      }
-      
-      // 标签聚合页处理
-      const tagsList = document.querySelector('.tags-list');
-      if (tagsList) {
-        const tagItems = tagsList.querySelectorAll('.tag-item');
-        if (tagItems.length > 0) {
-          const items = Array.from(tagItems);
-          const validItems = items.filter(item => {
-            const count = parseInt(item.getAttribute('data-count'), 10);
-            return !isNaN(count) && count > 0;
-          });
-          
-          validItems.sort((a, b) => {
-            const countA = parseInt(a.getAttribute('data-count'), 10) || 0;
-            const countB = parseInt(b.getAttribute('data-count'), 10) || 0;
-            return countB - countA;
-          });
-          
-          if (validItems.length > 0) {
-            tagsList.innerHTML = '';
-            validItems.forEach(item => tagsList.appendChild(item));
-          } else {
-            tagsList.parentElement.style.display = 'none';
-          }
-        }
-      }
-  } // end if (dayjs)
-
-  const searchIcon = document.getElementById('searchIcon');
-  const searchInput = document.getElementById('searchInput');
-  const searchBox = document.querySelector('.search-box');
-
-  // 搜索框相关逻辑（如果元素存在才绑定）
-  if (searchIcon && searchInput && searchBox) {
-
-  // 点击搜索图标
-  searchIcon.addEventListener('click', function (e) {
-    e.preventDefault(); // 永远阻止刷新
-
-    // --------------------------
-    // 方案：有插件用插件，没插件一律用原生框
-    // 所有页面都一样！包括 404！
-    // --------------------------
-    if (window.SearchWidget) {
-      // 正常页面：插件弹窗
-      SearchWidget.open(searchInput.value.trim());
-    } else {
-      // 404 / 错误页面：展开原生框
-      searchInput.classList.toggle('show');
-      if (searchInput.classList.contains('show')) {
-        searchInput.focus();
-      }
-    }
-  });
-
-  // 鼠标离开关闭
-  searchBox.addEventListener('mouseleave', function () {
-    if (!window.SearchWidget) {
-      searchInput.classList.remove('show');
-    }
-  });
-
-  // 回车搜索
-  searchInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const keyword = searchInput.value.trim();
-      if (!keyword) return;
-
-      if (window.SearchWidget) {
-        SearchWidget.open(keyword);
-      } else {
-        window.location.href = `/search?keyword=${encodeURIComponent(keyword)}`;
-      }
-    }
-  });
-
-  // ESC 关闭
-  searchInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      searchInput.classList.remove('show');
-    }
-  });
-  } // end if (searchIcon && searchInput && searchBox)
-});
-// 获取所有标签项
-const tabItems = document.querySelectorAll('.tab-item');
-
-// 遍历绑定点击事件
-tabItems.forEach(item => {
-  item.addEventListener('click', () => {
-    // 先移除所有标签的 active 类
-    tabItems.forEach(i => i.classList.remove('active'));
-    // 给当前点击的标签添加 active 类
-    item.classList.add('active');
-  });
-});
-
-
-
-
-
 // ========== 深色模式管理 ==========
 class ThemeManager {
   constructor() {
@@ -297,43 +150,50 @@ document.addEventListener('DOMContentLoaded', () => {
     images.forEach(img => imageObserver.observe(img))
   }
 
-  // dayjs 相对时间初始化（如果已加载）
+  // dayjs 相对时间初始化
   if (window.dayjs) {
-    dayjs.extend(window.dayjs_plugin_relativeTime)
-    dayjs.locale('zh-cn')
+    window.dayjs.extend(window.dayjs_plugin_relativeTime)
+    window.dayjs.locale('zh-cn')
     document.querySelectorAll('[data-date]').forEach(el => {
       const dateStr = el.getAttribute('data-date')
       if (dateStr) {
-        el.textContent = dayjs(dateStr).fromNow()
+        el.textContent = window.dayjs(dateStr).fromNow()
       }
     })
   }
 
-  // 搜索框交互
+  // ========== 搜索框交互 ==========
   const searchIcon = document.getElementById('searchIcon')
   const searchInput = document.getElementById('searchInput')
+  const searchBox = document.querySelector('.search-box')
+
   if (searchIcon && searchInput) {
-    searchIcon.addEventListener('click', () => {
-      if (searchInput.classList.contains('show')) {
-        const query = searchInput.value.trim()
-        if (query && window.SearchWidget) {
-          SearchWidget.open(query)
-        } else if (window.SearchWidget) {
-          SearchWidget.open('')
-        }
-        searchInput.classList.remove('show')
-        searchInput.value = ''
+    searchIcon.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      if (window.SearchWidget) {
+        // 有搜索插件：直接打开插件
+        SearchWidget.open(searchInput.value.trim())
       } else {
-        searchInput.classList.add('show')
-        searchInput.focus()
+        // 无插件：切换原生输入框显示
+        searchInput.classList.toggle('show')
+        if (searchInput.classList.contains('show')) {
+          searchInput.focus()
+        }
       }
     })
 
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        const query = searchInput.value.trim()
+        e.preventDefault()
+        const keyword = searchInput.value.trim()
+        if (!keyword) return
+
         if (window.SearchWidget) {
-          SearchWidget.open(query)
+          SearchWidget.open(keyword)
+        } else {
+          window.location.href = `/search?keyword=${encodeURIComponent(keyword)}`
         }
         searchInput.classList.remove('show')
         searchInput.value = ''
@@ -350,27 +210,89 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.classList.remove('show')
       }
     })
+
+    // 鼠标离开搜索框区域关闭（仅无插件时）
+    if (searchBox && !window.SearchWidget) {
+      searchBox.addEventListener('mouseleave', () => {
+        searchInput.classList.remove('show')
+      })
+    }
   }
-})
-// 等页面加载完再执行
-document.addEventListener('DOMContentLoaded', function () {
-  const menuIcon = document.getElementById('menuIcon');
-  const sidebar = document.querySelector('.sidebar');
 
+  // ========== 标签页切换 ==========
+  const tabItems = document.querySelectorAll('.tab-item')
+  tabItems.forEach(item => {
+    item.addEventListener('click', () => {
+      tabItems.forEach(i => i.classList.remove('active'))
+      item.classList.add('active')
+    })
+  })
+
+  // ========== 移动端菜单图标 ==========
+  const menuIcon = document.getElementById('menuIcon')
+  const sidebar = document.querySelector('.sidebar')
   if (menuIcon && sidebar) {
-    // 点击图标 → 开关侧边栏
     menuIcon.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sidebar.classList.toggle('active');
-    });
+      e.stopPropagation()
+      sidebar.classList.toggle('active')
+    })
 
-    // 点击空白处 → 关闭
     document.addEventListener('click', (e) => {
       if (!sidebar.contains(e.target) && !menuIcon.contains(e.target)) {
-        sidebar.classList.remove('active');
+        sidebar.classList.remove('active')
       }
-    });
+    })
   }
-});
 
+  // ========== 标签列表排序（文章数量） ==========
+  const topicList = document.querySelector('.topic-items')
+  if (topicList) {
+    const topicItems = topicList.querySelectorAll('.topic-item')
+    if (topicItems.length > 0) {
+      const items = Array.from(topicItems)
+      const validItems = items.filter(item => {
+        const count = parseInt(item.getAttribute('data-count'), 10)
+        return !isNaN(count) && count > 0
+      })
 
+      validItems.sort((a, b) => {
+        const countA = parseInt(a.getAttribute('data-count'), 10) || 0
+        const countB = parseInt(b.getAttribute('data-count'), 10) || 0
+        return countB - countA
+      })
+
+      if (validItems.length > 0) {
+        topicList.innerHTML = ''
+        validItems.forEach(item => topicList.appendChild(item))
+      } else {
+        topicList.parentElement.style.display = 'none'
+      }
+    }
+  }
+
+  // ========== 标签聚合页排序 ==========
+  const tagsList = document.querySelector('.tags-list')
+  if (tagsList) {
+    const tagItems = tagsList.querySelectorAll('.tag-item')
+    if (tagItems.length > 0) {
+      const items = Array.from(tagItems)
+      const validItems = items.filter(item => {
+        const count = parseInt(item.getAttribute('data-count'), 10)
+        return !isNaN(count) && count > 0
+      })
+
+      validItems.sort((a, b) => {
+        const countA = parseInt(a.getAttribute('data-count'), 10) || 0
+        const countB = parseInt(b.getAttribute('data-count'), 10) || 0
+        return countB - countA
+      })
+
+      if (validItems.length > 0) {
+        tagsList.innerHTML = ''
+        validItems.forEach(item => tagsList.appendChild(item))
+      } else {
+        tagsList.parentElement.style.display = 'none'
+      }
+    }
+  }
+})
