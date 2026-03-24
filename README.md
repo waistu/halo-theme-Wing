@@ -1,6 +1,6 @@
 <div align="center">
 <!-- 主题Logo -->
-<img width="100px" src="templates/assets/images/logo.png">
+<img width="100px" src="https://s3.api.waistu.com/bucket-alpha-bravo-charlie-12345/upload/2026/03/24/69c244d283a66.webp">
 <!-- 主题名称 -->
 <h1>Halo-Theme-Wing</h1>
 <!-- 快捷导航 -->

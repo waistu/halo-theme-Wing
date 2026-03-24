@@ -105,7 +105,7 @@ spec:
           value:
             twikoo_env_id: ""
             twikoo_token: ""
-            twikoo_js_url: "https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js"
+            twikoo_js_url: "https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.nocss.js"
           children:
             - $formkit: url
               name: twikoo_env_id
@@ -123,9 +123,9 @@ spec:
               name: twikoo_js_url
               key: twikoo_js_url
               label: Twikoo 评论 - JS 地址
-              placeholder: https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js
-              help: 主题的 Twikoo 版本是最新版本(如果你使用的不是最新版本请自己引入js文件)
-              value: https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.all.min.js
+              placeholder: https://cdn.jsdelivr.net/npm/twikoo@1.7.0/dist/twikoo.nocss.js
+              help: 使用 nocss 版本（推荐），主题会自动注入自定义样式。如填写 all.min.js 也会自动转换为 nocss 版本。
+              value: https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.nocss.js
     - group: author
       label: 作者卡片
       formSchema:
