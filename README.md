@@ -32,12 +32,12 @@
 
 ## 项目总结
 
-本主题基于 Thymeleaf 模板引擎开发，使用 Tailwind CSS v4 + Vite 构建样式，原生 JavaScript（无框架）实现交互。
-模板引擎：Thymeleaf
-样式构建：Tailwind CSS v4 + Vite v8
-深色模式：CSS 变量 + localStorage 持久化
-热力图：原生 JS 实现，展示文章/瞬间发布统计
-除 Prism.js 使用 CDN 外，其余资源均内置在主题中，无额外环境依赖。
+- 本主题基于 Thymeleaf 模板引擎开发，使用 Tailwind CSS v4 + Vite 构建样式，原生 JavaScript（无框架）实现交互。
+- 模板引擎：Thymeleaf
+- 样式构建：Tailwind CSS v4 + Vite v8
+- 深色模式：CSS 变量 + localStorage 持久化
+- 热力图：原生 JS 实现，展示文章/瞬间发布统计
+  除 Prism.js 使用 CDN 外，其余资源均内置在主题中，无额外环境依赖。
 
 ## 安装使用
 
