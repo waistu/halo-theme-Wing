@@ -6,7 +6,7 @@
 <!-- 快捷导航 -->
 <p align="center">
 
-[主题预览](https://blog.waistu.com/) | [快速上手](#-安装使用) | [使用文档](https://www.yuque.com/liuzhihangs/halo-theme-hao) | [加入我们](#-讨论)
+[主题预览](https://blog.waistu.com/) | [快速上手](#-安装使用) | [使用文档](#) | [加入我们](#-讨论)
 
 </p>
 </div>
@@ -32,7 +32,11 @@
 
 ## 项目总结
 
-本主题基于 **Thymeleaf** 模板引擎开发，使用原生 JavaScript（无框架）构建交互，依赖 Prism.js 代码高亮、dayjs 时间处理、草莓图标字体。
+本主题基于 Thymeleaf 模板引擎开发，使用 Tailwind CSS v4 + Vite 构建样式，原生 JavaScript（无框架）实现交互。
+模板引擎：Thymeleaf
+样式构建：Tailwind CSS v4 + Vite v8
+深色模式：CSS 变量 + localStorage 持久化
+热力图：原生 JS 实现，展示文章/瞬间发布统计
 除 Prism.js 使用 CDN 外，其余资源均内置在主题中，无额外环境依赖。
 
 ## 安装使用

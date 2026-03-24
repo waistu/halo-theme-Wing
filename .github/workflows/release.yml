@@ -1,19 +1,104 @@
-name: Auto Release
+name: Release Theme
+
 on:
   push:
     tags:
-      - "v*" # 推送 v 开头的 tag 时触发
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (如: 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      # 1. 构建/打包（按项目语言替换）
-      - name: Zip source code
-        run: zip -r project-${{ github.ref_name }}.zip . -x "*.git*"
-      # 2. 自动创建 Release 并上传文件
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          files: project-${{ github.ref_name }}.zip
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build theme
+        run: npm run build
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Package theme
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          mkdir -p dist/theme-wing
+          
+          # 复制必要文件
+          cp -r templates dist/theme-wing/
+          cp settings.yaml dist/theme-wing/
+          cp theme.yaml dist/theme-wing/
+          cp LICENSE dist/theme-wing/ 2>/dev/null || true
+          cp README.md dist/theme-wing/ 2>/dev/null || true
+          
+          # 更新 theme.yaml 版本号
+          sed -i "s/version: \".*\"/version: \"$VERSION\"/" dist/theme-wing/theme.yaml
+          
+          # 创建 zip
+          cd dist
+          zip -r theme-wing-$VERSION.zip theme-wing/
+          
+          echo "Package created: dist/theme-wing-$VERSION.zip"
+          ls -la theme-wing-$VERSION.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          files: dist/theme-wing-${{ steps.get_version.outputs.version }}.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-wing-${{ steps.get_version.outputs.version }}
+          path: dist/theme-wing-${{ steps.get_version.outputs.version }}.zip
+
+  # 可选：同步到 Halo 主题商店
+  # 需要先在 GitHub Secrets 中配置 HALO_APP_STORE_TOKEN
+  sync-to-store:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    if: false  # 默认关闭，配置好 Token 后改为 true
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: theme-wing-${{ needs.build-and-release.outputs.version }}
+          path: ./
+
+      - name: Sync to Halo App Store
+        run: |
+          echo "同步到 Halo 主题商店..."
+          # Halo 主题商店 API 文档：https://www.halo.run/store
+          # 需要实现具体的 API 调用
+          # curl -X POST "https://api.halo.run/store/themes" \
+          #   -H "Authorization: Bearer ${{ secrets.HALO_APP_STORE_TOKEN }}" \
+          #   -F "file=@theme-wing-*.zip"
