@@ -94,7 +94,7 @@
                                         target="_blank" rel="noopener noreferrer">
                                         <div class="link-logo">
                                             <img th:src="${link.spec.logo}" th:alt="${link.spec.displayName}"
-                                                onerror="this.src='/assets/images/default-avatar.png'" />
+                                                onerror="this.src=@{/assets/images/author-avatar.png}" />
                                         </div>
                                         <div class="link-info">
                                             <h3 class="link-name" th:text="${link.spec.displayName}">网站名称</h3>
@@ -108,8 +108,7 @@
                     </th:block>
                     <!-- 评论区 -->
                     <div class="post-comment-section">
-                        <halo:comment group="${singlePage.group}" kind="${singlePage.kind}" name="${singlePage.name}">
-                        </halo:comment>
+                        <div th:replace="~{includes/comment/comment :: comment}"></div>
                     </div>
                 </main>
             </div>

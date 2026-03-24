@@ -93,7 +93,7 @@
                             <div class="friend-card">
                                 <div class="friend-header">
                                     <img class="friend-avatar" th:src="${friend.spec.logo}" th:alt="${friend.spec.author}"
-                                        onerror="this.src='/assets/images/default-avatar.png'" />
+                                        onerror="this.src=@{/assets/images/author-avatar.png}" />
                                     <div class="friend-info">
                                         <a class="friend-author" th:href="${friend.spec.authorUrl}" target="_blank"
                                             th:text="${friend.spec.author}">作者</a>
@@ -116,9 +116,7 @@
                     </th:block>
                     <!-- 评论区 -->
                     <div class="post-comment-section" th:if="${singlePage != null}">
-                        <halo:comment group="${singlePage.group}" kind="${singlePage.kind}"
-                            name="${singlePage.name}">
-                        </halo:comment>
+                        <div th:replace="~{includes/comment/comment :: comment}"></div>
                     </div>
                 </main>
             </div>
