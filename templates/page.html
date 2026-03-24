@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>[[${singlePage.spec.title}]]丨[[${site.title}]]</title>
-  <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+  <script>try { var t = localStorage.getItem('theme'); if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark') } catch (e) { }</script>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <!-- 主题配色方案 -->
@@ -20,13 +20,16 @@
     html {
       background-color: var(--bg-page, #f9fafb);
     }
+
     html.dark {
       background-color: var(--bg-page-dark, #111827);
     }
+
     body {
       background-color: var(--bg-page, #f9fafb);
       color: var(--text-secondary, #4b5563);
     }
+
     html.dark body {
       background-color: var(--bg-page-dark, #111827);
       color: var(--text-secondary-dark, #d1d5db);
@@ -42,7 +45,8 @@
   <div class="container">
     <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
       <div th:replace="includes/components/nav :: nav"></div>
-      <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
+      <div
+        th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
       </div>
     </aside>
 
@@ -96,7 +100,14 @@
         <!-- 页面内容 -->
         <div class="page-content" th:utext="${singlePage.content.content}"></div>
         <!-- 评论区 -->
-        <div th:replace="~{includes/comment/comment :: comment}"></div>
+        <div class="comments-section">
+          <div class="comments-header">
+            <i class="czs czs-comment-l"></i>
+            <span class="comments-title">评论</span>
+            <span class="comments-count" th:if="${post.status?.commentsCount > 0}"
+              th:text="'(' + ${post.status.commentsCount} + ')'">(0)</span>
+          </div>
+          <div th:replace="~{includes/comment/comment :: comment}"></div>
       </article>
     </div>
   </div>
@@ -105,11 +116,11 @@
   <div th:replace="includes/components/footer :: footer"></div>
   <!-- Header 滚动隐藏脚本 -->
   <script>
-    (function() {
+    (function () {
       var header = document.getElementById('header');
       if (!header) return;
       var lastScrollY = 0;
-      window.onscroll = function() {
+      window.onscroll = function () {
         var currentScrollY = window.scrollY;
         if (currentScrollY > 100) {
           if (currentScrollY > lastScrollY) {

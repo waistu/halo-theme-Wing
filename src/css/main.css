@@ -3194,6 +3194,94 @@ html.dark .post-tag,
   display: none;
 }
 
+/* ========== Halo 评论组件 CSS 变量覆盖 ==========
+ * 官方文档：https://www.halo.run/store/apps/app-YXyaD
+ * 使用 CSS 变量方式自定义评论组件主题色
+ */
+
+/* 明亮模式 - 评论组件 CSS 变量 */
+:root {
+  /* 主题色（按钮、输入框边框等） */
+  --halo-cw-primary-1-color: var(--color-primary-600);
+  --halo-cw-primary-2-color: var(--color-primary-500);
+  --halo-cw-primary-3-color: var(--color-primary-400);
+  
+  /* 文本颜色 */
+  --halo-cw-text-1-color: var(--text-primary);
+  --halo-cw-text-2-color: var(--text-secondary);
+  --halo-cw-text-3-color: var(--text-tertiary);
+  
+  /* 弱化色（边框、分割线、背景） */
+  --halo-cw-muted-1-color: var(--border-color);
+  --halo-cw-muted-2-color: var(--bg-secondary);
+  --halo-cw-muted-3-color: var(--bg-tertiary);
+  
+  /* 圆角和尺寸 */
+  --halo-cw-base-rounded: 0.5rem;
+  --halo-cw-avatar-rounded: 50%;
+  --halo-cw-avatar-size: 2.5rem;
+  --halo-cw-base-font-size: 1rem;
+  --halo-cw-base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 深色模式 - 评论组件 CSS 变量 */
+html.dark,
+[data-theme="dark"] {
+  /* 主题色 */
+  --halo-cw-primary-1-color: var(--color-primary-400);
+  --halo-cw-primary-2-color: var(--color-primary-500);
+  --halo-cw-primary-3-color: var(--color-primary-600);
+  
+  /* 文本颜色 */
+  --halo-cw-text-1-color: var(--text-primary-dark);
+  --halo-cw-text-2-color: var(--text-secondary-dark);
+  --halo-cw-text-3-color: var(--text-tertiary-dark);
+  
+  /* 弱化色 */
+  --halo-cw-muted-1-color: var(--border-color-dark);
+  --halo-cw-muted-2-color: var(--bg-secondary-dark);
+  --halo-cw-muted-3-color: var(--bg-tertiary-dark);
+}
+
+/* 评论组件容器基础样式 */
+.article-comment {
+  /* 确保评论组件继承主题背景 */
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+}
+
+html.dark .article-comment,
+[data-theme="dark"] .article-comment {
+  background: var(--bg-card-dark);
+}
+
+/* 评论组件内部元素微调 */
+
+/* 评论输入区域背景 */
+.article-comment .halo-comment-widget [class*="input"] {
+  background: var(--bg-secondary) !important;
+}
+
+html.dark .article-comment .halo-comment-widget [class*="input"],
+[data-theme="dark"] .article-comment .halo-comment-widget [class*="input"] {
+  background: var(--bg-secondary-dark) !important;
+}
+
+/* 评论列表项边框 */
+.article-comment .halo-comment-widget [class*="item"] {
+  border-color: var(--border-color) !important;
+}
+
+html.dark .article-comment .halo-comment-widget [class*="item"],
+[data-theme="dark"] .article-comment .halo-comment-widget [class*="item"] {
+  border-color: var(--border-color-dark) !important;
+}
+
+/* 隐藏登录表单 */
+.form-account {
+  display: none !important;
+}
+
 /* 瞬间列表样式 */
 .moment-item {
   padding: 16px 0;
@@ -3796,6 +3884,43 @@ html.dark .plugin-notice,
 html.dark .moment-comments,
 [data-theme="dark"] .moment-comments {
   border-color: var(--border-color-dark);
+}
+
+/* 评论区 */
+.comments-section {
+  margin-top: 48px;
+  padding: 20px;
+}
+
+html.dark .comments-section,
+[data-theme="dark"] .comments-section {
+  border-color: var(--border-color-dark);
+}
+
+.comments-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-primary-500);
+}
+
+.comments-header i {
+  font-size: 20px;
+  color: var(--color-primary-500);
+}
+
+.comments-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.comments-count {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
 .comments-list {
@@ -4669,7 +4794,6 @@ html.dark .link-item.style-lost,
     flex: 1;
     min-height: auto;
     border-radius: 8px;
-    padding: 16px;
   }
 
   /* 搜索框：移动端宽度缩小 */
