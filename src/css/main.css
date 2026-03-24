@@ -50,6 +50,18 @@
   /* 深色模式过渡效果 */
   :root {
     color-scheme: light;
+
+    /* ========== primary 色阶透传（@theme 变量编译后不保留，需显式声明供运行时使用） ========== */
+    --color-primary-50: #fff1f2;
+    --color-primary-100: #ffe4e6;
+    --color-primary-200: #fecdd3;
+    --color-primary-300: #fda4af;
+    --color-primary-400: #fb7185;
+    --color-primary-500: #f43f5e;
+    --color-primary-600: #e11d48;
+    --color-primary-700: #be123c;
+    --color-primary-800: #9f1239;
+    --color-primary-900: #881337;
     
     /* ========== 主题颜色变量系统 ========== */
     /* 页面背景 */
@@ -84,19 +96,19 @@
     --border-color: #e5e7eb;
     --border-color-dark: #374151;
     
-    /* 强调色（主题色）- Rose */
-    --accent-color: #f43f5e;
-    --accent-color-dark: #fb7185;
-    --accent-bg: #ffe4e6;
-    --accent-bg-dark: #881337;
+    /* 强调色（主题色）- 引用 @theme primary 色阶，换配色只需覆盖 --color-primary-* */
+    --accent-color: var(--color-primary-500);
+    --accent-color-dark: var(--color-primary-400);
+    --accent-bg: var(--color-primary-100);
+    --accent-bg-dark: var(--color-primary-900);
     
-    /* 链接颜色 */
-    --link-color: #3366FF;
-    --link-color-dark: #60a5fa;
+    /* 链接颜色 - 统一引用 primary 色阶 */
+    --link-color: var(--color-primary-600);
+    --link-color-dark: var(--color-primary-400);
     
-    /* 导航选中状态 */
-    --nav-active-bg: #3366FF;
-    --nav-active-bg-dark: #3b82f6;
+    /* 导航选中状态 - 统一引用 primary 色阶 */
+    --nav-active-bg: var(--color-primary-600);
+    --nav-active-bg-dark: var(--color-primary-500);
     --nav-active-text: #ffffff;
     --nav-active-text-dark: #ffffff;
     
@@ -1932,22 +1944,22 @@ html.dark .heatmap-map__item-block,
 
 /* 仅有评论（无文章无瞬间）：浅绿 */
 .heatmap-map__item-inner.comments {
-  background: #56d364;
+  background: var(--color-primary-400);
 }
 
 /* 仅有文章：橙色 */
 .heatmap-map__item-inner.posts {
-  background: #FDBA74;
+  background: var(--color-primary-500);
 }
 
 /* 仅有瞬间：紫色 */
 .heatmap-map__item-inner.moments {
-  background: var(--moment-accent);
+  background: var(--color-primary-600);
 }
 
 /* 既有文章又有瞬间：深紫色 */
 .heatmap-map__item-inner.both {
-  background: #9333EA;
+  background: var(--color-primary-700);
 }
 
 /* 兼容旧版 .notes 类 */
@@ -1958,7 +1970,7 @@ html.dark .heatmap-map__item-block,
 /* 悬浮提示框 - JS 动态创建浮层 */
 .heatmap-tooltip {
   position: fixed;
-  background: rgba(33, 38, 46, 0.95);
+  background: var(--color-primary-500);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 12px;
@@ -4342,7 +4354,7 @@ html.dark .pagination-gap,
 /* ------- 移动端适配 ------- */
 @media (max-width: 500px) {
   .pagination {
-    gap: 8px;
+    gap: 0px;
   }
 
   .pagination-previous,
@@ -4675,7 +4687,6 @@ html.dark .link-item.style-lost,
     /* Header 移动端：减小内边距 */
     #header {
       padding: 12px 16px;
-      margin-top: 30px;
       height: 56px;
       background-color: var(--bg-card);
     }
@@ -4685,7 +4696,7 @@ html.dark .link-item.style-lost,
 
   /* 内容容器：小屏幕下进一步减小内边距 */
   .container {
-    padding: 10px 12px;
+    padding: 10px 0;
     gap: 10px;
   }
 
