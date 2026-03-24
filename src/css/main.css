@@ -3502,7 +3502,104 @@ html.dark,
   --halo-cw-muted-3-color: var(--bg-tertiary-dark);
 }
 
-/* 评论组件容器基础样式 */
+/* ========== HeroUI 风格设计系统 ========== */
+/* 表单输入框 - HeroUI 风格 */
+.hui-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.hui-input:focus {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-color: var(--color-primary-500);
+}
+
+html.dark .hui-input,
+[data-theme="dark"] .hui-input {
+  background: var(--bg-card-dark);
+  border-color: var(--border-color-dark);
+  color: var(--text-primary-dark);
+}
+
+html.dark .hui-input:focus,
+[data-theme="dark"] .hui-input:focus {
+  outline-color: var(--color-primary-400);
+  border-color: var(--color-primary-400);
+}
+
+/* 按钮 - HeroUI 风格 */
+.hui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hui-btn-primary {
+  background: var(--color-primary-600);
+  color: white;
+}
+
+.hui-btn-primary:hover {
+  background: var(--color-primary-700);
+}
+
+.hui-btn-primary:active {
+  background: var(--color-primary-800);
+}
+
+.hui-btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.hui-btn-secondary:hover {
+  background: var(--bg-tertiary);
+}
+
+html.dark .hui-btn-secondary,
+[data-theme="dark"] .hui-btn-secondary {
+  background: var(--bg-secondary-dark);
+  color: var(--text-secondary-dark);
+  border-color: var(--border-color-dark);
+}
+
+html.dark .hui-btn-secondary:hover,
+[data-theme="dark"] .hui-btn-secondary:hover {
+  background: var(--bg-tertiary-dark);
+}
+
+/* 卡片 - HeroUI 风格 */
+.hui-card {
+  background: var(--bg-card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+
+html.dark .hui-card,
+[data-theme="dark"] .hui-card {
+  background: var(--bg-card-dark);
+  border-color: var(--border-color-dark);
+}
+
+/* 评论组件容器基础样式 - HeroUI 风格 */
 .article-comment {
   /* 确保评论组件继承主题背景 */
   background: var(--bg-card);
