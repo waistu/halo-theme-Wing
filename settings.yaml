@@ -59,6 +59,28 @@ spec:
             show: 显示
             hide: 隐藏
           value: show
+        - $formkit: select
+          name: code_highlight_theme
+          label: 代码高亮风格
+          help: 选择代码块的语法高亮主题风格
+          value: okaidia
+          options:
+            - label: Okaidia (暗色经典)
+              value: okaidia
+            - label: Dracula (暗色流行)
+              value: dracula
+            - label: Dark (暗色简洁)
+              value: dark
+            - label: Tomorrow (暗色现代)
+              value: tomorrow
+            - label: Twilight (暗色深蓝)
+              value: twilight
+            - label: Coy (亮色卡片)
+              value: coy
+            - label: Funky (亮色彩色)
+              value: funky
+            - label: Solarized Light (亮色护眼)
+              value: solarizedlight
     - group: author
       label: 作者卡片
       formSchema:
