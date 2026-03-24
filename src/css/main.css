@@ -373,11 +373,12 @@ html.dark a:active,
   color: var(--text-secondary-dark) !important;
 }
 
-:root{
+:root {
   --halo-search-widget-primary-color: var(--link-color);
+}
 
-  /* ========== Halo 评论组件 CSS 变量 ========== */
-  @media (prefers-color-scheme: dark) {
+/* ========== Halo 评论组件 CSS 变量 ========== */
+@media (prefers-color-scheme: dark) {
   .color-scheme-auto,
   [data-color-scheme='auto'] {
     color-scheme: dark;
@@ -730,27 +731,87 @@ html.dark .widget-box,
   position: absolute;
   top: 12px;
   right: 12px;
+  /* 默认收起状态：只显示图标圆形 */
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 14px;
   border: none;
   background: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 0 7px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-decoration: none;
+  color: #667eea;
+  font-size: 13px;
+  font-weight: 500;
+  /* 向右收缩，展开时向左伸展 */
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.2s,
+              box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
 
-.author-follow-btn:hover {
-  background: var(--bg-card);
-  transform: scale(1.1);
+/* 文字部分：默认隐藏（宽度为 0，透明） */
+.author-follow-btn .follow-btn-text {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  color: #667eea;
+  transition: max-width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s,
+              margin-right 0.28s;
+  margin-right: 0;
+  white-space: nowrap;
+  display: inline-block;
 }
 
-.author-follow-btn .czs-add {
+/* 图标 */
+.author-follow-btn .czs {
   font-size: 14px;
   color: #667eea;
+  flex-shrink: 0;
+  transition: color 0.2s;
 }
+
+/* 悬停：向左展开 */
+.author-follow-btn:hover {
+  width: auto;
+  min-width: 28px;
+  padding: 0 10px 0 8px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
+.author-follow-btn:hover .follow-btn-text {
+  max-width: 120px;
+  opacity: 1;
+  margin-right: 5px;
+}
+
+/* dark 模式 */
+html.dark .author-follow-btn,
+[data-theme="dark"] .author-follow-btn {
+  background: rgba(30, 30, 40, 0.85);
+}
+
+html.dark .author-follow-btn .follow-btn-text,
+html.dark .author-follow-btn .czs,
+[data-theme="dark"] .author-follow-btn .follow-btn-text,
+[data-theme="dark"] .author-follow-btn .czs {
+  color: #a5b4fc;
+}
+
+html.dark .author-follow-btn:hover,
+[data-theme="dark"] .author-follow-btn:hover {
+  background: rgba(40, 40, 60, 0.95);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
 }
 
 .author-avatar-wrap {

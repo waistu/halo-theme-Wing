@@ -7,9 +7,28 @@
     <th:block th:unless="${not #strings.isEmpty(theme.config.author.cover)}">
       <img th:src="@{/assets/images/authorCardbg.jpg}" alt="封面" class="author-cover-default">
     </th:block>
-    <button class="author-follow-btn" title="关注">
-      <i class="czs czs-add"></i>
-    </button>
+
+    <!--/* 关注按钮：手风琴向左展开 */-->
+    <th:block th:with="
+      btnUrl=${theme.config.author.follow_btn_url},
+      btnIcon=${theme.config.author.follow_btn_icon ?: 'czs-add'},
+      btnText=${theme.config.author.follow_btn_text ?: '关注'}
+    ">
+      <a th:if="${not #strings.isEmpty(btnUrl)}"
+         th:href="${btnUrl}"
+         target="_blank"
+         class="author-follow-btn"
+         th:title="${btnText}">
+        <span class="follow-btn-text" th:text="${btnText}">关注</span>
+        <i th:class="'czs ' + ${btnIcon}"></i>
+      </a>
+      <button th:unless="${not #strings.isEmpty(btnUrl)}"
+              class="author-follow-btn"
+              th:title="${btnText}">
+        <span class="follow-btn-text" th:text="${btnText}">关注</span>
+        <i th:class="'czs ' + ${btnIcon}"></i>
+      </button>
+    </th:block>
   </div>
 
   <!-- 头像 -->
@@ -24,7 +43,8 @@
 
   <!-- 作者信息 -->
   <div class="author-info">
-    <h3 class="author-name text-gray-900 dark:text-white" th:text="${site.title}">站点名称</h3>
+    <h3 class="author-name text-gray-900 dark:text-white"
+        th:text="${not #strings.isEmpty(theme.config.author.name) ? theme.config.author.name : site.title}">站点名称</h3>
     <p class="author-bio text-gray-600 dark:text-gray-400"
       th:text="${theme.config.author.bio ?: 'Product Designer who focuses on simplicity & usability.'}">简介</p>
   </div>
