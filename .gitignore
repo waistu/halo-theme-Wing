@@ -11,6 +11,9 @@ dist/
 screenshots/
 scripts/
 
+# 包含敏感信息的本地脚本
+scripts/release-with-token.sh
+
 
 # 日志
 logs/
