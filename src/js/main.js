@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('searchInput');
   const searchBox = document.querySelector('.search-box');
 
-  if (!searchIcon || !searchInput || !searchBox) return;
+  // 搜索框相关逻辑（如果元素存在才绑定）
+  if (searchIcon && searchInput && searchBox) {
 
   // 点击搜索图标
   searchIcon.addEventListener('click', function (e) {
@@ -128,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
       searchInput.classList.remove('show');
     }
   });
+  } // end if (searchIcon && searchInput && searchBox)
 });
 // 获取所有标签项
 const tabItems = document.querySelectorAll('.tab-item');
