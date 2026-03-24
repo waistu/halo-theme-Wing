@@ -83,17 +83,16 @@
           </div>
 
           <!-- 分页 -->
-          <div class="pagination" th:if="${hasPosts}">
-            <span class="page-info">
-              第 <span th:text="${posts.page}">1</span> 页，
-              共 <span th:text="${posts.totalPages}">1</span> 页 ·
-              <span th:text="${posts.total}">0</span> 篇文章
-            </span>
-            <div class="page-nav">
-              <a class="page-prev" th:if="${posts.hasPrevious}" th:href="${posts.prevUrl}">← 上一页</a>
-              <a class="page-next" th:if="${posts.hasNext}" th:href="${posts.nextUrl}">下一页 →</a>
-            </div>
-          </div>
+          <div th:if="${hasPosts}" 
+               th:replace="includes/components/pagination :: simple-pagination(
+                 page=${posts.page},
+                 totalPages=${posts.totalPages},
+                 hasPrevious=${posts.hasPrevious},
+                 hasNext=${posts.hasNext},
+                 prevUrl=${posts.prevUrl},
+                 nextUrl=${posts.nextUrl},
+                 baseUrl=@{/}
+               )"></div>
         </main>
         <aside class="notes-aside"
           th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">

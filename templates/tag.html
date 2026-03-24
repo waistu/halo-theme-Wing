@@ -40,36 +40,17 @@
           </div>
         </div>
 
-        <div class="pagination" th:if="${posts.totalPages > 1}">
-          <a th:if="${posts.page > 1}" th:href="@{${tag.status.permalink} + '/page/' + ${posts.page - 1}}"
-            class="page-btn">上一页</a>
-
-          <a th:href="@{${tag.status.permalink}}" th:class="${posts.page == 1} ? 'active' : ''">1</a>
-          <span th:if="${posts.totalPages > 8 and posts.page > 4}">...</span>
-
-          <th:block th:if="${posts.totalPages > 1}">
-            <th:block th:if="${posts.totalPages <= 8 and posts.totalPages > 2}">
-              <a th:each="i : ${#numbers.sequence(2, posts.totalPages - 1)}"
-                th:href="@{${tag.status.permalink} + '/page/' + ${i}}" th:text="${i}"
-                th:class="${i == posts.page} ? 'active' : ''"></a>
-            </th:block>
-
-            <th:block th:if="${posts.totalPages > 8}">
-              <a th:if="${posts.page > 2}" th:href="@{${tag.status.permalink} + '/page/' + ${posts.page - 1}}"
-                th:text="${posts.page - 1}"></a>
-              <a class="active" th:if="${posts.page > 1}" th:text="${posts.page}"></a>
-              <a th:if="${posts.page < posts.totalPages}"
-                th:href="@{${tag.status.permalink} + '/page/' + ${posts.page + 1}}" th:text="${posts.page + 1}"></a>
-            </th:block>
-          </th:block>
-
-          <span th:if="${posts.totalPages > 8 and posts.page < posts.totalPages - 3}">...</span>
-          <a th:href="@{${tag.status.permalink} + '/page/' + ${posts.totalPages}}"
-            th:class="${posts.page == posts.totalPages} ? 'active' : ''" th:text="${posts.totalPages}"></a>
-
-          <a th:if="${posts.hasNext()}" th:href="@{${tag.status.permalink} + '/page/' + ${posts.page + 1}}"
-            class="page-btn">下一页</a>
-        </div>
+        <!-- 分页 -->
+        <div th:if="${posts.totalPages > 1}"
+             th:replace="includes/components/pagination :: pagination(
+               page=${posts.page},
+               totalPages=${posts.totalPages},
+               hasPrevious=${posts.page > 1},
+               hasNext=${posts.hasNext()},
+               prevUrl=${tag.status.permalink} + '/page/' + ${posts.page - 1},
+               nextUrl=${tag.status.permalink} + '/page/' + ${posts.page + 1},
+               baseUrl=${tag.status.permalink}
+             )"></div>
       </div>
     </div>
   </div>

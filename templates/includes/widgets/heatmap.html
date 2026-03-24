@@ -120,10 +120,10 @@
                 var dateStr = fmtDate(day);
                 var stats = data[dateStr] || { posts: 0, moments: 0, comments: 0 };
 
-                // 颜色逻辑：
-                // 只有文章：#FDBA74 (橙色)
-                // 只有瞬间：#A78BFA (紫色)
-                // 两者都有：#9333EA (深紫色)
+                // 颜色逻辑（主题色系 rose/pink）：
+                // 只有文章：#f43f5e (主题色)
+                // 只有瞬间：#e11d48 (深主题色)
+                // 两者都有：#be123c (最深主题色)
                 var innerClass = '';
                 var hasPosts = stats.posts > 0;
                 var hasMoments = stats.moments > 0;
