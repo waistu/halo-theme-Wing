@@ -21,6 +21,8 @@ spec:
   license:
     - name: "GPL-3.0"
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
+  screenshots:
+    - /themes/theme-wing/assets/images/cover.png
   customTemplates:
     page:
       - name: 朋友圈页面模板
