@@ -41,6 +41,11 @@ spec:
       label: 作者卡片
       formSchema:
         - $formkit: text
+          name: name
+          label: 作者名称
+          placeholder: 留空则显示站点标题
+          help: 作者卡片上显示的名称，留空则使用站点标题
+        - $formkit: text
           name: avatar
           label: 头像图片
           placeholder: 请输入头像图片URL
@@ -52,6 +57,21 @@ spec:
           name: bio
           label: 个人简介
           placeholder: 请输入个人简介
+        - $formkit: text
+          name: follow_btn_icon
+          label: 关注按钮图标
+          placeholder: czs-add
+          value: czs-add
+          help: 图标类名，如 czs-add、czs-github-logo、czs-link
+        - $formkit: text
+          name: follow_btn_text
+          label: 关注按钮文字
+          placeholder: 关注
+          value: 关注
+        - $formkit: url
+          name: follow_btn_url
+          label: 关注按钮链接
+          placeholder: https://
         - $formkit: array
           name: socials
           label: 社交媒体
