@@ -19,6 +19,7 @@ scripts/release-with-token.sh
 logs/
 *.log
 npm-debug.log*
+RELEASE.md
 
 # 缓存、临时文件
 .cache/
