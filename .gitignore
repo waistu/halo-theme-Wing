@@ -7,6 +7,10 @@
 
 # 依赖包（不用推远程）
 node_modules/
+dist/
+screenshots/
+scripts/
+
 
 # 日志
 logs/
