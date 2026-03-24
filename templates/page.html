@@ -9,6 +9,8 @@
   <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <!-- 主题配色方案 -->
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
   <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
   <script th:src="@{/assets/vendor/relativeTime.js}"></script>

@@ -218,9 +218,6 @@ class ThemeManager {
   }
 }
 
-// 提前初始化主题（避免闪烁），挂载到 window
-window.themeManager = new ThemeManager()
-
 // ========== 移动端菜单控制 ==========
 class MobileMenu {
   constructor(selector = '.mobile-menu') {
@@ -262,6 +259,9 @@ class MobileMenu {
 
 // ========== 页面加载完成后初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
+  // 初始化主题管理器（只初始化一次）
+  window.themeManager = new ThemeManager()
+
   // 初始化移动端菜单
   if (document.querySelector('.mobile-menu')) {
     window.mobileMenu = new MobileMenu()
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.themeManager.toggleTheme()
     })
   })
-  
+
   // 绑定 Header 主题切换按钮
   document.querySelectorAll('.theme-toggle-header').forEach(btn => {
     btn.addEventListener('click', () => {
