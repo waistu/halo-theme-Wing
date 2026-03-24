@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" class="scroll-smooth">
 
 <head>
   <meta charset="UTF-8">
@@ -13,6 +13,23 @@
   <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
   <script th:src="@{/assets/vendor/relativeTime.js}"></script>
   <script th:src="@{/assets/vendor/zh-cn.js}"></script>
+  <style>
+    /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+    html {
+      background-color: var(--bg-page, #f9fafb);
+    }
+    html.dark {
+      background-color: var(--bg-page-dark, #111827);
+    }
+    body {
+      background-color: var(--bg-page, #f9fafb);
+      color: var(--text-secondary, #4b5563);
+    }
+    html.dark body {
+      background-color: var(--bg-page-dark, #111827);
+      color: var(--text-secondary-dark, #d1d5db);
+    }
+  </style>
 </head>
 
 <body>

@@ -2687,43 +2687,17 @@ html.dark .post-card,
   font-size: 12px;
   color: var(--text-tertiary);
 }
+/* ========== Pagination（Catalyst 规范）========== */
+
+/* 容器：nav.pagination */
 .pagination {
-  margin-top: 24px;
-  text-align: left;
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  gap: 8px;
-}
-.pagination .page-info {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-right: 16px;
-}
-.pagination .page-numbers {
-  display: flex;
-  gap: 6px;
-}
-.pagination .page-number {
-  display: inline-block;
-  padding: 6px 10px;
-  background: transparent;
-  color: var(--link-color);
-  text-decoration: none;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  border: none;
-}
-.pagination .page-number:hover {
-  color: var(--link-color-dark);
-}
-.pagination .page-number.active {
-  font-size: 1rem;
-  padding: 4px 8px;
-  background: var(--link-color);
-  color: var(--text-on-accent) !important;
-  border-radius: 4px;
+  justify-content: center;
+  gap: 12px;
+  margin: 32px 0;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 @media (max-width: 920px) {
   .post-card-list {
@@ -4179,41 +4153,58 @@ html.dark .friend-card,
   -webkit-box-orient: vertical;
 }
 
-/* ========== 通用 Pagination 组件（新版）========== */
+/* ========== 通用 Pagination 组件（Catalyst 规范）========== */
 
-/* simple 变体内的列表 */
-.pagination.simple .pagination-list.simple-list {
-  display: flex;
+/* ------- previous / next 按钮 ------- */
+.pagination-previous,
+.pagination-next {
+  display: inline-flex !important;
   align-items: center;
   gap: 4px;
+  padding: 0 14px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
 }
 
-.pagination.simple .pagination-list.simple-list .pagination-page {
-  border-radius: 6px;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 8px;
-  font-size: 13px;
+.pagination-previous:hover,
+.pagination-next:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
-.pagination.simple .pagination-list.simple-list .pagination-gap {
-  display: inline-flex;
-  min-width: 24px;
-  height: 32px;
-  justify-content: center;
-  align-items: center;
-  font-size: 13px;
-  color: var(--text-tertiary);
+/* disabled 状态（span 版本，无 href） */
+.pagination-previous.disabled,
+.pagination-next.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-/* 分页列表容器 */
+/* ------- 页码列表容器 ------- */
 .pagination-list {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
-/* 分页页码按钮 */
+/* simple 变体 */
+.pagination.simple .pagination-list.simple-list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ------- 页码按钮 ------- */
 .pagination-page {
   display: inline-flex;
   justify-content: center;
@@ -4229,7 +4220,7 @@ html.dark .friend-card,
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 html.dark .pagination-page,
@@ -4248,12 +4239,22 @@ html.dark .pagination-page:hover:not(.current),
   color: var(--text-primary-dark);
 }
 
+/* 当前页 */
 .pagination-page.current {
   background: var(--link-color);
   color: var(--text-on-accent) !important;
 }
 
-/* 省略号 */
+/* simple 变体里的 page 尺寸 */
+.pagination.simple .pagination-list.simple-list .pagination-page {
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 0 6px;
+}
+
+/* ------- 省略号 ------- */
 .pagination-gap {
   display: inline-flex;
   justify-content: center;
@@ -4271,17 +4272,27 @@ html.dark .pagination-gap,
   color: var(--text-tertiary-dark);
 }
 
-/* 移动端适配 */
-@media (width <= 640px) {
+.pagination.simple .pagination-list.simple-list .pagination-gap {
+  min-width: 24px;
+  height: 32px;
+  font-size: 13px;
+}
+
+/* ------- 移动端适配 ------- */
+@media (max-width: 500px) {
   .pagination {
-    flex-wrap: wrap;
     gap: 8px;
   }
 
+  .pagination-previous,
+  .pagination-next {
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
   .pagination-list {
-    order: -1;
+    flex-wrap: wrap;
     justify-content: center;
-    width: 100%;
   }
 
   .pagination-page {

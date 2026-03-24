@@ -1,164 +1,225 @@
-<!-- 分页组件 - 基于 Catalyst Pagination API -->
-<!-- 
-  使用方式：
+<!--
+  =============================================
+  分页组件 - 对齐 Catalyst Pagination API
+  class 规范：
+    nav.pagination                  容器
+    a/span.pagination-previous      上一页（无 href 则 span.disabled）
+    a/span.pagination-next          下一页（无 href 则 span.disabled）
+    ol/div.pagination-list          页码列表
+    a.pagination-page               页码链接
+    a.pagination-page.current       当前页
+    span.pagination-gap             省略号 …
+
+  =============================================
+  【完整版】pagination fragment
+  - 含页码列表（智能省略号）
+  - 用于：tag、category 等精确分页场景
+
+  调用示例（tag.html / category.html）：
   <div th:replace="includes/components/pagination :: pagination(
     page=${posts.page},
     totalPages=${posts.totalPages},
-    hasPrevious=${posts.hasPrevious},
-    hasNext=${posts.hasNext},
-    prevUrl=${posts.prevUrl},
-    nextUrl=${posts.nextUrl},
     baseUrl=${tag.status.permalink}
   )"></div>
+
+  =============================================
 -->
-<nav th:fragment="pagination(page, totalPages, hasPrevious, hasNext, prevUrl, nextUrl, baseUrl)" 
-     class="pagination" 
-     aria-label="Page navigation">
-  
-  <!-- 上一页 -->
-  <a th:if="${hasPrevious}" 
-     th:href="${prevUrl}" 
-     class="pagination-prev">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+
+<!--/* ---- 完整版：有页码列表 ---- */-->
+<nav th:fragment="pagination(page, totalPages, baseUrl)"
+     aria-label="Page navigation"
+     class="pagination"
+     th:if="${totalPages > 1}">
+
+  <!--/* 上一页 */-->
+  <a th:if="${page > 1}"
+     th:href="${page == 2 ? baseUrl : baseUrl + '/page/' + (page - 1)}"
+     class="pagination-previous">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+            clip-rule="evenodd"/>
     </svg>
     上一页
   </a>
-  <span th:unless="${hasPrevious}" class="pagination-prev disabled">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+  <span th:unless="${page > 1}" class="pagination-previous disabled" aria-disabled="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+            clip-rule="evenodd"/>
     </svg>
     上一页
   </span>
 
-  <!-- 页码列表 -->
+  <!--/* 页码列表 */-->
   <div class="pagination-list">
-    <!-- 第一页 -->
-    <a th:href="${baseUrl}" 
-       th:class="${page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
-    
-    <!-- 左侧省略号 -->
-    <span th:if="${totalPages > 7 and page > 4}" class="pagination-gap">...</span>
-    
-    <!-- 中间页码 -->
-    <th:block th:if="${totalPages > 2}">
-      <!-- 页码较少时显示全部 -->
-      <th:block th:if="${totalPages <= 7}">
-        <a th:each="i : ${#numbers.sequence(2, totalPages - 1)}"
-           th:href="${baseUrl + '/page/' + i}"
-           th:text="${i}"
-           th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
-      </th:block>
-      
-      <!-- 页码较多时显示部分 -->
-      <th:block th:if="${totalPages > 7}">
-        <!-- 计算显示范围 -->
-        <th:block th:with="start=${page <= 4 ? 2 : (page >= totalPages - 3 ? totalPages - 5 : page - 2)},
-                           end=${page <= 4 ? 6 : (page >= totalPages - 3 ? totalPages - 1 : page + 2)}">
-          <a th:each="i : ${#numbers.sequence(start, end)}"
-             th:href="${baseUrl + '/page/' + i}"
-             th:text="${i}"
-             th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
-        </th:block>
-      </th:block>
-    </th:block>
-    
-    <!-- 右侧省略号 -->
-    <span th:if="${totalPages > 7 and page < totalPages - 3}" class="pagination-gap">...</span>
-    
-    <!-- 最后一页 -->
-    <a th:if="${totalPages > 1}"
-       th:href="${baseUrl + '/page/' + totalPages}"
-       th:class="${page == totalPages} ? 'pagination-page current' : 'pagination-page'"
-       th:text="${totalPages}">65</a>
-  </div>
-
-  <!-- 下一页 -->
-  <a th:if="${hasNext}" 
-     th:href="${nextUrl}" 
-     class="pagination-next">
-    下一页
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-    </svg>
-  </a>
-  <span th:unless="${hasNext}" class="pagination-next disabled">
-    下一页
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-    </svg>
-  </span>
-</nav>
-
-<!-- 简化版分页 - 上一页/页码列表/下一页 -->
-<nav th:fragment="simple-pagination(page, totalPages, hasPrevious, hasNext, prevUrl, nextUrl, baseUrl)" 
-     class="pagination simple" 
-     aria-label="Page navigation">
-  
-  <a th:if="${hasPrevious}" th:href="${prevUrl}" class="pagination-prev">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
-    </svg>
-    上一页
-  </a>
-  <span th:unless="${hasPrevious}" class="pagination-prev disabled">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
-    </svg>
-    上一页
-  </span>
-
-  <!-- 页码列表 -->
-  <div class="pagination-list simple-list">
-    <!-- 处理 baseUrl，确保首页 / 时页码链接正确 -->
     <th:block th:with="urlPrefix=${baseUrl == '/' ? '' : baseUrl}">
-      <!-- 页码较少时显示全部 -->
+
+      <!--/* 页码 ≤ 7：全部显示 */-->
       <th:block th:if="${totalPages <= 7}">
         <a th:each="i : ${#numbers.sequence(1, totalPages)}"
            th:href="${i == 1 ? baseUrl : urlPrefix + '/page/' + i}"
            th:text="${i}"
            th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
       </th:block>
-      
-      <!-- 页码较多时显示部分 -->
+
+      <!--/* 页码 > 7：智能省略号 */-->
       <th:block th:if="${totalPages > 7}">
-        <!-- 第一页 -->
-        <a th:href="${baseUrl}" 
+        <!--/* 第 1 页 */-->
+        <a th:href="${baseUrl}"
            th:class="${page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
-        
-        <!-- 左侧省略号 -->
-        <span th:if="${page > 4}" class="pagination-gap">...</span>
-        
-        <!-- 中间页码 -->
-        <th:block th:with="start=${page <= 4 ? 2 : (page >= totalPages - 3 ? totalPages - 5 : page - 2)},
-                           end=${page <= 4 ? 6 : (page >= totalPages - 3 ? totalPages - 1 : page + 2)}">
+
+        <!--/* 左省略号：当前页 > 4 */-->
+        <span th:if="${page > 4}" class="pagination-gap">…</span>
+
+        <!--/* 中间页码 */-->
+        <th:block th:with="
+          start=${page <= 4 ? 2 : (page >= totalPages - 3 ? totalPages - 5 : page - 2)},
+          end=${page <= 4   ? 6 : (page >= totalPages - 3 ? totalPages - 1 : page + 2)}">
           <a th:each="i : ${#numbers.sequence(start, end)}"
              th:href="${urlPrefix + '/page/' + i}"
              th:text="${i}"
              th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
         </th:block>
-        
-        <!-- 右侧省略号 -->
-        <span th:if="${page < totalPages - 3}" class="pagination-gap">...</span>
-        
-        <!-- 最后一页 -->
+
+        <!--/* 右省略号：当前页 < totalPages - 3 */-->
+        <span th:if="${page < totalPages - 3}" class="pagination-gap">…</span>
+
+        <!--/* 最后一页 */-->
         <a th:href="${urlPrefix + '/page/' + totalPages}"
            th:class="${page == totalPages} ? 'pagination-page current' : 'pagination-page'"
            th:text="${totalPages}"></a>
       </th:block>
+
     </th:block>
   </div>
 
-  <a th:if="${hasNext}" th:href="${nextUrl}" class="pagination-next">
+  <!--/* 下一页 */-->
+  <a th:if="${page < totalPages}"
+     th:href="${baseUrl + '/page/' + (page + 1)}"
+     class="pagination-next">
     下一页
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"/>
     </svg>
   </a>
-  <span th:unless="${hasNext}" class="pagination-next disabled">
+  <span th:unless="${page < totalPages}" class="pagination-next disabled" aria-disabled="true">
     下一页
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-      <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"/>
     </svg>
   </span>
+
+</nav>
+
+
+<!--
+  =============================================
+  【简化版】simple-pagination fragment
+  - 同样含页码列表（更简洁）
+  - 用于：首页、归档、友链等场景
+
+  调用示例（index.html / archives.html）：
+  <div th:replace="includes/components/pagination :: simple-pagination(
+    page=${posts.page},
+    totalPages=${posts.totalPages},
+    baseUrl=@{/}
+  )"></div>
+  =============================================
+-->
+<nav th:fragment="simple-pagination(page, totalPages, baseUrl)"
+     aria-label="Page navigation"
+     class="pagination"
+     th:if="${totalPages > 1}">
+
+  <!--/* 上一页 */-->
+  <a th:if="${page > 1}"
+     th:href="${page == 2 ? baseUrl : (baseUrl == '/' ? '' : baseUrl) + '/page/' + (page - 1)}"
+     class="pagination-previous">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+            clip-rule="evenodd"/>
+    </svg>
+    上一页
+  </a>
+  <span th:unless="${page > 1}" class="pagination-previous disabled" aria-disabled="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+            clip-rule="evenodd"/>
+    </svg>
+    上一页
+  </span>
+
+  <!--/* 页码列表 */-->
+  <div class="pagination-list">
+    <th:block th:with="urlPrefix=${baseUrl == '/' ? '' : baseUrl}">
+
+      <!--/* 页码 ≤ 7：全部显示 */-->
+      <th:block th:if="${totalPages <= 7}">
+        <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+           th:href="${i == 1 ? baseUrl : urlPrefix + '/page/' + i}"
+           th:text="${i}"
+           th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
+      </th:block>
+
+      <!--/* 页码 > 7：智能省略号 */-->
+      <th:block th:if="${totalPages > 7}">
+        <a th:href="${baseUrl}"
+           th:class="${page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
+
+        <span th:if="${page > 4}" class="pagination-gap">…</span>
+
+        <th:block th:with="
+          start=${page <= 4 ? 2 : (page >= totalPages - 3 ? totalPages - 5 : page - 2)},
+          end=${page <= 4   ? 6 : (page >= totalPages - 3 ? totalPages - 1 : page + 2)}">
+          <a th:each="i : ${#numbers.sequence(start, end)}"
+             th:href="${urlPrefix + '/page/' + i}"
+             th:text="${i}"
+             th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
+        </th:block>
+
+        <span th:if="${page < totalPages - 3}" class="pagination-gap">…</span>
+
+        <a th:href="${urlPrefix + '/page/' + totalPages}"
+           th:class="${page == totalPages} ? 'pagination-page current' : 'pagination-page'"
+           th:text="${totalPages}"></a>
+      </th:block>
+
+    </th:block>
+  </div>
+
+  <!--/* 下一页 */-->
+  <a th:if="${page < totalPages}"
+     th:href="${(baseUrl == '/' ? '' : baseUrl) + '/page/' + (page + 1)}"
+     class="pagination-next">
+    下一页
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"/>
+    </svg>
+  </a>
+  <span th:unless="${page < totalPages}" class="pagination-next disabled" aria-disabled="true">
+    下一页
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+         style="width:1em;height:1em;flex-shrink:0">
+      <path fill-rule="evenodd"
+            d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"/>
+    </svg>
+  </span>
+
 </nav>

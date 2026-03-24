@@ -6,12 +6,21 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${site.title}"></title>
+  <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
+  <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
   <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
   <script th:src="@{/assets/vendor/relativeTime.js}"></script>
   <script th:src="@{/assets/vendor/zh-cn.js}"></script>
+  <style>
+    /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+    html { background-color: var(--bg-page, #f9fafb); }
+    html.dark { background-color: var(--bg-page-dark, #111827); }
+    body { background-color: var(--bg-page, #f9fafb); color: var(--text-secondary, #4b5563); }
+    html.dark body { background-color: var(--bg-page-dark, #111827); color: var(--text-secondary-dark, #d1d5db); }
+  </style>
   <!-- 打开搜索弹窗 -->
   <script>
     if (window.location.hash === '#open-search') {
@@ -23,7 +32,7 @@
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body>
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
@@ -83,14 +92,9 @@
           </div>
 
           <!-- 分页 -->
-          <div th:if="${hasPosts}" 
-               th:replace="includes/components/pagination :: simple-pagination(
+          <div th:replace="includes/components/pagination :: simple-pagination(
                  page=${posts.page},
                  totalPages=${posts.totalPages},
-                 hasPrevious=${posts.hasPrevious},
-                 hasNext=${posts.hasNext},
-                 prevUrl=${posts.prevUrl},
-                 nextUrl=${posts.nextUrl},
                  baseUrl=@{/}
                )"></div>
         </main>

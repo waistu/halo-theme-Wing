@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${category.spec.displayName} + ' - ' + ${site.title}"></title>
+  <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
+  <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
+  <style>
+    /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+    html { background-color: var(--bg-page, #f9fafb); }
+    html.dark { background-color: var(--bg-page-dark, #111827); }
+    body { background-color: var(--bg-page, #f9fafb); color: var(--text-secondary, #4b5563); }
+    html.dark body { background-color: var(--bg-page-dark, #111827); color: var(--text-secondary-dark, #d1d5db); }
+  </style>
 </head>
 
 <body>
@@ -41,14 +50,9 @@
         </div>
 
         <!-- 分页 -->
-        <div th:if="${posts.totalPages > 1}"
-             th:replace="includes/components/pagination :: pagination(
+        <div th:replace="includes/components/pagination :: pagination(
                page=${posts.page},
                totalPages=${posts.totalPages},
-               hasPrevious=${posts.page > 1},
-               hasNext=${posts.hasNext()},
-               prevUrl=${category.status.permalink} + '/page/' + ${posts.page - 1},
-               nextUrl=${category.status.permalink} + '/page/' + ${posts.page + 1},
                baseUrl=${category.status.permalink}
              )"></div>
       </div>
