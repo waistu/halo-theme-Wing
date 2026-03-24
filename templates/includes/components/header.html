@@ -1,13 +1,16 @@
-<header id="header" th:fragment="header" class="bg-white dark:bg-gray-800">
+<header id="header" th:fragment="header" class="--bg-page dark:--bg-page-dark text-gray-600 dark:text-gray-400">
     <!-- 左侧：LOGO -->
     <div class="fullname">
         <h1>
-            <a th:href="${site.url}" class="text-gray-900 dark:text-white">[[${theme.config.basic.site_title} ?: '我的网站']]</a>
+            <a th:href="${site.url}" class="text-gray-900 dark:text-white">[[${theme.config.basic.site_title} ?:
+                '我的网站']]</a>
         </h1>
     </div>
     <!-- 右侧：搜索框 -->
     <div class="search-box">
-        <input type="text" id="searchInput" class="search-input bg-transparent dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" placeholder="请输入搜索内容...">
+        <input type="text" id="searchInput"
+            class="search-input bg-transparent dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+            placeholder="请输入搜索内容...">
         <!-- 搜索图标 -->
         <div class="search-icon text-gray-500 dark:text-gray-400" id="searchIcon">
             <i class="czs czs-search-l"></i>

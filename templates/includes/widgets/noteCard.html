@@ -1,4 +1,4 @@
-<div th:fragment="noteCard(type, title, excerpt, date, cover, permalink, comments)" class="noteCard bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+<div th:fragment="noteCard(type, title, excerpt, date, cover, permalink, comments)" class="noteCard bg-white dark:bg-gray-800">
     <a th:href="${permalink}" class="article-card">
         <!-- 标题单独一行 -->
         <h3 class="card-title text-gray-900 dark:text-white">[[${title}]]</h3>

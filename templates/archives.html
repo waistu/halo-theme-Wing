@@ -77,11 +77,17 @@
           </th:block>
         </div>
 
-        <div class="archive-pagination" th:if="${archives.hasPrevious() or archives.hasNext()}">
-          <a th:href="@{${archives.prevUrl}}" th:if="${archives.hasPrevious()}">上一页</a>
-          <span th:text="${archives.page} + ' / ' + ${archives.totalPages}"></span>
-          <a th:href="@{${archives.nextUrl}}" th:if="${archives.hasNext()}">下一页</a>
-        </div>
+        <!-- 分页 -->
+        <div th:if="${archives.hasPrevious() or archives.hasNext()}"
+             th:replace="includes/components/pagination :: simple-pagination(
+               page=${archives.page},
+               totalPages=${archives.totalPages},
+               hasPrevious=${archives.hasPrevious()},
+               hasNext=${archives.hasNext()},
+               prevUrl=${archives.prevUrl},
+               nextUrl=${archives.nextUrl},
+               baseUrl=@{/archives}
+             )"></div>
       </div>
     </div>
   </div>

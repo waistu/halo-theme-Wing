@@ -62,7 +62,7 @@
       </div>
 
       <!-- 目录视图 -->
-      <div class="sidebar-content active bg-white dark:bg-gray-800" id="sidebar-toc">
+      <div class="sidebar-content active " id="sidebar-toc">
         <div id="tocWidget" style="display: none;">
           <div id="toc" class="toc-list"></div>
         </div>
@@ -70,7 +70,7 @@
       </div>
 
       <!-- 导航视图 -->
-      <div class="sidebar-content bg-white dark:bg-gray-800" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
+      <div class="sidebar-content" id="sidebar-nav" th:with="stats=${siteStatsFinder.getStats()}">
         <div class="widget-box" th:replace="~{includes/components/nav :: nav}"></div>
         <div
           th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
