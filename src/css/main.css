@@ -1982,16 +1982,17 @@ html.dark .heatmap-map__item-block,
 }
 
 .heatmap-tooltip .tooltip-line {
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.5;
 }
 
 .heatmap-tooltip .tooltip-line:first-of-type {
-  color: #7dd3fc;  /* 浅蓝色，醒目 - tooltip 装饰色保留 */
+  color: #fff;
+  font-weight: 500;
 }
 
 .heatmap-tooltip .tooltip-empty {
-  color: var(--text-tertiary-dark);
+  color: rgba(255, 255, 255, 0.7);
   font-style: italic;
 }
 
