@@ -146,6 +146,8 @@
                     '</div>';
             }
 
+            // 写入前先标记，防止 guardRender 误判初始状态
+            container.dataset.hmReady = '1';
             container.innerHTML = html;
 
             // --- 2.1 绑定 hover 事件，创建浮层 ---
@@ -210,45 +212,104 @@
             if (daysEl) daysEl.textContent = diffDays > 0 ? diffDays : 1;
         }
 
-        // --- 4. 保护机制：使用 requestAnimationFrame 确保最后执行 ---
-        // 多次尝试渲染，防止被其他 JS 覆盖
+        // --- 4. 保护机制：防止其他脚本覆盖热力图内容 ---
+        // dayjs 会遍历 [data-date] 覆盖 textContent，main.js 已排除 .heatmap-map__item
+        // 但仍保留有限次数的兜底保护（3次，约 50ms 内）
+        var guardCount = 0;
         function guardRender() {
-            if (container) {
-                var firstChild = container.children[0];
-                // 检查是否被破坏（只有文本节点，没有内部 div）
-                if (!firstChild || (firstChild.childNodes.length === 1 && firstChild.childNodes[0].nodeType === 3)) {
+            if (guardCount++ >= 3) return; // 最多保护 3 次
+            if (container && container.dataset.hmReady === '1') {
+                var items = container.querySelectorAll('.heatmap-map__item');
+                if (items.length !== 60) {
                     container.innerHTML = html;
                 }
             }
             requestAnimationFrame(guardRender);
         }
-        // 延迟 100ms 后开始保护，确保初始渲染完成
-        setTimeout(guardRender, 100);
+        setTimeout(guardRender, 0);
     })();
     /*]]>*/
     </script>
 
     <!-- ⑤ 标签列表 -->
-    <th:block th:with="tags = ${momentTags != null ? momentTags : tagFinder.listAll()}">
-        <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
-            <ul class="topic-items">
-                <th:block th:if="${momentTags != null}">
-                    <!-- 瞬间标签 -->
+    <!-- 优先级：momentTags（/moments路由注入）> momentsForHeatmap推导 > 文章标签 -->
+    <th:block th:if="${momentTags != null}">
+        <!-- 瞬间标签（/moments路由，框架注入的完整标签对象） -->
+        <th:block th:with="tags = ${momentTags}">
+            <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
+                <ul class="topic-items">
                     <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.momentCount}">
                         <a th:href="@{/moments(tag=${tag.name})}" th:text="${tag.name}"></a>
                         <span class="topic-count" th:text="${tag.momentCount}">0</span>
                     </li>
-                </th:block>
-                <th:block th:unless="${momentTags != null}">
-                    <!-- 文章标签 -->
-                    <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
-                        <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
-                        <span class="topic-count" th:text="${tag.postCount}">0</span>
-                    </li>
-                </th:block>
-            </ul>
-        </div>
-        <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+                </ul>
+            </div>
+            <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+        </th:block>
+    </th:block>
+    <th:block th:unless="${momentTags != null}">
+        <th:block th:if="${momentsForHeatmap != null and not #lists.isEmpty(momentsForHeatmap.items)}">
+            <!-- 从 moments 数据里提取标签（首页笔记模式，无法获取 momentTags 对象） -->
+            <!-- 先收集所有 tag 字符串，渲染时去重统计 -->
+            <div class="topic-list">
+                <ul class="topic-items" id="momentTagsFromData">
+                    <th:block th:each="moment : ${momentsForHeatmap.items}">
+                        <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
+                            <th:block th:each="tagName : ${moment.spec.tags}">
+                                <li class="topic-item __hm_tag_raw" th:attr="data-tag=${tagName}" style="display:none">
+                                    <span th:text="${tagName}"></span>
+                                </li>
+                            </th:block>
+                        </th:block>
+                    </th:block>
+                </ul>
+            </div>
+            <script>
+            (function () {
+                var ul = document.getElementById('momentTagsFromData');
+                if (!ul) return;
+                var raw = ul.querySelectorAll('.__hm_tag_raw');
+                var countMap = {};
+                raw.forEach(function (el) {
+                    var t = el.dataset.tag;
+                    countMap[t] = (countMap[t] || 0) + 1;
+                    el.remove();
+                });
+                var sorted = Object.keys(countMap).sort(function (a, b) { return countMap[b] - countMap[a]; });
+                if (sorted.length === 0) {
+                    var empty = document.createElement('div');
+                    empty.className = 'topic-empty';
+                    empty.textContent = '暂无标签';
+                    ul.parentNode.replaceChild(empty, ul.parentNode);
+                    return;
+                }
+                sorted.forEach(function (name) {
+                    var li = document.createElement('li');
+                    li.className = 'topic-item';
+                    li.setAttribute('data-count', countMap[name]);
+                    li.innerHTML = '<a href="/moments?tag=' + encodeURIComponent(name) + '">' + name + '</a>'
+                        + '<span class="topic-count">' + countMap[name] + '</span>';
+                    ul.appendChild(li);
+                });
+                ul.style.display = '';
+                ul.closest('.topic-list').style.display = '';
+            })();
+            </script>
+        </th:block>
+        <th:block th:unless="${momentsForHeatmap != null and not #lists.isEmpty(momentsForHeatmap.items)}">
+            <!-- 文章标签（文章首页模式，或瞬间插件未安装） -->
+            <th:block th:with="tags = ${tagFinder.listAll()}">
+                <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
+                    <ul class="topic-items">
+                        <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
+                            <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
+                            <span class="topic-count" th:text="${tag.postCount}">0</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+            </th:block>
+        </th:block>
     </th:block>
 
 </aside>

@@ -38,8 +38,9 @@
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
+  <!-- homepageMode: moments=笔记首页（默认），posts=文章首页 -->
   <div class="container"
-    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, momentsList=${momentFinder != null ? momentFinder.list(1, 20) : null}">
+    th:with="homepageMode=${theme.config.basic.homepage_content ?: 'moments'}, postsSlug=${theme.config.basic.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -51,59 +52,168 @@
     <div class="content">
       <div id="notes" class="notes-layout">
         <main class="notes-core">
+
+          <!-- ===== Tab 栏：根据 homepageMode 切换顺序和链接 ===== -->
           <div class="notes-tabbar sticky bg-blur bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <ul class="tab global-list">
-              <li class="tab-item" data-type="all">
-                <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
-              </li>
-              <li class="tab-item" data-type="note" th:with="pluginInstalled=${momentFinder != null}">
-                <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
-                <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()" class="text-gray-700 dark:text-gray-300">笔记</a>
-              </li>
+              <!-- 笔记首页模式：笔记(/) 在前高亮，文章（用户配置路径）在后 -->
+              <th:block th:if="${homepageMode == 'moments'}"
+                th:with="postsPageExists=${not #lists.isEmpty(allSinglePages.items) and allSinglePages.items.![spec.slug].contains(postsSlug)}">
+                <li class="tab-item active" data-type="note">
+                  <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
+                </li>
+                <li class="tab-item" data-type="all">
+                  <!-- 文章页面存在：正常跳转；不存在：提示创建 -->
+                  <a th:if="${postsPageExists}" th:href="'/' + ${postsSlug}" class="text-gray-700 dark:text-gray-300">文章</a>
+                  <a th:unless="${postsPageExists}" href="javascript:;" th:data-slug="${postsSlug}" onclick="showPostsPageNotice(this)" class="text-gray-700 dark:text-gray-300">文章</a>
+                </li>
+              </th:block>
+              <!-- 文章首页模式（默认）：文章(/) 在前，笔记(/moments) 在后 -->
+              <th:block th:unless="${homepageMode == 'moments'}">
+                <li class="tab-item active" data-type="all">
+                  <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
+                </li>
+                <li class="tab-item" data-type="note" th:with="pluginInstalled=${momentFinder != null}">
+                  <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
+                  <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()" class="text-gray-700 dark:text-gray-300">笔记</a>
+                </li>
+              </th:block>
             </ul>
-          </div>
-
-          <!-- 数据容器 -->
-          <script th:inline="javascript">
-            /*<![CDATA[*/
-            var momentsData = /*[[${momentsList != null ? momentsList.items : {}}]]*/ {};
-            window.momentsData = momentsData || [];
-            /*]]>*/
-          </script>
-
-          <!-- 文章列表区域 -->
-          <div class="article-list" id="articleList">
-            <!-- 文章卡片列表 -->
-            <th:block th:if="${hasPosts}" th:each="post : ${posts.items}">
-              <div th:replace="includes/widgets/noteCard :: noteCard(
-                type='post',
-                title=${post.spec.title},
-                excerpt=${post.status.excerpt},
-                date=${post.spec.publishTime},
-                cover=${post.spec.cover},
-                permalink=${post.status.permalink},
-                comments=${post.stats.comment}
-              )"></div>
-            </th:block>
-            <!-- 空态提示 -->
-            <div id="emptyState" class="empty-state" th:unless="${hasPosts}" style="display: none;">
-              <p>暂无内容</p>
+            <!-- 标签筛选提示（笔记首页模式下） -->
+            <div class="moment-filter-bar" th:if="${homepageMode == 'moments' and tagParam != null}">
+              <span class="moment-filter-tag" th:text="${tagParam}"></span>
+              <a class="moment-filter-clear" th:href="@{/}"></a>
             </div>
-            <!-- 瞬间卡片容器（JS 追加） -->
-            <div id="momentsContainer"></div>
           </div>
 
-          <!-- 分页 -->
-          <div th:replace="includes/components/pagination :: simple-pagination(
-                 page=${posts.page},
-                 totalPages=${posts.totalPages},
-                 baseUrl=@{/}
-               )"></div>
+          <!-- ===== 内容区：笔记首页模式 ===== -->
+          <th:block th:if="${homepageMode == 'moments'}">
+            <!-- 插件未安装提示 -->
+            <div class="plugin-notice" th:if="${momentFinder == null}">
+              <div class="plugin-notice-icon">📦</div>
+              <div class="plugin-notice-content">
+                <h3>瞬间插件未安装</h3>
+                <p>请安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 来展示笔记内容</p>
+              </div>
+            </div>
+            <!-- 已安装：显示瞬间列表 -->
+            <th:block th:if="${momentFinder != null}">
+              <div class="article-list" id="articleList">
+                <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
+                  <div class="moment-item">
+                    <div class="moment-header">
+                      <span class="moment-time" th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
+                    </div>
+                    <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}"></div>
+                    <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
+                      <div class="moment-tags">
+                        <th:block th:each="tag : ${moment.spec.tags}">
+                          <a class="moment-tag" th:href="@{/} + '?tag=' + ${tag}" th:text="'#' + ${tag}"></a>
+                        </th:block>
+                      </div>
+                    </th:block>
+                    <th:block th:if="${not #lists.isEmpty(content.medium)}">
+                      <div class="moment-media">
+                        <div class="moment-photos">
+                          <th:block th:each="item : ${content.medium}">
+                            <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
+                              <img th:src="${item.url}" alt="瞬间图片" />
+                            </div>
+                          </th:block>
+                        </div>
+                        <th:block th:each="item : ${content.medium}">
+                          <th:block th:if="${item.type.name == 'VIDEO'}">
+                            <div class="moment-video-wrapper" th:data-video-src="${item.url}">
+                              <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls onloadedmetadata="handleVideoMetadata(this)"></video>
+                              <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
+                                <div class="moment-video-play-icon">▶</div>
+                              </div>
+                              <div class="moment-media-badge"><span class="media-icon">🎬</span><span class="media-label">视频</span></div>
+                            </div>
+                          </th:block>
+                        </th:block>
+                        <th:block th:each="item : ${content.medium}">
+                          <div class="moment-audio-wrapper" th:if="${item.type.name == 'AUDIO'}">
+                            <audio th:src="${item.url}" controls></audio>
+                            <div class="moment-media-badge"><span class="media-icon">🎵</span><span class="media-label">音频</span></div>
+                          </div>
+                        </th:block>
+                        <th:block th:each="item : ${content.medium}">
+                          <a class="moment-post-link" th:if="${item.type.name == 'POST'}" th:href="${item.url}" target="_blank">
+                            <div class="moment-post-card">
+                              <div class="moment-post-cover" th:if="${item.cover}"><img th:src="${item.cover}" alt="封面" /></div>
+                              <div class="moment-post-info">
+                                <h4 class="moment-post-title" th:text="${item.title}">文章标题</h4>
+                                <p class="moment-post-excerpt" th:if="${item.excerpt}" th:text="${item.excerpt}">文章摘要</p>
+                                <div class="moment-post-meta"><span class="moment-media-badge"><span class="media-icon">📄</span><span class="media-label">文章</span></span></div>
+                              </div>
+                            </div>
+                          </a>
+                        </th:block>
+                      </div>
+                    </th:block>
+                    <div class="moment-footer">
+                      <div class="moment-actions">
+                        <a class="action-item moment-like" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
+                          <i class="czs-heart-l"></i>
+                          <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
+                        </a>
+                        <a class="action-item moment-comments-toggle" href="javascript:;" th:data-moment-name="${moment.metadata.name}">
+                          <i class="czs-comment-l"></i>
+                          <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
+                            <span class="comment-count">[[${moment.stats.totalComment}]]</span>
+                          </th:block>
+                          <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
+                            <span class="comment-count"></span>
+                          </th:block>
+                        </a>
+                      </div>
+                      <div class="moment-source"><i class="czs-image"></i><span>Write from Webpage</span></div>
+                    </div>
+                    <div class="moment-comments-wrapper moment-comments-hidden" th:id="'comments-wrapper-' + ${moment.metadata.name}">
+                      <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
+                    </div>
+                  </div>
+                </th:block>
+                <div class="empty-moments" th:if="${moments == null or #lists.isEmpty(moments.items)}">
+                  <p>暂无瞬间</p>
+                </div>
+              </div>
+            </th:block>
+          </th:block>
+
+          <!-- ===== 内容区：文章首页模式（默认） ===== -->
+          <th:block th:unless="${homepageMode == 'moments'}">
+            <div class="article-list" id="articleList">
+              <th:block th:if="${hasPosts}" th:each="post : ${posts.items}">
+                <div th:replace="includes/widgets/noteCard :: noteCard(
+                  type='post',
+                  title=${post.spec.title},
+                  excerpt=${post.status.excerpt},
+                  date=${post.spec.publishTime},
+                  cover=${post.spec.cover},
+                  permalink=${post.status.permalink},
+                  comments=${post.stats.comment}
+                )"></div>
+              </th:block>
+              <div id="emptyState" class="empty-state" th:unless="${hasPosts}" style="display: none;">
+                <p>暂无内容</p>
+              </div>
+              <div id="momentsContainer"></div>
+            </div>
+            <!-- 分页 -->
+            <div th:replace="includes/components/pagination :: simple-pagination(
+                   page=${posts.page},
+                   totalPages=${posts.totalPages},
+                   baseUrl=@{/}
+                 )"></div>
+          </th:block>
+
         </main>
         <aside class="notes-aside"
           th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
-            <div th:replace="includes/widgets/heatmap :: heatmap(${null}, ${momentsForHeatmap})"></div>
+            <div th:replace="includes/widgets/heatmap :: heatmap(${homepageMode == 'moments' ? momentTags : null}, ${homepageMode == 'moments' ? momentsForHeatmap : null})"></div>
           </div>
         </aside>
       </div>
@@ -111,33 +221,7 @@
   </div>
   <!-- 页脚部分 -->
   <div th:replace="includes/components/footer :: footer"></div>
-  <script>
-    (function () {
-      var path = window.location.pathname;
-      var tabs = document.querySelectorAll('.notes-tabbar .tab-item');
-      tabs.forEach(function (tab) {
-        var link = tab.querySelector('a');
-        if (!link) return;
-        var href = link.getAttribute('href');
-        if (!href) return;
-
-        // 首页
-        if (path === '/' || path === '' || path === '/index' || path === '/index.html') {
-          if (href === '/' || href.endsWith('/')) {
-            tab.classList.add('active');
-          }
-        }
-        // 笔记页面
-        else if (path.startsWith('/moments')) {
-          if (href === '/moments') {
-            tab.classList.add('active');
-          }
-        }
-      });
-    })();
-  </script>
-
-  <!-- 插件未安装提示弹窗 -->
+  <!-- 文章首页模式：插件未安装提示弹窗（始终输出，笔记模式下不会被触发） -->
   <div id="pluginNoticeModal" class="plugin-notice-modal" style="display: none;">
     <div class="plugin-notice-backdrop" onclick="closePluginNotice()"></div>
     <div class="plugin-notice-dialog">
@@ -146,6 +230,18 @@
       <h3>请安装瞬间插件</h3>
       <p>笔记功能需要安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 才能正常使用</p>
       <p class="plugin-notice-hint">安装插件后，点击导航栏"笔记"即可查看瞬间</p>
+    </div>
+  </div>
+  <!-- 笔记首页模式：文章页面未创建提示弹窗 -->
+  <div id="postsPageNoticeModal" class="plugin-notice-modal" style="display: none;">
+    <div class="plugin-notice-backdrop" onclick="closePostsPageNotice()"></div>
+    <div class="plugin-notice-dialog">
+      <button class="plugin-notice-close" onclick="closePostsPageNotice()">&times;</button>
+      <div class="plugin-notice-icon">📄</div>
+      <h3>文章页面未创建</h3>
+      <p>请前往 <strong>Halo 后台 → 页面 → 独立页面</strong>，创建一个自定义页面</p>
+      <p>将页面 Slug 设置为 <code id="postsPageSlugHint">posts</code>，并选择模板 <strong>文章列表</strong></p>
+      <p class="plugin-notice-hint">也可在主题设置中修改「文章页路径」来匹配已有页面</p>
     </div>
   </div>
   <script>
@@ -157,11 +253,152 @@
       document.getElementById('pluginNoticeModal').style.display = 'none';
       document.body.style.overflow = '';
     }
-    // ESC 关闭
+    function showPostsPageNotice(el) {
+      var slug = el ? el.dataset.slug : 'posts';
+      var hint = document.getElementById('postsPageSlugHint');
+      if (hint) hint.textContent = slug;
+      document.getElementById('postsPageNoticeModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closePostsPageNotice() {
+      document.getElementById('postsPageNoticeModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closePluginNotice();
+      if (e.key === 'Escape') { closePluginNotice(); closePostsPageNotice(); }
     });
   </script>
+
+  <!-- 笔记首页模式：灯箱 / 视频弹窗 / 点赞 / 评论 JS（始终输出，文章模式下空转无害） -->
+    <!-- 图片灯箱 -->
+    <div id="imageViewer" class="image-viewer" style="display: none;">
+      <div class="viewer-backdrop"></div>
+      <div class="viewer-content">
+        <img id="viewerImage" src="" alt="查看大图" />
+        <button class="viewer-prev" id="viewerPrev" style="display: none;">&#10094;</button>
+        <button class="viewer-next" id="viewerNext" style="display: none;">&#10095;</button>
+        <button class="viewer-close" id="viewerClose"></button>
+        <div class="viewer-counter" id="viewerCounter" style="display: none;"></div>
+      </div>
+    </div>
+    <!-- 视频弹窗 -->
+    <div id="videoViewer" class="video-viewer" style="display: none;">
+      <div class="video-viewer-backdrop"></div>
+      <div class="video-viewer-content">
+        <button class="video-viewer-close" id="videoViewerClose">&times;</button>
+        <video id="viewerVideo" controls></video>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var viewer = document.getElementById('imageViewer');
+        if (!viewer) return;
+        var viewerImage = document.getElementById('viewerImage');
+        var viewerPrev = document.getElementById('viewerPrev');
+        var viewerNext = document.getElementById('viewerNext');
+        var viewerClose = document.getElementById('viewerClose');
+        var viewerCounter = document.getElementById('viewerCounter');
+        var backdrop = viewer.querySelector('.viewer-backdrop');
+        var currentImages = [], currentIndex = 0;
+        document.querySelectorAll('.moment-photos .photo-item img').forEach(function (img) {
+          img.style.cursor = 'pointer';
+          img.addEventListener('click', function (e) {
+            e.preventDefault();
+            var photosContainer = img.closest('.moment-photos');
+            var images = Array.from(photosContainer.querySelectorAll('img')).map(function (i) { return i.src; });
+            currentImages = images; currentIndex = images.indexOf(img.src); openViewer();
+          });
+        });
+        function openViewer() { viewer.style.display = 'flex'; updateImage(); document.body.style.overflow = 'hidden'; }
+        function closeViewer() { viewer.style.display = 'none'; document.body.style.overflow = ''; }
+        function updateImage() {
+          viewerImage.src = currentImages[currentIndex];
+          if (currentImages.length > 1) { viewerPrev.style.display = 'block'; viewerNext.style.display = 'block'; viewerCounter.style.display = 'block'; viewerCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length; }
+          else { viewerPrev.style.display = 'none'; viewerNext.style.display = 'none'; viewerCounter.style.display = 'none'; }
+        }
+        viewerClose.addEventListener('click', closeViewer);
+        backdrop.addEventListener('click', closeViewer);
+        viewerPrev.addEventListener('click', function (e) { e.stopPropagation(); currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length; updateImage(); });
+        viewerNext.addEventListener('click', function (e) { e.stopPropagation(); currentIndex = (currentIndex + 1) % currentImages.length; updateImage(); });
+        document.addEventListener('keydown', function (e) {
+          if (viewer.style.display === 'none') return;
+          if (e.key === 'Escape') closeViewer();
+          if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length; updateImage(); }
+          if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % currentImages.length; updateImage(); }
+        });
+      })();
+
+      (function () {
+        var videoViewer = document.getElementById('videoViewer');
+        if (!videoViewer) return;
+        var viewerVideo = document.getElementById('viewerVideo');
+        var videoViewerClose = document.getElementById('videoViewerClose');
+        var videoViewerBackdrop = videoViewer.querySelector('.video-viewer-backdrop');
+        window.handleVideoMetadata = function (video) {
+          var wrapper = video.closest('.moment-video-wrapper');
+          if (!wrapper) return;
+          if (video.videoWidth && video.videoHeight && video.videoWidth / video.videoHeight <= 1) wrapper.classList.add('vertical');
+        };
+        document.querySelectorAll('.moment-video').forEach(function (video) {
+          video.addEventListener('loadedmetadata', function () { window.handleVideoMetadata(video); });
+        });
+        window.openVideoPopup = function (overlay) {
+          var wrapper = overlay.closest('.moment-video-wrapper');
+          var videoSrc = wrapper.dataset.videoSrc;
+          if (!videoSrc) return;
+          viewerVideo.src = videoSrc; videoViewer.style.display = 'flex'; document.body.style.overflow = 'hidden'; viewerVideo.play();
+        };
+        function closeVideoViewer() { videoViewer.style.display = 'none'; viewerVideo.pause(); viewerVideo.src = ''; document.body.style.overflow = ''; }
+        videoViewerClose.addEventListener('click', closeVideoViewer);
+        videoViewerBackdrop.addEventListener('click', closeVideoViewer);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && videoViewer.style.display !== 'none') closeVideoViewer(); });
+      })();
+
+      (function () {
+        var LIKED_KEY = 'halo_moment_liked', isRequesting = false;
+        function getLikedMoments() { try { var s = localStorage.getItem(LIKED_KEY); return s ? JSON.parse(s) : []; } catch (e) { return []; } }
+        function saveLikedMoments(list) { try { localStorage.setItem(LIKED_KEY, JSON.stringify(list)); } catch (e) {} }
+        function isMomentLiked(n) { return getLikedMoments().indexOf(n) !== -1; }
+        document.querySelectorAll('.moment-like').forEach(function (btn) {
+          var n = btn.dataset.momentName;
+          if (isMomentLiked(n)) { var i = btn.querySelector('i'); i.classList.remove('czs-heart-l'); i.classList.add('czs-heart', 'liked'); }
+        });
+        function likeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({group:'moment.halo.run',plural:'moments',name:n}) }).then(function(r){return r.json().catch(function(){return{upvote:null};});}); }
+        function unlikeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'DELETE', headers: {'Content-Type':'application/json'}, body: JSON.stringify({group:'moment.halo.run',plural:'moments',name:n}) }).then(function(r){return r.json().catch(function(){return{upvote:null};});}); }
+        function debounce(fn, d) { var t=null; return function(){ var c=this,a=arguments; clearTimeout(t); t=setTimeout(function(){fn.apply(c,a);},d); }; }
+        document.querySelectorAll('.moment-like').forEach(function (btn) {
+          btn.addEventListener('click', debounce(function (e) {
+            e.preventDefault(); if (isRequesting) return;
+            var n=this.dataset.momentName, iconEl=this.querySelector('i'), countEl=this.querySelector('.like-count'), isLiked=isMomentLiked(n), currentCount=parseInt(countEl.textContent)||0;
+            isRequesting = true;
+            (isLiked ? unlikeMoment(n) : likeMoment(n)).then(function(result){
+              var list=getLikedMoments();
+              if(isLiked){var idx=list.indexOf(n);if(idx!==-1)list.splice(idx,1);}else{if(list.indexOf(n)===-1)list.push(n);}
+              saveLikedMoments(list);
+              countEl.textContent = result.upvote || (isLiked ? currentCount-1 : currentCount+1);
+              if(isLiked){iconEl.classList.remove('czs-heart','liked');iconEl.classList.add('czs-heart-l');}
+              else{iconEl.classList.remove('czs-heart-l');iconEl.classList.add('czs-heart','liked');}
+            }).catch(function(err){console.error('操作失败:',err);}).finally(function(){isRequesting=false;});
+          }, 300));
+        });
+      })();
+
+      (function () {
+        var currentOpenWrapper = null, currentOpenBtn = null, hiddenClass = 'moment-comments-hidden';
+        document.querySelectorAll('.moment-comments-toggle').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var n=this.dataset.momentName, wrapperEl=document.getElementById('comments-wrapper-'+n), iconEl=this.querySelector('i');
+            if(currentOpenWrapper===wrapperEl && !wrapperEl.classList.contains(hiddenClass)){wrapperEl.classList.add(hiddenClass);iconEl.classList.remove('active');currentOpenWrapper=null;currentOpenBtn=null;return;}
+            if(currentOpenWrapper && currentOpenWrapper!==wrapperEl){currentOpenWrapper.classList.add(hiddenClass);if(currentOpenBtn)currentOpenBtn.querySelector('i').classList.remove('active');}
+            wrapperEl.classList.remove(hiddenClass);iconEl.classList.add('active');currentOpenWrapper=wrapperEl;currentOpenBtn=this;
+          });
+        });
+        document.addEventListener('click', function (e) {
+          if(currentOpenWrapper && !e.target.closest('.moment-item')){currentOpenWrapper.classList.add(hiddenClass);if(currentOpenBtn)currentOpenBtn.querySelector('i').classList.remove('active');currentOpenWrapper=null;currentOpenBtn=null;}
+        });
+      })();
+    </script>
 </body>
 
 </html>
