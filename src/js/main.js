@@ -38,9 +38,42 @@ class ThemeManager {
     this.applyTheme()
   }
 
-  toggleTheme() {
+  toggleTheme(x, y) {
     const current = this.getCurrentTheme()
-    this.setTheme(current === 'dark' ? 'light' : 'dark')
+    const nextTheme = current === 'dark' ? 'light' : 'dark'
+
+    // 不支持 View Transition API，直接切换
+    if (!document.startViewTransition) {
+      this.setTheme(nextTheme)
+      return
+    }
+
+    // 计算从点击点到最远角的半径（确保圆形能覆盖整个屏幕）
+    const cx = x ?? window.innerWidth
+    const cy = y ?? 0
+    const endRadius = Math.hypot(
+      Math.max(cx, window.innerWidth - cx),
+      Math.max(cy, window.innerHeight - cy)
+    )
+
+    const transition = document.startViewTransition(() => {
+      this.setTheme(nextTheme)
+    })
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${cx}px ${cy}px)`,
+        `circle(${endRadius}px at ${cx}px ${cy}px)`
+      ]
+      document.documentElement.animate(
+        { clipPath },
+        {
+          duration: 500,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)'
+        }
+      )
+    })
   }
 
   updateToggleIcon(isDark) {
@@ -122,15 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 绑定深色模式切换按钮
   document.querySelectorAll('.theme-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      window.themeManager.toggleTheme()
+    btn.addEventListener('click', (e) => {
+      window.themeManager.toggleTheme(e.clientX, e.clientY)
     })
   })
 
   // 绑定 Header 主题切换按钮
   document.querySelectorAll('.theme-toggle-header').forEach(btn => {
-    btn.addEventListener('click', () => {
-      window.themeManager.toggleTheme()
+    btn.addEventListener('click', (e) => {
+      window.themeManager.toggleTheme(e.clientX, e.clientY)
     })
   })
 
