@@ -187,7 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.dayjs) {
     window.dayjs.extend(window.dayjs_plugin_relativeTime)
     window.dayjs.locale('zh-cn')
-    document.querySelectorAll('[data-date]').forEach(el => {
+    // 排除热力图格子（.heatmap-map__item），只处理专门用于显示时间的元素
+    document.querySelectorAll('[data-date]:not(.heatmap-map__item)').forEach(el => {
       const dateStr = el.getAttribute('data-date')
       if (dateStr) {
         el.textContent = window.dayjs(dateStr).fromNow()

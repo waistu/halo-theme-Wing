@@ -205,7 +205,7 @@
                   </div>
                   <!-- Halo 官方评论组件（默认收起） -->
                   <div class="moment-comments-wrapper moment-comments-hidden" th:id="'comments-wrapper-' + ${moment.metadata.name}">
-                    <div th:replace="~{includes/comment/moment-comment :: moment-comment}"></div>
+                    <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
                   </div>
                 </div>
               </th:block>

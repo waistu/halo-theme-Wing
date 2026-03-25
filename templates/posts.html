@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章丨[[${site.title}]]</title>
+  <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
+  <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <!-- 主题配色方案 -->
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
+  <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
+  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
+  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
+  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
+  <style>
+    /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+    html { background-color: var(--bg-page, #f9fafb); }
+    html.dark { background-color: var(--bg-page-dark, #111827); }
+    body { background-color: var(--bg-page, #f9fafb); color: var(--text-secondary, #4b5563); }
+    html.dark body { background-color: var(--bg-page-dark, #111827); color: var(--text-secondary-dark, #d1d5db); }
+  </style>
+  <script>
+    if (window.location.hash === '#open-search') {
+      setTimeout(() => { if (window.SearchWidget) SearchWidget.open(''); }, 100);
+    }
+  </script>
+  <script th:src="@{/assets/dist/js/main.js}"></script>
+</head>
+
+<body>
+  <!-- 插入头部组件 -->
+  <div th:replace="includes/components/header :: header"></div>
+
+  <!--
+    自定义页面模板不自动注入 posts 变量，需要用 postFinder.list(page, size) 手动查询。
+    用三层嵌套解决 th:with 内变量相互依赖的问题：
+      第1层：解析 page 参数和 postsSlug（基础参数）
+      第2层：用 postsPage 查询 postsList
+      第3层：用 postsList 计算 hasPosts，渲染 container
+  -->
+  <th:block th:with="
+      postsPage=${#strings.isEmpty(#strings.toString(param.page)) ? 1 : #strings.toString(param.page)},
+      postsSlug=${theme.config.basic.posts_page_slug ?: 'posts'}
+    ">
+  <th:block th:with="postsList=${postFinder.list(postsPage, 10)}">
+  <div class="container"
+    th:with="
+      allPosts=${postFinder.listAll()},
+      stats=${siteStatsFinder.getStats()},
+      hasPosts=${postsList != null and postsList.items != null and !postsList.items.isEmpty()}
+    ">
+    <!-- 左侧：窄栏（菜单 + 小组件） -->
+    <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+      <div th:replace="includes/components/nav :: nav"></div>
+      <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+    </aside>
+
+    <!-- 右侧：主内容大盒子 -->
+    <div class="content">
+      <div id="notes" class="notes-layout">
+        <main class="notes-core">
+
+          <!-- Tab 栏：笔记(/) 在前不高亮，文章（当前页）高亮 -->
+          <div class="notes-tabbar sticky bg-blur bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <ul class="tab global-list">
+              <li class="tab-item" data-type="note">
+                <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
+              </li>
+              <li class="tab-item active" data-type="all">
+                <a th:href="'/' + ${postsSlug}" class="text-gray-700 dark:text-gray-300">文章</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 文章列表 -->
+          <div class="article-list" id="articleList">
+            <th:block th:if="${hasPosts}" th:each="post : ${postsList.items}">
+              <div th:replace="includes/widgets/noteCard :: noteCard(
+                type='post',
+                title=${post.spec.title},
+                excerpt=${post.status.excerpt},
+                date=${post.spec.publishTime},
+                cover=${post.spec.cover},
+                permalink=${post.status.permalink},
+                comments=${post.stats.comment}
+              )"></div>
+            </th:block>
+            <div class="empty-state" th:unless="${hasPosts}">
+              <p>暂无内容</p>
+            </div>
+          </div>
+
+          <!-- 分页（baseUrl 动态读 postsSlug） -->
+          <div th:replace="includes/components/pagination :: simple-pagination(
+                 page=${postsList.page},
+                 totalPages=${postsList.totalPages},
+                 baseUrl=${'/' + postsSlug}
+               )"></div>
+
+        </main>
+        <aside class="notes-aside"
+          th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
+          <div class="heatmap-box">
+            <div th:replace="includes/widgets/heatmap :: heatmap(${null}, ${null})"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+  </th:block>
+  </th:block>
+
+  <!-- 页脚部分 -->
+  <div th:replace="includes/components/footer :: footer"></div>
+</body>
+
+</html>

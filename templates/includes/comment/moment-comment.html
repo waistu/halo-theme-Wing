@@ -1,14 +1,13 @@
 <!--
   Moment 评论模块
-  仅支持 Halo 官方评论，因为 Twikoo 不支持 Moment 资源类型
+  仅支持 Halo 官方评论，因为 Twikoo 不支持 Moment 资源类型。
+  无论用户选择何种评论方案（twikoo/halo），瞬间评论始终使用 Halo 官方组件。
+  调用方式：th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"
 -->
-<th:block th:fragment="moment-comment">
+<th:block th:fragment="moment-comment(moment)">
 
-    <!-- 判断评论功能是否启用 -->
-    <th:block th:if="${haloCommentEnabled}">
-        <halo:comment group="moment.halo.run" kind="Moment" version="v1alpha1"
-          th:attr="name=${moment.metadata.name}">
-        </halo:comment>
-    </th:block>
+    <halo:comment group="moment.halo.run" kind="Moment" version="v1alpha1"
+      th:attr="name=${moment.metadata.name}">
+    </halo:comment>
 
 </th:block>

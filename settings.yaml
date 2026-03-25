@@ -44,6 +44,23 @@ spec:
             - label: 石板灰 (Slate)
               value: slate
         - $formkit: radio
+          name: homepage_content
+          id: homepage_content
+          key: homepage_content
+          label: 首页显示内容
+          help: 选择首页 (/) 显示笔记还是文章；切换后另一项通过自定义页面访问
+          options:
+            moments: 笔记
+            posts: 文章
+          value: moments
+        - $formkit: text
+          if: $get(homepage_content).value == 'moments'
+          name: posts_page_slug
+          label: 文章页路径
+          placeholder: posts
+          value: posts
+          help: 笔记首页模式下，文章列表页的路径（不含斜杠），需与后台自定义页面的 Slug 保持一致
+        - $formkit: radio
           name: sidebar_toggle
           label: 左侧边栏
           help: 是否显示左侧导航菜单
