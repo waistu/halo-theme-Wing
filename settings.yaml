@@ -60,6 +60,39 @@ spec:
     - group: style
       label: 外观与样式
       formSchema:
+        - $formkit: radio
+          name: theme_mode
+          id: theme_mode
+          key: theme_mode
+          label: 主题模式
+          help: 浅色/深色强制固定；自动模式按时间段切换，用户手动点击按钮可临时覆盖
+          options:
+            auto: 自动
+            light: 浅色
+            dark: 深色
+          value: auto
+        - $formkit: group
+          if: $get(theme_mode).value == 'auto'
+          name: auto_theme_time
+          key: auto_theme_time
+          label: 自动模式时间段
+          help: 设置浅色/深色模式的起止时间（24小时制，格式 HH:MM）
+          value:
+            light_start: "06:00"
+            dark_start: "22:00"
+          children:
+            - $formkit: text
+              name: light_start
+              label: 浅色模式开始时间
+              placeholder: "06:00"
+              value: "06:00"
+              help: 格式 HH:MM，超过此时间切换为浅色模式
+            - $formkit: text
+              name: dark_start
+              label: 深色模式开始时间
+              placeholder: "22:00"
+              value: "22:00"
+              help: 格式 HH:MM，超过此时间切换为深色模式
         - $formkit: select
           name: color_scheme
           label: 主题配色

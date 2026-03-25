@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN" class="scroll-smooth"
-    th:with="currentTheme=${theme.config.basic?.theme ?: 'light'}" th:classappend="${currentTheme}">
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -11,6 +10,63 @@
     <title th:text="${site_title} + (${post.title} ? ' - ' + ${post.title} : '')" th:remove="tag">
         网站标题
     </title>
+
+    <!-- 主题模式早期初始化：必须在 CSS 前执行，避免白闪/黑闪 -->
+    <script th:inline="javascript">
+    (function() {
+      // 从 Thymeleaf 注入的后台配置
+      var serverMode    = /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto';
+      var lightStart    = /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00';
+      var darkStart     = /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00';
+
+      // 把配置透传给后续的 main.js（避免重复 Thymeleaf 取值）
+      window.__WING_THEME__ = { serverMode: serverMode, lightStart: lightStart, darkStart: darkStart };
+
+      /**
+       * 解析 "HH:MM" 为当天分钟数
+       */
+      function timeToMinutes(t) {
+        var parts = (t || '').split(':');
+        return parseInt(parts[0] || 0, 10) * 60 + parseInt(parts[1] || 0, 10);
+      }
+
+      /**
+       * 根据自动模式时间段判断当前应为 dark 还是 light
+       */
+      function getAutoTheme() {
+        var now = new Date();
+        var cur = now.getHours() * 60 + now.getMinutes();
+        var ls  = timeToMinutes(lightStart);  // 06:00 → 360
+        var ds  = timeToMinutes(darkStart);   // 22:00 → 1320
+        // 跨天判断：深色区间 [ds, 次日 ls)
+        if (ds > ls) {
+          return (cur >= ds || cur < ls) ? 'dark' : 'light';
+        } else {
+          // 深色区间不跨天：[ds, ls)
+          return (cur >= ds && cur < ls) ? 'dark' : 'light';
+        }
+      }
+
+      function resolveTheme(mode) {
+        if (mode === 'light') return 'light';
+        if (mode === 'dark')  return 'dark';
+        // auto：先看用户在 dropdown 里的选择（wing-user-mode），再按时间算
+        var userMode = localStorage.getItem('wing-user-mode');
+        if (userMode === 'light') return 'light';
+        if (userMode === 'dark')  return 'dark';
+        return getAutoTheme();
+      }
+
+      var isDark = resolveTheme(serverMode) === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+    </script>
 
     <!-- 引入构建后的 CSS -->
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">

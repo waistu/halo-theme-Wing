@@ -4,13 +4,55 @@ import '../css/main.css'
 // ========== 深色模式管理 ==========
 class ThemeManager {
   constructor() {
-    this.theme = localStorage.getItem('theme') || 'system'
+    // 读取后台注入的配置（base.html 的早期脚本写入）
+    const cfg = window.__WING_THEME__ || {}
+    this.serverMode = cfg.serverMode || 'auto'   // 后台设置：'light' | 'dark' | 'auto'
+    this.lightStart = cfg.lightStart || '06:00'
+    this.darkStart  = cfg.darkStart  || '22:00'
+
+    // 用户在 dropdown 里选择的模式，持久化到 localStorage
+    // - 'auto'：跟随后台自动时间（或后台强制模式）
+    // - 'light' / 'dark'：用户手动固定
+    this._userMode = localStorage.getItem('wing-user-mode') || 'auto'
+
     this.init()
   }
 
-  init() {
-    this.applyTheme()
-    this.setupListeners()
+  /** 将 "HH:MM" 解析为当天分钟数 */
+  _timeToMin(t) {
+    const [h, m] = (t || '00:00').split(':').map(Number)
+    return h * 60 + (m || 0)
+  }
+
+  /** 根据当前时间判断自动模式应用的主题 */
+  _getAutoTheme() {
+    const now = new Date()
+    const cur = now.getHours() * 60 + now.getMinutes()
+    const ls  = this._timeToMin(this.lightStart)
+    const ds  = this._timeToMin(this.darkStart)
+    if (ds > ls) return (cur >= ds || cur < ls) ? 'dark' : 'light'
+    return (cur >= ds && cur < ls) ? 'dark' : 'light'
+  }
+
+  /**
+   * 解析最终生效的 dark/light
+   * 优先级：后台强制模式 > 用户选择 > 自动时间
+   */
+  getCurrentTheme() {
+    // 后台强制模式直接决定，用户无法覆盖
+    if (this.serverMode === 'light') return 'light'
+    if (this.serverMode === 'dark')  return 'dark'
+    // 后台为 auto：看用户选择
+    if (this._userMode === 'light') return 'light'
+    if (this._userMode === 'dark')  return 'dark'
+    // 用户也选 auto：按时间
+    return this._getAutoTheme()
+  }
+
+  /** 当前 dropdown 显示的选中 mode（auto/light/dark） */
+  getSelectedMode() {
+    if (this.serverMode !== 'auto') return this.serverMode  // 后台强制，选中固定
+    return this._userMode  // 用户选择
   }
 
   applyTheme() {
@@ -22,34 +64,27 @@ class ThemeManager {
       document.documentElement.classList.remove('dark')
       document.documentElement.setAttribute('data-theme', 'light')
     }
-    this.updateToggleIcon(isDark)
+    this._updateDropdownUI()
   }
 
-  getCurrentTheme() {
-    if (this.theme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
-    return this.theme
-  }
+  /**
+   * 用户从 dropdown 选择模式
+   * @param {'auto'|'light'|'dark'} mode
+   * @param {number} [x] 点击 x 坐标（用于波纹动画）
+   * @param {number} [y] 点击 y 坐标
+   */
+  setMode(mode, x, y) {
+    if (this.serverMode !== 'auto') return  // 后台强制时不允许覆盖
 
-  setTheme(theme) {
-    this.theme = theme
-    localStorage.setItem('theme', theme)
-    this.applyTheme()
-  }
+    this._userMode = mode
+    localStorage.setItem('wing-user-mode', mode)
 
-  toggleTheme(x, y) {
-    const current = this.getCurrentTheme()
-    const nextTheme = current === 'dark' ? 'light' : 'dark'
-
-    // 不支持 View Transition API，直接切换
     if (!document.startViewTransition) {
-      this.setTheme(nextTheme)
+      this.applyTheme()
       return
     }
 
-    // 计算从点击点到最远角的半径（确保圆形能覆盖整个屏幕）
-    const cx = x ?? window.innerWidth
+    const cx = x ?? window.innerWidth / 2
     const cy = y ?? 0
     const endRadius = Math.hypot(
       Math.max(cx, window.innerWidth - cx),
@@ -57,50 +92,118 @@ class ThemeManager {
     )
 
     const transition = document.startViewTransition(() => {
-      this.setTheme(nextTheme)
+      this.applyTheme()
     })
 
     transition.ready.then(() => {
-      const clipPath = [
-        `circle(0px at ${cx}px ${cy}px)`,
-        `circle(${endRadius}px at ${cx}px ${cy}px)`
-      ]
       document.documentElement.animate(
-        { clipPath },
         {
-          duration: 500,
-          easing: 'ease-in-out',
-          pseudoElement: '::view-transition-new(root)'
-        }
+          clipPath: [
+            `circle(0px at ${cx}px ${cy}px)`,
+            `circle(${endRadius}px at ${cx}px ${cy}px)`
+          ]
+        },
+        { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' }
       )
     })
   }
 
-  updateToggleIcon(isDark) {
-    // 更新所有 .theme-toggle 按钮的图标
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      const sunIcon = btn.querySelector('.icon-sun')
-      const moonIcon = btn.querySelector('.icon-moon')
-      if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'block'
-      if (moonIcon) moonIcon.style.display = isDark ? 'block' : 'none'
+  /** 同步 dropdown 触发器图标 + 选项选中状态 */
+  _updateDropdownUI() {
+    const selectedMode = this.getSelectedMode()
+    const isDark = this.getCurrentTheme() === 'dark'
+
+    // 更新触发器图标
+    document.querySelectorAll('.theme-dropdown-trigger').forEach(trigger => {
+      const sunIcon  = trigger.querySelector('.icon-sun')
+      const moonIcon = trigger.querySelector('.icon-moon')
+      const autoIcon = trigger.querySelector('.icon-auto')
+      if (selectedMode === 'auto') {
+        if (sunIcon)  sunIcon.style.display  = 'none'
+        if (moonIcon) moonIcon.style.display = 'none'
+        if (autoIcon) autoIcon.style.display = 'flex'
+      } else if (isDark) {
+        if (sunIcon)  sunIcon.style.display  = 'none'
+        if (autoIcon) autoIcon.style.display = 'none'
+        if (moonIcon) moonIcon.style.display = 'flex'
+      } else {
+        if (moonIcon) moonIcon.style.display = 'none'
+        if (autoIcon) autoIcon.style.display = 'none'
+        if (sunIcon)  sunIcon.style.display  = 'flex'
+      }
     })
-    
-    // 更新 Header 主题切换按钮的图标
-    document.querySelectorAll('.theme-toggle-header').forEach(btn => {
-      const sunIcon = btn.querySelector('.icon-sun')
-      const moonIcon = btn.querySelector('.icon-moon')
-      if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'flex'
-      if (moonIcon) moonIcon.style.display = isDark ? 'flex' : 'none'
+
+    // 更新 dropdown 选项的选中状态
+    document.querySelectorAll('.theme-dropdown-item').forEach(item => {
+      item.classList.toggle('selected', item.dataset.mode === selectedMode)
     })
   }
 
-  setupListeners() {
-    // 监听系统主题变化
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (this.theme === 'system') {
-        this.applyTheme()
+  /** 初始化 dropdown 交互 */
+  initDropdown() {
+    const dropdown = document.getElementById('themeDropdown')
+    const trigger  = document.getElementById('themeDropdownTrigger')
+    const menu     = document.getElementById('themeDropdownMenu')
+    if (!dropdown || !trigger || !menu) return
+
+    // 触发器点击：开关菜单
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const isOpen = menu.classList.contains('open')
+      if (isOpen) {
+        this._closeDropdown(menu)
+      } else {
+        this._openDropdown(menu)
       }
     })
+
+    // 选项点击
+    document.querySelectorAll('.theme-dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const mode = item.dataset.mode
+        this._closeDropdown(menu)
+        this.setMode(mode, trigger.getBoundingClientRect().right, trigger.getBoundingClientRect().top)
+      })
+    })
+
+    // 点击外部关闭
+    document.addEventListener('click', () => this._closeDropdown(menu))
+  }
+
+  _openDropdown(menu) {
+    menu.classList.add('open')
+    menu.setAttribute('aria-hidden', 'false')
+  }
+
+  _closeDropdown(menu) {
+    if (!menu) return
+    menu.classList.remove('open')
+    menu.setAttribute('aria-hidden', 'true')
+  }
+
+  init() {
+    this.applyTheme()
+    this.setupListeners()
+  }
+
+  setupListeners() {
+    if (this.serverMode === 'auto') {
+      const now = new Date()
+      const msToNextMin = (60 - now.getSeconds()) * 1000 - now.getMilliseconds()
+      setTimeout(() => {
+        this._tickCheck()
+        setInterval(() => this._tickCheck(), 60 * 1000)
+      }, msToNextMin)
+    }
+  }
+
+  _tickCheck() {
+    // 只有后台 auto 且用户也选 auto 时才自动切换
+    if (this.serverMode !== 'auto' || this._userMode !== 'auto') return
+    const nowTheme = this._getAutoTheme()
+    const curApplied = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    if (nowTheme !== curApplied) this.applyTheme()
   }
 }
 
@@ -147,23 +250,20 @@ class MobileMenu {
 document.addEventListener('DOMContentLoaded', () => {
   // 初始化主题管理器（只初始化一次）
   window.themeManager = new ThemeManager()
+  window.themeManager.initDropdown()
 
   // 初始化移动端菜单
   if (document.querySelector('.mobile-menu')) {
     window.mobileMenu = new MobileMenu()
   }
 
-  // 绑定深色模式切换按钮
+  // 兼容：旧版 .theme-toggle 按钮（如侧边栏等地方有的话，点击切换 auto→dark→light 循环）
   document.querySelectorAll('.theme-toggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      window.themeManager.toggleTheme(e.clientX, e.clientY)
-    })
-  })
-
-  // 绑定 Header 主题切换按钮
-  document.querySelectorAll('.theme-toggle-header').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      window.themeManager.toggleTheme(e.clientX, e.clientY)
+      const modes = ['auto', 'light', 'dark']
+      const cur = window.themeManager.getSelectedMode()
+      const next = modes[(modes.indexOf(cur) + 1) % modes.length]
+      window.themeManager.setMode(next, e.clientX, e.clientY)
     })
   })
 
