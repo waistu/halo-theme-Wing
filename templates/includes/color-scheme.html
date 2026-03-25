@@ -1,32 +1,32 @@
 <!-- 主题配色方案 CSS 变量 - 由 settings.yaml 的 color_scheme 配置控制 -->
 <th:block th:fragment="color-scheme">
-<style th:if="${theme.config.basic?.color_scheme == 'blue'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'blue'}" th:inline="text">
   :root { --color-primary-50: #eff6ff; --color-primary-100: #dbeafe; --color-primary-200: #bfdbfe; --color-primary-300: #93c5fd; --color-primary-400: #60a5fa; --color-primary-500: #3b82f6; --color-primary-600: #2563eb; --color-primary-700: #1d4ed8; --color-primary-800: #1e40af; --color-primary-900: #1e3a8a; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'emerald'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'emerald'}" th:inline="text">
   :root { --color-primary-50: #ecfdf5; --color-primary-100: #d1fae5; --color-primary-200: #a7f3d0; --color-primary-300: #6ee7b7; --color-primary-400: #34d399; --color-primary-500: #10b981; --color-primary-600: #059669; --color-primary-700: #047857; --color-primary-800: #065f46; --color-primary-900: #064e3b; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'violet'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'violet'}" th:inline="text">
   :root { --color-primary-50: #f5f3ff; --color-primary-100: #ede9fe; --color-primary-200: #ddd6fe; --color-primary-300: #c4b5fd; --color-primary-400: #a78bfa; --color-primary-500: #8b5cf6; --color-primary-600: #7c3aed; --color-primary-700: #6d28d9; --color-primary-800: #5b21b6; --color-primary-900: #4c1d95; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'amber'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'amber'}" th:inline="text">
   :root { --color-primary-50: #fffbeb; --color-primary-100: #fef3c7; --color-primary-200: #fde68a; --color-primary-300: #fcd34d; --color-primary-400: #fbbf24; --color-primary-500: #f59e0b; --color-primary-600: #d97706; --color-primary-700: #b45309; --color-primary-800: #92400e; --color-primary-900: #78350f; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'taupe'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'taupe'}" th:inline="text">
   :root { --color-primary-50: #fafaf9; --color-primary-100: #f5f5f4; --color-primary-200: #e7e5e4; --color-primary-300: #d6d3d1; --color-primary-400: #a8a29e; --color-primary-500: #78716c; --color-primary-600: #57534e; --color-primary-700: #44403c; --color-primary-800: #292524; --color-primary-900: #1c1917; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'slate'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'slate'}" th:inline="text">
   :root { --color-primary-50: #f8fafc; --color-primary-100: #f1f5f9; --color-primary-200: #e2e8f0; --color-primary-300: #cbd5e1; --color-primary-400: #94a3b8; --color-primary-500: #64748b; --color-primary-600: #475569; --color-primary-700: #334155; --color-primary-800: #1e293b; --color-primary-900: #0f172a; }
 </style>
-<style th:if="${theme.config.basic?.color_scheme == 'fuchsia'}" th:inline="text">
+<style th:if="${theme.config.style?.color_scheme == 'fuchsia'}" th:inline="text">
   :root { --color-primary-50: #fdf4ff; --color-primary-100: #fae8ff; --color-primary-200: #f5d0fe; --color-primary-300: #f0abfc; --color-primary-400: #e879f9; --color-primary-500: #d946ef; --color-primary-600: #c026d3; --color-primary-700: #a21caf; --color-primary-800: #86198f; --color-primary-900: #701a75; }
 </style>
-<meta name="theme-color" th:content="${theme.config.basic?.color_scheme == 'blue' ? '#3b82f6' : 
-                                      theme.config.basic?.color_scheme == 'emerald' ? '#10b981' :
-                                      theme.config.basic?.color_scheme == 'violet' ? '#8b5cf6' :
-                                      theme.config.basic?.color_scheme == 'amber' ? '#f59e0b' :
-                                      theme.config.basic?.color_scheme == 'taupe' ? '#78716c' :
-                                      theme.config.basic?.color_scheme == 'fuchsia' ? '#d946ef' :
-                                      theme.config.basic?.color_scheme == 'slate' ? '#64748b' :
+<meta name="theme-color" th:content="${theme.config.style?.color_scheme == 'blue' ? '#3b82f6' : 
+                                      theme.config.style?.color_scheme == 'emerald' ? '#10b981' :
+                                      theme.config.style?.color_scheme == 'violet' ? '#8b5cf6' :
+                                      theme.config.style?.color_scheme == 'amber' ? '#f59e0b' :
+                                      theme.config.style?.color_scheme == 'taupe' ? '#78716c' :
+                                      theme.config.style?.color_scheme == 'fuchsia' ? '#d946ef' :
+                                      theme.config.style?.color_scheme == 'slate' ? '#64748b' :
                                       '#f43f5e'}">
 </th:block>

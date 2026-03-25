@@ -40,9 +40,9 @@
   <!-- 页面主体容器 -->
   <!-- homepageMode: moments=笔记首页（默认），posts=文章首页 -->
   <div class="container"
-    th:with="homepageMode=${theme.config.basic.homepage_content ?: 'moments'}, postsSlug=${theme.config.basic.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
+    th:with="homepageMode=${theme.config.layout.homepage_content ?: 'moments'}, postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
-    <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+    <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
       <div th:replace="includes/components/nav :: nav"></div>
       <!-- author card -->
@@ -211,7 +211,7 @@
 
         </main>
         <aside class="notes-aside"
-          th:style="${theme.config.basic.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
+          th:style="${theme.config.layout.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
             <div th:replace="includes/widgets/heatmap :: heatmap(${homepageMode == 'moments' ? momentTags : null}, ${homepageMode == 'moments' ? momentsForHeatmap : null})"></div>
           </div>
