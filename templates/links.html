@@ -121,26 +121,17 @@
 
                     </th:block>
                     <!-- 评论区 -->
-                    <div class="comments-section" th:if="${haloCommentEnabled}">
-                        <div class="comments-header">
-                            <i class="czs czs-comment-l"></i>
-                            <span class="comments-title">评论</span>
-                        </div>
-                        <div class="article-comment round" id="comment-wrapper">
-                            <th:block th:switch="${theme.config.comment?.comment_provider}">
-                                <th:block th:case="'twikoo'">
-                                    <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
-                                </th:block>
-                                <th:block th:case="*">
-                                    <halo:comment
-                                        group="plugin.halo.run"
-                                        kind="Plugin"
-                                        name="PluginLinks"
-                                    />
-                                </th:block>
-                            </th:block>
-                        </div>
-                    </div>
+                    <th:block th:with="allSinglePagesList=${singlePageFinder.list(1, 50)}">
+                        <th:block th:each="sp : ${allSinglePagesList.items}" th:if="${sp.spec.template == 'links.html' and sp.spec.allowComment}">
+                            <div class="comments-section">
+                                <div class="comments-header">
+                                    <i class="czs czs-comment-l"></i>
+                                    <span class="comments-title">评论</span>
+                                </div>
+                                <div th:replace="~{includes/comment/comment :: comment}" th:with="singlePage=${sp}"></div>
+                            </div>
+                        </th:block>
+                    </th:block>
                 </main>
             </div>
         </div>
