@@ -9,10 +9,9 @@
 node_modules/
 dist/
 screenshots/
-scripts/
-
-# 包含敏感信息的本地脚本
+# 包含敏感信息的本地脚本（不推远程）
 scripts/release-with-token.sh
+scripts/
 
 
 # 日志
