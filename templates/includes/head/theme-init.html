@@ -1,0 +1,86 @@
+<!-- 主题防闪烁初始化 - 必须在 <head> 最顶部引入 -->
+<th:block th:fragment="theme-init">
+  <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
+  <script th:inline="javascript">
+    (function() {
+      // 从服务器获取主题配置
+      var serverMode = /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto';
+      var lightStart = /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00';
+      var darkStart = /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00';
+      
+      /**
+       * 解析 "HH:MM" 为当天分钟数
+       */
+      function timeToMinutes(t) {
+        var parts = (t || '').split(':');
+        return parseInt(parts[0] || 0, 10) * 60 + parseInt(parts[1] || 0, 10);
+      }
+      
+      /**
+       * 根据自动模式时间段判断当前应为 dark 还是 light
+       */
+      function getAutoTheme() {
+        var now = new Date();
+        var cur = now.getHours() * 60 + now.getMinutes();
+        var ls = timeToMinutes(lightStart);  // 06:00 → 360
+        var ds = timeToMinutes(darkStart);   // 22:00 → 1320
+        // 跨天判断：深色区间 [ds, 次日 ls)
+        if (ds > ls) {
+          return (cur >= ds || cur < ls) ? 'dark' : 'light';
+        } else {
+          // 深色区间不跨天：[ds, ls)
+          return (cur >= ds && cur < ls) ? 'dark' : 'light';
+        }
+      }
+      
+      /**
+       * 解析当前应该使用什么主题
+       */
+      function resolveTheme() {
+        // 服务器强制指定了 light/dark
+        if (serverMode === 'light') return 'light';
+        if (serverMode === 'dark') return 'dark';
+        
+        // auto 模式：先看用户在 dropdown 里的选择（wing-user-mode）
+        try {
+          var userMode = localStorage.getItem('wing-user-mode');
+          if (userMode === 'light') return 'light';
+          if (userMode === 'dark') return 'dark';
+        } catch (e) {
+          // localStorage 不可用，忽略错误
+        }
+        
+        // 用户没有手动选择，按时间自动判断
+        return getAutoTheme();
+      }
+      
+      // 应用主题
+      var theme = resolveTheme();
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  
+  <!-- 防闪烁样式：在 CSS 加载前设置背景色 -->
+  <style>
+    /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+    html {
+      background-color: var(--bg-page, #f9fafb);
+    }
+    html.dark {
+      background-color: var(--bg-page-dark, #111827);
+    }
+    body {
+      background-color: var(--bg-page, #f9fafb);
+      color: var(--text-secondary, #4b5563);
+    }
+    html.dark body {
+      background-color: var(--bg-page-dark, #111827);
+      color: var(--text-secondary-dark, #d1d5db);
+    }
+  </style>
+</th:block>

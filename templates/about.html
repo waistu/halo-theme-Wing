@@ -6,33 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>[[${singlePage.spec.title}]]丨[[${site.title}]]</title>
-    <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
-    <script>try { var t = localStorage.getItem('theme'); if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark') } catch (e) { }</script>
+    <!-- 主题防闪烁初始化（必须在最前面） -->
+    <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
     <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
     <!-- 主题配色方案 -->
     <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
     <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
-    <style>
-        /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
-        html {
-            background-color: var(--bg-page, #f9fafb);
-        }
-
-        html.dark {
-            background-color: var(--bg-page-dark, #111827);
-        }
-
-        body {
-            background-color: var(--bg-page, #f9fafb);
-            color: var(--text-secondary, #4b5563);
-        }
-
-        html.dark body {
-            background-color: var(--bg-page-dark, #111827);
-            color: var(--text-secondary-dark, #d1d5db);
-        }
-    </style>
     <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
     <script th:src="@{/assets/vendor/relativeTime.js}"></script>
     <script th:src="@{/assets/vendor/zh-cn.js}"></script>
