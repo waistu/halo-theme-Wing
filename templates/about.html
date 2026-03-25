@@ -61,7 +61,7 @@
     <!-- 页面主体容器 -->
     <div class="container" th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}">
         <!-- 左侧：窄栏（菜单 + 小组件） -->
-        <aside class="sidebar" th:style="${theme.config.basic.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+        <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
             <!-- nav -->
             <div th:replace="includes/components/nav :: nav"></div>
             <!-- author card -->

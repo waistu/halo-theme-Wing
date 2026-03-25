@@ -35,28 +35,28 @@
   </style>
 
   <!-- Prism.js 代码高亮主题 - 由主题设置控制 -->
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'dracula'}" rel="stylesheet" th:href="@{/assets/vendor/prism-dracula.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'dark'}" rel="stylesheet" th:href="@{/assets/vendor/prism-dark.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'tomorrow'}" rel="stylesheet" th:href="@{/assets/vendor/prism-tomorrow.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'twilight'}" rel="stylesheet" th:href="@{/assets/vendor/prism-twilight.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'coy'}" rel="stylesheet" th:href="@{/assets/vendor/prism-coy.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'funky'}" rel="stylesheet" th:href="@{/assets/vendor/prism-funky.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'solarizedlight'}" rel="stylesheet" th:href="@{/assets/vendor/prism-solarizedlight.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'dracula'}" rel="stylesheet" th:href="@{/assets/vendor/prism-dracula.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'dark'}" rel="stylesheet" th:href="@{/assets/vendor/prism-dark.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'tomorrow'}" rel="stylesheet" th:href="@{/assets/vendor/prism-tomorrow.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'twilight'}" rel="stylesheet" th:href="@{/assets/vendor/prism-twilight.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'coy'}" rel="stylesheet" th:href="@{/assets/vendor/prism-coy.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'funky'}" rel="stylesheet" th:href="@{/assets/vendor/prism-funky.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'solarizedlight'}" rel="stylesheet" th:href="@{/assets/vendor/prism-solarizedlight.min.css}" />
   <!-- 默认主题：Okaidia -->
-  <link th:unless="${theme.config.basic?.code_highlight_theme}" rel="stylesheet" th:href="@{/assets/vendor/prism-okaidia.min.css}" />
-  <link th:if="${theme.config.basic?.code_highlight_theme == 'okaidia'}" rel="stylesheet" th:href="@{/assets/vendor/prism-okaidia.min.css}" />
+  <link th:unless="${theme.config.style?.code_highlight_theme}" rel="stylesheet" th:href="@{/assets/vendor/prism-okaidia.min.css}" />
+  <link th:if="${theme.config.style?.code_highlight_theme == 'okaidia'}" rel="stylesheet" th:href="@{/assets/vendor/prism-okaidia.min.css}" />
   <!-- 代码块背景色 CSS 变量（用于包装器和遮罩） -->
   <style th:inline="text">
     :root {
-      --prism-bg: [[${theme.config.basic?.code_highlight_theme == 'dracula' ? '#282a36' :
-                     theme.config.basic?.code_highlight_theme == 'dark' ? '#4c3f33' :
-                     theme.config.basic?.code_highlight_theme == 'tomorrow' ? '#2d2d2d' :
-                     theme.config.basic?.code_highlight_theme == 'twilight' ? '#141414' :
-                     theme.config.basic?.code_highlight_theme == 'coy' ? '#fdfdfd' :
-                     theme.config.basic?.code_highlight_theme == 'funky' ? '#000' :
-                     theme.config.basic?.code_highlight_theme == 'solarizedlight' ? '#fdf6e3' :
+      --prism-bg: [[${theme.config.style?.code_highlight_theme == 'dracula' ? '#282a36' :
+                     theme.config.style?.code_highlight_theme == 'dark' ? '#4c3f33' :
+                     theme.config.style?.code_highlight_theme == 'tomorrow' ? '#2d2d2d' :
+                     theme.config.style?.code_highlight_theme == 'twilight' ? '#141414' :
+                     theme.config.style?.code_highlight_theme == 'coy' ? '#fdfdfd' :
+                     theme.config.style?.code_highlight_theme == 'funky' ? '#000' :
+                     theme.config.style?.code_highlight_theme == 'solarizedlight' ? '#fdf6e3' :
                      '#272822'}]];
-      --prism-is-light: [[${theme.config.basic?.code_highlight_theme == 'coy' || theme.config.basic?.code_highlight_theme == 'solarizedlight' ? '1' : '0'}]];
+      --prism-is-light: [[${theme.config.style?.code_highlight_theme == 'coy' || theme.config.style?.code_highlight_theme == 'solarizedlight' ? '1' : '0'}]];
     }
   </style>
   <!-- 代码高亮核心 -->
