@@ -50,43 +50,42 @@ jobs:
         id: release_notes
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          NOTES=$(awk -v ver="$VERSION" '
+          awk -v ver="$VERSION" '
             /^## / {
               if (found) exit
               if (index($0, ver)) found=1
               next
             }
             found { print }
-          ' RELEASE_NOTES.md | sed '/^$/d' | head -50)
-          if [ -z "$NOTES" ]; then
-            NOTES="Theme Wing v$VERSION"
+          ' RELEASE_NOTES.md > /tmp/release_notes.md
+          
+          # 如果提取为空，写兜底内容
+          if [ ! -s /tmp/release_notes.md ]; then
+            echo "Theme Wing v$VERSION" > /tmp/release_notes.md
           fi
-          # 写入多行内容到 GITHUB_OUTPUT
-          {
-            echo "notes<<EOF"
-            echo "$NOTES"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          
+          cat /tmp/release_notes.md
 
       - name: Package theme
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          mkdir -p dist/theme-wing
+          mkdir -p dist/pkg
           
-          # 复制必要文件
-          cp -r templates dist/theme-wing/
-          cp settings.yaml dist/theme-wing/
-          cp theme.yaml dist/theme-wing/
+          # 复制必要文件到临时目录
+          cp -r templates dist/pkg/
+          cp settings.yaml dist/pkg/
+          cp theme.yaml dist/pkg/
+          cp annotation-settings.yaml dist/pkg/ 2>/dev/null || true
           
           # 更新 theme.yaml 版本号
-          sed -i "s/version: \".*\"/version: \"$VERSION\"/" dist/theme-wing/theme.yaml
+          sed -i "s/version: \".*\"/version: \"$VERSION\"/" dist/pkg/theme.yaml
           
-          # 创建 zip
-          cd dist
-          zip -r theme-wing-$VERSION.zip theme-wing/
+          # 创建 zip（直接将内容打入根，不套子目录）
+          cd dist/pkg
+          zip -r ../theme-wing-$VERSION.zip .
           
           echo "Package created: dist/theme-wing-$VERSION.zip"
-          ls -la theme-wing-$VERSION.zip
+          ls -la ../theme-wing-$VERSION.zip
 
       - name: Create Release
         id: create_release
@@ -94,7 +93,7 @@ jobs:
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
           name: Release v${{ steps.get_version.outputs.version }}
-          body: ${{ steps.release_notes.outputs.notes }}
+          body_path: /tmp/release_notes.md
           files: dist/theme-wing-${{ steps.get_version.outputs.version }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
