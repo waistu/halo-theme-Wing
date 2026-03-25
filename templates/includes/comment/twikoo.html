@@ -1,62 +1,31 @@
 <!--
-  Twikoo 评论模块 - HeroUI 风格（使用 nocss 版本，完全自定义样式）
-  官网：https://twikoo.js.org/
-  需要先在 Twikoo 官网或 Vercel 部署获取环境 ID
-  
+  Twikoo 评论模块 - HeroUI 风格
   策略：
-  - 使用 twikoo.nocss.js 加载评论系统（不含内置样式）
-  - 引入 twikoo.css 保证功能组件（emoji、图片上传、分页等）布局正常
-  - 通过 twikoo-styles-inject.js 注入主题化样式，完全覆盖视觉风格
+  - twikoo.nocss.js 存放于 /assets/vendor/，按需动态加载，不影响主 JS 体积
+  - 样式（twikoo.css + 主题覆盖）已合并进 dist/css/main.css，无需额外加载
 -->
 <th:block th:fragment="twikoo">
 
     <div class="article-comment round hui-card" id="comment-wrapper">
         <div id="twikoo-container"></div>
     </div>
-    
-    <!-- Twikoo 基础结构 CSS（保证功能组件正常，外观由注入脚本覆盖） -->
-    <link id="twikoo-base-css" rel="stylesheet"
-          href="https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.css">
-    
-    <!-- Twikoo HeroUI 样式注入脚本（必须在 twikoo.css 之后加载，用于覆盖外观） -->
-    <script th:src="@{/assets/js/twikoo-styles-inject.js}" defer></script>
-    
-    <!-- Twikoo JS（nocss 版本，不带默认样式） -->
+
     <script th:inline="javascript">
-        (function() {
-            var envId = /*[[${theme.config.comment?.twikoo_config?.twikoo_env_id}]]*/ '';
-            var jsUrl = /*[[${theme.config.comment?.twikoo_config?.twikoo_js_url}]]*/ 'https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.nocss.js';
-            
+        (function () {
+            var envId = /*[[${theme.config.comment.twikoo_config.twikoo_env_id}]]*/ '';
             if (!envId) {
-                console.warn('Twikoo: 环境 ID 未配置，请在主题设置中填写');
-                document.getElementById('twikoo-container').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #999;">' +
+                document.getElementById('twikoo-container').innerHTML =
+                    '<div style="padding:20px;text-align:center;color:#999">' +
                     '<p>Twikoo 评论未配置</p>' +
-                    '<p style="font-size: 12px;">请在主题设置 → 评论设置中填写环境 ID</p>' +
+                    '<p style="font-size:12px">请在主题设置 → 评论设置中填写环境 ID</p>' +
                     '</div>';
                 return;
             }
-            
-            // 如果用户配置的是 all.min.js，自动替换为 nocss 版本
-            var loadUrl = (jsUrl || 'https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.nocss.js')
-                .replace('twikoo.all.min.js', 'twikoo.nocss.js')
-                .replace('twikoo.min.js', 'twikoo.nocss.js');
 
-            // 动态更新 twikoo.css 链接版本号与 JS 保持一致
-            var baseCssLink = document.getElementById('twikoo-base-css');
-            if (baseCssLink && loadUrl.includes('/twikoo@')) {
-                var versionMatch = loadUrl.match(/twikoo@([^/]+)\//);
-                if (versionMatch) {
-                    var baseUrl = loadUrl.substring(0, loadUrl.lastIndexOf('/') + 1);
-                    baseCssLink.href = baseUrl + 'twikoo.css';
-                }
-            }
-
-            // 加载 Twikoo nocss 版本
             var script = document.createElement('script');
-            script.src = loadUrl;
+            script.src = /*[[@{/assets/vendor/twikoo.nocss.js}]]*/ '/assets/vendor/twikoo.nocss.js';
             script.async = true;
-            script.onload = function() {
+            script.onload = function () {
                 twikoo.init({
                     envId: envId,
                     el: '#twikoo-container',
@@ -64,14 +33,12 @@
                     lang: 'zh-CN'
                 });
             };
-            script.onerror = function() {
-                document.getElementById('twikoo-container').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #999;">Twikoo 加载失败</div>';
+            script.onerror = function () {
+                document.getElementById('twikoo-container').innerHTML =
+                    '<div style="padding:20px;text-align:center;color:#999">Twikoo 加载失败</div>';
             };
             document.head.appendChild(script);
         })();
     </script>
 
 </th:block>
-
-
