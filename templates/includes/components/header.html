@@ -18,10 +18,32 @@
         <div class="menu-icon text-gray-500 dark:text-gray-400" id="menuIcon">
             <i class="czs czs-menu-l"></i>
         </div>
-        <!-- 深色模式切换按钮 -->
-        <button class="theme-toggle-header text-gray-500 dark:text-gray-400" id="themeToggleHeader" title="切换主题">
-            <i class="czs czs-sun-l icon-sun"></i>
-            <i class="czs czs-moon-l icon-moon" style="display: none;"></i>
-        </button>
+        <!-- 主题模式下拉选择 -->
+        <div class="theme-dropdown" id="themeDropdown">
+            <!-- 触发器按钮 -->
+            <button class="theme-dropdown-trigger" id="themeDropdownTrigger" title="切换主题">
+                <i class="czs czs-sun-l icon-sun"></i>
+                <i class="czs czs-moon-l icon-moon" style="display:none;"></i>
+                <i class="czs czs-clothes-l icon-auto" style="display:none;"></i>
+            </button>
+            <!-- 下拉菜单 -->
+            <div class="theme-dropdown-menu" id="themeDropdownMenu" aria-hidden="true">
+                <div class="theme-dropdown-item" data-mode="auto" id="themeOptAuto">
+                    <span class="theme-opt-icon"><i class="czs czs-clothes-l"></i></span>
+                    <span class="theme-opt-label">自动</span>
+                    <span class="theme-opt-check"><i class="czs czs-check-l"></i></span>
+                </div>
+                <div class="theme-dropdown-item" data-mode="light" id="themeOptLight">
+                    <span class="theme-opt-icon"><i class="czs czs-sun-l"></i></span>
+                    <span class="theme-opt-label">浅色</span>
+                    <span class="theme-opt-check"><i class="czs czs-check-l"></i></span>
+                </div>
+                <div class="theme-dropdown-item" data-mode="dark" id="themeOptDark">
+                    <span class="theme-opt-icon"><i class="czs czs-moon-l"></i></span>
+                    <span class="theme-opt-label">深色</span>
+                    <span class="theme-opt-check"><i class="czs czs-check-l"></i></span>
+                </div>
+            </div>
+        </div>
     </div>
 </header>
