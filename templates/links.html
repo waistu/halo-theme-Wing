@@ -7,18 +7,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>友链丨[[${site.title}]]</title>
     <!-- 防闪烁脚本：在 CSS 加载前应用深色模式 -->
-    <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+    <script>try { var t = localStorage.getItem('theme'); if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark') } catch (e) { }</script>
     <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
     <!-- 主题配色方案 -->
     <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
     <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
     <style>
-      /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
-      html { background-color: var(--bg-page, #f9fafb); }
-      html.dark { background-color: var(--bg-page-dark, #111827); }
-      body { background-color: var(--bg-page, #f9fafb); color: var(--text-secondary, #4b5563); }
-      html.dark body { background-color: var(--bg-page-dark, #111827); color: var(--text-secondary-dark, #d1d5db); }
+        /* 防止页面加载时的闪烁 - 使用 CSS 变量 */
+        html {
+            background-color: var(--bg-page, #f9fafb);
+        }
+
+        html.dark {
+            background-color: var(--bg-page-dark, #111827);
+        }
+
+        body {
+            background-color: var(--bg-page, #f9fafb);
+            color: var(--text-secondary, #4b5563);
+        }
+
+        html.dark body {
+            background-color: var(--bg-page-dark, #111827);
+            color: var(--text-secondary-dark, #d1d5db);
+        }
     </style>
     <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
     <script th:src="@{/assets/vendor/relativeTime.js}"></script>
@@ -33,24 +46,24 @@
     </script>
     <!-- Header 滚动隐藏脚本 -->
     <script>
-      (function() {
-        var header = document.getElementById('header');
-        if (!header) return;
-        var lastScrollY = 0;
-        window.onscroll = function() {
-          var currentScrollY = window.scrollY;
-          if (currentScrollY > 100) {
-            if (currentScrollY > lastScrollY) {
-              header.classList.add('header-hidden');
-            } else {
-              header.classList.remove('header-hidden');
-            }
-          } else {
-            header.classList.remove('header-hidden');
-          }
-          lastScrollY = currentScrollY;
-        };
-      })();
+        (function () {
+            var header = document.getElementById('header');
+            if (!header) return;
+            var lastScrollY = 0;
+            window.onscroll = function () {
+                var currentScrollY = window.scrollY;
+                if (currentScrollY > 100) {
+                    if (currentScrollY > lastScrollY) {
+                        header.classList.add('header-hidden');
+                    } else {
+                        header.classList.remove('header-hidden');
+                    }
+                } else {
+                    header.classList.remove('header-hidden');
+                }
+                lastScrollY = currentScrollY;
+            };
+        })();
     </script>
     <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
@@ -66,7 +79,8 @@
             <!-- nav -->
             <div th:replace="includes/components/nav :: nav"></div>
             <!-- author card -->
-            <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+            <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})">
+            </div>
         </aside>
         <!-- 右侧：主内容大盒子 -->
         <div class="content">
@@ -107,6 +121,15 @@
 
                     </th:block>
                     <!-- 评论区 -->
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            <i class="czs czs-comment-l"></i>
+                            <span class="comments-title">评论</span>
+                            <span class="comments-count" th:if="${post.status?.commentsCount > 0}"
+                                th:text="'(' + ${post.status.commentsCount} + ')'">(0)</span>
+                        </div>
+                        <div th:replace="~{includes/comment/comment :: comment}"></div>
+                    </div>
                     <div class="post-comment-section">
                         <div th:replace="~{includes/comment/comment :: comment}"></div>
                     </div>

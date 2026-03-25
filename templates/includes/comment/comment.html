@@ -8,7 +8,7 @@
 <th:block th:fragment="comment">
 
     <!-- 根据主题设置选择评论系统 -->
-    <th:block th:switch="${theme.config.basic?.comment_provider}">
+    <th:block th:switch="${theme.config.comment?.comment_provider}">
         
         <!-- Twikoo 评论 -->
         <th:block th:case="'twikoo'">
@@ -28,12 +28,14 @@
                         name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
                     -->
                     <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
-                        <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
-                            <halo:comment
-                                group="content.halo.run"
-                                th:kind="${commentKind}"
-                                th:attr="name=${commentName}"
-                            />
+                        <th:block th:if="${not #strings.isEmpty(commentName)}">
+                            <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
+                                <halo:comment
+                                    group="content.halo.run"
+                                    th:kind="${commentKind}"
+                                    th:attr="name=${commentName}"
+                                />
+                            </th:block>
                         </th:block>
                     </th:block>
                 </div>
