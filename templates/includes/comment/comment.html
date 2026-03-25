@@ -18,8 +18,11 @@
         
         <!-- Halo 官方评论（默认） -->
         <th:block th:case="*">
-            <!-- 仅在评论插件启用时显示 Halo 官方评论 -->
-            <th:block th:if="${haloCommentEnabled}">
+            <!--
+                haloCommentEnabled：标准模板（post.html/page.html）由 Halo 自动注入；
+                自定义模板（links.html 等）不一定注入，null 时视为允许显示。
+            -->
+            <th:block th:if="${haloCommentEnabled == null or haloCommentEnabled}">
                 <div class="article-comment round" id="comment-wrapper">
                     <!--
                         Halo 官方评论组件标签
@@ -38,13 +41,6 @@
                             </th:block>
                         </th:block>
                     </th:block>
-                </div>
-            </th:block>
-            
-            <!-- 评论插件未启用时的提示 -->
-            <th:block th:unless="${haloCommentEnabled}">
-                <div class="article-comment-disabled" th:if="false">
-                    <p>评论已关闭</p>
                 </div>
             </th:block>
         </th:block>
