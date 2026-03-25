@@ -2892,7 +2892,6 @@ html.dark .post-card,
     height: 140px;
   }
 }
-
 .post-article {
   padding: 30px;
   width: 100%;
@@ -3564,7 +3563,7 @@ html.dark .post-tag,
 
 /* 评论样式覆盖 */
 .article-comment {
-  padding: 20px;
+  padding: 0;
 }
 .form-account {
   display: none;
@@ -5232,7 +5231,7 @@ html.dark .link-item.style-lost,
 
   /* 显示移动端菜单按钮 */
   .menu-icon {
-    display: flex !important;
+    display: none;
   }
 
   /* 内容容器：保持水平排列（左边栏 + 内容区并排） */

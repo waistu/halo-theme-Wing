@@ -121,17 +121,25 @@
 
                     </th:block>
                     <!-- 评论区 -->
-                    <div class="comments-section">
+                    <div class="comments-section" th:if="${haloCommentEnabled}">
                         <div class="comments-header">
                             <i class="czs czs-comment-l"></i>
                             <span class="comments-title">评论</span>
-                            <span class="comments-count" th:if="${post.status?.commentsCount > 0}"
-                                th:text="'(' + ${post.status.commentsCount} + ')'">(0)</span>
                         </div>
-                        <div th:replace="~{includes/comment/comment :: comment}"></div>
-                    </div>
-                    <div class="post-comment-section">
-                        <div th:replace="~{includes/comment/comment :: comment}"></div>
+                        <div class="article-comment round" id="comment-wrapper">
+                            <th:block th:switch="${theme.config.comment?.comment_provider}">
+                                <th:block th:case="'twikoo'">
+                                    <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+                                </th:block>
+                                <th:block th:case="*">
+                                    <halo:comment
+                                        group="plugin.halo.run"
+                                        kind="Plugin"
+                                        name="PluginLinks"
+                                    />
+                                </th:block>
+                            </th:block>
+                        </div>
                     </div>
                 </main>
             </div>
