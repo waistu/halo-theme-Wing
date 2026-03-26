@@ -4601,6 +4601,7 @@ html.dark .moment-comments,
 
 /* 评论区 */
 .comments-section {
+  width: 100%;
   margin-top: 48px;
   padding: 0x;
 }
@@ -4613,13 +4614,15 @@ html.dark .comments-section,
 .comments-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  /* 左右分开 */
   gap: 8px;
   margin-bottom: 24px;
   padding-bottom: 16px;
 }
 
 .comments-header i {
-  font-size: 20px;
+  font-size: 16px;
   color: var(--color-primary-500);
 }
 
