@@ -1484,7 +1484,7 @@ html.dark .notes-core,
 .notes-core.full-width {
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 12px auto;
 }
 
 .notes-aside {
@@ -5022,7 +5022,10 @@ html.dark .pagination-gap,
   color: var(--text-primary);
   margin-bottom: 16px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--link-color);
+  text-decoration: underline;
+  text-decoration-color: var(--link-color);
+  text-decoration-thickness: 2px; /* 粗细 */
+  text-underline-offset: 6px; /* 距离文字的距离 */
 }
 
 .link-items {
@@ -5838,4 +5841,359 @@ html.dark #twikoo-container .tk-no-comment,
   #twikoo-container .tk-comment.tk-reply {
     margin-left: 1rem !important;
   }
+}
+
+/* ---------- 友链申请按钮组件 ---------- */
+.link-apply-btn-solid,
+.link-apply-btn-solid:link,
+.link-apply-btn-solid:visited,
+.link-apply-btn-solid:hover,
+.link-apply-btn-solid:active,
+html.dark .link-apply-btn-solid,
+html.dark .link-apply-btn-solid:link,
+html.dark .link-apply-btn-solid:visited,
+html.dark .link-apply-btn-solid:hover,
+html.dark .link-apply-btn-solid:active,
+[data-theme="dark"] .link-apply-btn-solid,
+[data-theme="dark"] .link-apply-btn-solid:link,
+[data-theme="dark"] .link-apply-btn-solid:visited,
+[data-theme="dark"] .link-apply-btn-solid:hover,
+[data-theme="dark"] .link-apply-btn-solid:active {
+  color: #ffffff !important;
+}
+
+.link-apply-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  background-color: var(--color-primary-500);
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.link-apply-btn-solid:hover {
+  background-color: var(--color-primary-600);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.link-apply-btn-solid:active {
+  transform: scale(0.96);
+}
+
+.link-apply-btn-solid i {
+  font-size: 1rem;
+  transition: transform 0.4s ease;
+}
+
+.link-apply-btn-solid:hover i {
+  transform: rotate(360deg);
+}
+
+/* ---------- Link Submit 插件弹窗样式定制（HeroUI Card 风格） ---------- */
+:root {
+  /* 基础样式 */
+  --link-submit-widget-base-font-size: 15px;
+  --link-submit-widget-base-font-family: inherit;
+  --link-submit-widget-base-rounded: 1rem;
+  --link-submit-widget-base-bg-color: var(--bg-page, #ffffff);
+  
+  /* 模态框遮罩层 - 使用主题主色半透明 */
+  --link-submit-widget-modal-layer-color: rgba(var(--color-primary-900-rgb, 17, 24, 39), 0.45);
+  
+  /* 表单卡片样式 - HeroUI Card 风格 */
+  --link-submit-widget-form-bg-color: var(--bg-card, #ffffff);
+  --link-submit-widget-form-border-color: var(--border-color, rgba(0, 0, 0, 0.08));
+  --link-submit-widget-form-text-color: var(--text-primary, #1f2937);
+  --link-submit-widget-form-label-color: var(--text-secondary, #4b5563);
+  --link-submit-widget-form-placeholder-color: var(--text-tertiary, #9ca3af);
+  
+  /* 按钮样式 - 使用主题主色 */
+  --link-submit-widget-form-button-bg-color: var(--color-primary-500);
+  --link-submit-widget-form-button-text-color: #ffffff;
+  --link-submit-widget-form-button-hover-bg-color: var(--color-primary-600);
+}
+
+/* 深色模式适配 */
+html.dark {
+  --link-submit-widget-modal-layer-color: rgba(0, 0, 0, 0.65);
+  --link-submit-widget-form-bg-color: var(--bg-card-dark, #1f2937);
+  --link-submit-widget-form-border-color: var(--border-color-dark, rgba(255, 255, 255, 0.1));
+  --link-submit-widget-form-text-color: var(--text-primary-dark, #f3f4f6);
+  --link-submit-widget-form-label-color: var(--text-secondary-dark, #d1d5db);
+  --link-submit-widget-form-placeholder-color: var(--text-tertiary-dark, #6b7280);
+}
+
+/* ---------- HeroUI Accordion 折叠组件样式 ---------- */
+.link-accordions {
+  margin: 32px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+html.dark .link-accordions {
+  border-color: var(--border-color-dark);
+  background: var(--bg-card-dark);
+}
+
+.accordion-item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+html.dark .accordion-item {
+  border-color: var(--border-color-dark);
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.accordion-header:hover {
+  background-color: var(--hover-bg);
+}
+
+html.dark .accordion-header:hover {
+  background-color: var(--hover-bg-dark);
+}
+
+.accordion-title-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+html.dark .accordion-title {
+  color: var(--text-primary-dark);
+}
+
+.accordion-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+html.dark .accordion-subtitle {
+  color: var(--text-secondary-dark);
+}
+
+.accordion-indicator {
+  flex-shrink: 0;
+  margin-left: 12px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark .accordion-indicator {
+  color: var(--text-secondary-dark);
+}
+
+.accordion-item.expanded .accordion-indicator {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-item.expanded .accordion-content {
+  max-height: 2000px;
+}
+
+.accordion-body {
+  padding: 0 20px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+html.dark .accordion-body {
+  color: var(--text-secondary-dark);
+}
+
+/* Accordion 内容区 Markdown 样式 */
+.accordion-body p {
+  margin: 0 0 12px;
+}
+
+.accordion-body p:last-child {
+  margin-bottom: 0;
+}
+
+.accordion-body ul,
+.accordion-body ol {
+  margin: 12px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.accordion-body ul li {
+  position: relative;
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.accordion-body ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary-500);
+  border-radius: 50%;
+}
+
+.accordion-body ol {
+  counter-reset: accordion-ol;
+}
+
+.accordion-body ol li {
+  position: relative;
+  padding-left: 28px;
+  margin: 8px 0;
+  counter-increment: accordion-ol;
+}
+
+.accordion-body ol li::before {
+  content: counter(accordion-ol);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-primary-500);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accordion-body a {
+  color: var(--link-color) !important;
+  text-decoration: none;
+}
+
+.accordion-body a:hover {
+  text-decoration: underline;
+}
+
+html.dark .accordion-body a {
+  color: var(--link-color-dark) !important;
+}
+
+.accordion-body code {
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', Monaco, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+html.dark .accordion-body code {
+  background: var(--bg-secondary-dark);
+  color: var(--text-primary-dark);
+}
+
+/* 代码块样式 */
+.accordion-body pre {
+  background: #1e1e2e;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+  position: relative;
+}
+
+.accordion-body pre::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 10px;
+  height: 10px;
+  background: #ff5f56;
+  border-radius: 50%;
+  box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27ca40;
+}
+
+.accordion-body pre code {
+  background: transparent;
+  padding: 24px 0 0;
+  color: #cdd6f4;
+  font-size: 13px;
+  line-height: 1.7;
+  display: block;
+}
+
+/* 代码块语法高亮颜色 */
+.accordion-body pre code .hljs-keyword,
+.accordion-body pre code .hljs-selector-tag,
+.accordion-body pre code .hljs-literal {
+  color: #cba6f7;
+}
+
+.accordion-body pre code .hljs-string,
+.accordion-body pre code .hljs-attr {
+  color: #a6e3a1;
+}
+
+.accordion-body pre code .hljs-number,
+.accordion-body pre code .hljs-built_in {
+  color: #fab387;
+}
+
+.accordion-body pre code .hljs-comment {
+  color: #6c7086;
+  font-style: italic;
+}
+
+.accordion-body pre code .hljs-function,
+.accordion-body pre code .hljs-title {
+  color: #89b4fa;
+}
+
+.accordion-body blockquote {
+  border-left: 3px solid var(--link-color);
+  margin: 12px 0;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-radius: 0 8px 8px 0;
+}
+
+html.dark .accordion-body blockquote {
+  background: var(--bg-secondary-dark);
 }
