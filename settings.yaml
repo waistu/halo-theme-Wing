@@ -185,6 +185,16 @@ spec:
     - group: links
       label: 友链页面
       formSchema:
+        - $formkit: radio
+          name: enable_comment
+          label: 启用评论
+          help: 在友链页面底部显示评论组件（需要安装评论插件）
+          options:
+            - label: 开启
+              value: true
+            - label: 关闭
+              value: false
+          value: false
         - $formkit: array
           name: link_accordions
           label: 折叠信息

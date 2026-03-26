@@ -4,37 +4,76 @@
   
   Halo 官方评论：https://www.halo.run/store/apps/app-YXyaD
   Twikoo 评论：https://twikoo.js.org/
+  
+  参数：
+  - group: 资源分组，默认 content.halo.run，友链页面使用 plugin.halo.run
+  - kind: 资源类型，默认自动判断（Post/SinglePage），友链页面使用 Plugin
+  - name: 资源唯一标识，默认自动获取 post/singlePage 的 metadata.name
+  - allowComment: 是否允许评论（友链页面使用）
 -->
-<th:block th:fragment="comment">
+<th:block th:fragment="comment(group, kind, name, allowComment)">
 
     <!-- 根据主题设置选择评论系统 -->
     <th:block th:switch="${theme.config.comment?.comment_provider}">
         
         <!-- Twikoo 评论 -->
         <th:block th:case="'twikoo'">
-            <!-- Twikoo 有自己的配置检查逻辑 -->
-            <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+            <!-- 友链页面传入 allowComment 时，需要判断 -->
+            <th:block th:if="${allowComment == null or allowComment}">
+                <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+            </th:block>
         </th:block>
         
         <!-- Halo 官方评论（默认） -->
         <th:block th:case="*">
-            <!--
-                haloCommentEnabled：标准模板（post.html/page.html）由 Halo 自动注入；
-                自定义模板（links.html 等）不一定注入，null 时视为允许显示。
+            <!-- 
+                allowComment: 友链页面传入，传入且为 true 时显示
+                haloCommentEnabled: 文章/页面由 Halo 自动注入
             -->
-            <th:block th:if="${haloCommentEnabled == null or haloCommentEnabled}">
+            <th:block th:if="${(allowComment != null and allowComment) or (allowComment == null and (haloCommentEnabled == null or haloCommentEnabled))}">
                 <div class="article-comment round" id="comment-wrapper">
                     <!--
-                        Halo 官方评论组件标签
-                        group: 资源分组，文章使用 content.halo.run
-                        kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
-                        name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
+                        Halo 官方评论组件
+                        文章/页面：使用 halo:comment 标签
+                        友链页面：使用 JS 初始化（传入 group/kind/name）
                     -->
-                    <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
+                    <th:block th:with="
+                        commentGroup=${group != null ? group : 'content.halo.run'},
+                        commentKind=${kind != null ? kind : (post != null ? 'Post' : (singlePage != null ? 'SinglePage' : ''))},
+                        commentName=${name != null ? name : (post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : ''))}">
                         <th:block th:if="${not #strings.isEmpty(commentName)}">
-                            <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
+                            <!-- 传入参数时使用 JS 初始化（友链页面） -->
+                            <th:block th:if="${group != null and kind != null and name != null}">
+                                <div th:id="|comment-${group}-${kind}-${name}|"></div>
+                                <script th:inline="javascript">
+                                    (function() {
+                                        var initComment = function() {
+                                            if (typeof commentWidget !== 'undefined') {
+                                                commentWidget.init('#comment-[[${group}]]-[[${kind}]]-[[${name}]]', {
+                                                    group: [[${group}]],
+                                                    kind: [[${kind}]],
+                                                    name: [[${name}]],
+                                                    size: 10,
+                                                    replySize: 10,
+                                                    withReplies: true,
+                                                    withReplySize: 10
+                                                });
+                                            } else {
+                                                setTimeout(initComment, 100);
+                                            }
+                                        };
+                                        if (document.readyState === 'loading') {
+                                            document.addEventListener('DOMContentLoaded', initComment);
+                                        } else {
+                                            initComment();
+                                        }
+                                    })();
+                                </script>
+                            </th:block>
+                            <!-- 未传入参数时使用 halo:comment 标签（文章/页面） -->
+                            <th:block th:unless="${group != null and kind != null and name != null}">
                                 <halo:comment
-                                    group="content.halo.run"
+                                    th:group="${commentGroup}"
                                     th:kind="${commentKind}"
                                     th:attr="name=${commentName}"
                                 />
