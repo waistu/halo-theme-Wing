@@ -76,18 +76,13 @@
                 <main class="notes-core full-width">
                     <div class="page-header">
                         <div class="flex items-center justify-between">
-                            <div th:replace="~{includes/widgets/headingShadow :: headingShadowResources}"></div>
-                            <h1 class="text-5xl font-bold">
-                                My
-                                <div
-                                    th:replace="~{includes/widgets/headingShadow :: headingShadow(text='Friend', shadowColor='black', className='italic')}">
-                                </div>
-                            </h1>
-                            <!-- Shimmer Button：申请友链 -->
+                            <h1 class="page-title">友链</h1>
+                            <!-- HeroUI 风格按钮：申请友链 -->
                             <th:block th:if="${pluginFinder.available('link-submit')}">
-                                <div data-shimmer-button data-text="申请友链" data-icon="czs czs-add"
-                                    data-class="shadow-2xl" data-onclick="LinkSubmitWidget.open()">
-                                </div>
+                                <a href="javascript:LinkSubmitWidget.open()" class="link-apply-btn-solid">
+                                    <span>申请友链</span>
+                                    <i class="czs czs-add"></i>
+                                </a>
                             </th:block>
                             <th:block th:unless="${pluginFinder.available('link-submit')}">
                                 <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请"
