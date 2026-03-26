@@ -88,18 +88,8 @@
 
         <!-- 页面内容 -->
         <div class="page-content" th:utext="${singlePage.content.content}"></div>
-        <!-- 评论区 -->
-        <div class="notes-core full-width">
-          <div class="comments-section">
-            <div class="comments-header">
-              <i class="czs czs-comment-l"></i>
-              <span class="comments-title">评论</span>
-              <span class="comments-count" th:if="${post.status?.commentsCount > 0}"
-                th:text="'(' + ${post.status.commentsCount} + ')'">(0)</span>
-            </div>
-            <div th:replace="~{includes/comment/comment :: comment}"></div>
-          </div>
-        </div>
+        <!-- 评论区（使用片段整合标题栏和评论组件） -->
+        <div th:replace="~{includes/comment/comment :: commentSection(target=${singlePage})}"></div>
       </article>
     </div>
   </div>
@@ -128,6 +118,60 @@
     })();
   </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
+  <!-- 匿名评论功能 -->
+  <script th:inline="javascript">
+    (function() {
+      var anonymousBtns = document.querySelectorAll('.anonymous-comment-btn');
+      if (!anonymousBtns.length) return;
+      
+      anonymousBtns.forEach(function(btn) {
+        var email = btn.getAttribute('data-email');
+        var nickname = btn.getAttribute('data-nickname');
+        
+        if (!email || !nickname) return;
+        
+        btn.addEventListener('click', function() {
+          var fillAnonymous = function() {
+            // 查找所有可能的输入框
+            var allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input:not([type])');
+            var emailInput = null;
+            var nickInput = null;
+            
+            allInputs.forEach(function(input) {
+              var placeholder = (input.placeholder || '').toLowerCase();
+              var name = (input.name || '').toLowerCase();
+              var id = (input.id || '').toLowerCase();
+              
+              // 通过 placeholder 或 name 判断
+              if (!emailInput && (placeholder.includes('邮') || name.includes('mail') || name.includes('email'))) {
+                emailInput = input;
+              }
+              if (!nickInput && (placeholder.includes('昵') || placeholder.includes('名') || placeholder.includes('作者') || name.includes('nick') || name.includes('author') || name.includes('name'))) {
+                nickInput = input;
+              }
+            });
+            
+            if (emailInput) {
+              emailInput.value = email;
+              emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+              emailInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (nickInput) {
+              nickInput.value = nickname;
+              nickInput.dispatchEvent(new Event('input', { bubbles: true }));
+              nickInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+            if ((!emailInput || !nickInput)) {
+              setTimeout(fillAnonymous, 500);
+            }
+          };
+          
+          fillAnonymous();
+        });
+      });
+    })();
+  </script>
 </body>
 
 </html>

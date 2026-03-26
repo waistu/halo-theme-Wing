@@ -5,46 +5,85 @@
   Halo 官方评论：https://www.halo.run/store/apps/app-YXyaD
   Twikoo 评论：https://twikoo.js.org/
 -->
-<th:block th:fragment="comment">
 
-    <!-- 根据主题设置选择评论系统 -->
-    <th:block th:switch="${theme.config.comment?.comment_provider}">
-        
-        <!-- Twikoo 评论 -->
-        <th:block th:case="'twikoo'">
-            <!-- Twikoo 有自己的配置检查逻辑 -->
-            <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+<!-- 评论区段（标题栏 + 评论组件），接收 target 参数（post 或 singlePage） -->
+<th:block th:fragment="commentSection(target)">
+    <!-- 检查评论是否启用 -->
+    <th:block th:with="allowComment=${target?.spec?.allowComment}">
+        <th:block th:if="${allowComment}">
+            <div class="notes-core full-width">
+                <div class="comments-section">
+                    <!-- 评论标题栏 -->
+                    <div class="comments-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="czs czs-comment-l"></i>
+                            <span class="comments-title">评论</span>
+                            <span class="comments-count" th:if="${target?.status?.commentsCount > 0}"
+                                th:text="'(' + ${target.status.commentsCount} + ')'">(0)</span>
+                        </div>
+                        <div style="display: flex; gap: 16px;">
+                            <th:block th:if="${theme.config.comment?.comment_provider == 'twikoo' and theme.config.comment?.anonymous_comment == true}">
+                                <a href="javascript:void(0)" class="anonymous-comment-btn"
+                                    th:data-email="${theme.config.comment?.anonymous_config?.anonymous_email}"
+                                    th:data-nickname="${theme.config.comment?.anonymous_config?.anonymous_nickname}">匿名评论</a>
+                            </th:block>
+                            <th:block th:if="${theme.config.comment?.privacy_policy_url}">
+                                <a th:href="${theme.config.comment.privacy_policy_url}" target="_blank">隐私协议</a>
+                            </th:block>
+                        </div>
+                    </div>
+                    <!-- 评论组件 -->
+                    <div th:replace="~{includes/comment/comment :: comment(target=${target})}"></div>
+                </div>
+            </div>
         </th:block>
-        
-        <!-- Halo 官方评论（默认） -->
-        <th:block th:case="*">
-            <!--
-                haloCommentEnabled：标准模板（post.html/page.html）由 Halo 自动注入；
-                自定义模板（links.html 等）不一定注入，null 时视为允许显示。
-            -->
-            <th:block th:if="${haloCommentEnabled == null or haloCommentEnabled}">
-                <div class="article-comment round" id="comment-wrapper">
-                    <!--
-                        Halo 官方评论组件标签
-                        group: 资源分组，文章使用 content.halo.run
-                        kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
-                        name: 资源的唯一标识，使用 post.metadata.name 或 singlePage.metadata.name
-                    -->
-                    <th:block th:with="commentName=${post != null ? post.metadata.name : (singlePage != null ? singlePage.metadata.name : '')}">
-                        <th:block th:if="${not #strings.isEmpty(commentName)}">
-                            <th:block th:with="commentKind=${post != null ? 'Post' : 'SinglePage'}">
-                                <halo:comment
-                                    group="content.halo.run"
-                                    th:kind="${commentKind}"
-                                    th:attr="name=${commentName}"
-                                />
+    </th:block>
+</th:block>
+
+<!-- 原有的评论组件片段（兼容模式：不传 target 时使用页面上下文变量） -->
+<th:block th:fragment="comment(target)">
+    <!-- 优先使用传入的 target，否则回退到页面上下文 -->
+    <th:block th:with="theTarget=${target != null ? target : (post != null ? post : singlePage)}">
+
+        <!-- 根据主题设置选择评论系统 -->
+        <th:block th:switch="${theme.config.comment?.comment_provider}">
+
+            <!-- Twikoo 评论 -->
+            <th:block th:case="'twikoo'">
+                <!-- Twikoo 有自己的配置检查逻辑 -->
+                <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
+            </th:block>
+
+            <!-- Halo 官方评论（默认） -->
+            <th:block th:case="*">
+                <!--
+                    haloCommentEnabled：标准模板（post.html/page.html）由 Halo 自动注入；
+                    自定义模板（links.html 等）不一定注入，null 时视为允许显示。
+                -->
+                <th:block th:if="${haloCommentEnabled == null or haloCommentEnabled}">
+                    <div class="article-comment round" id="comment-wrapper">
+                        <!--
+                            Halo 官方评论组件标签
+                            group: 资源分组，文章使用 content.halo.run
+                            kind: 资源类型，文章使用 Post，自定义页面使用 SinglePage
+                            name: 资源的唯一标识
+                        -->
+                        <th:block th:with="commentName=${theTarget?.metadata?.name}">
+                            <th:block th:if="${not #strings.isEmpty(commentName)}">
+                                <th:block th:with="commentKind=${theTarget?.metadata?.name == post?.metadata?.name ? 'Post' : 'SinglePage'}">
+                                    <halo:comment
+                                        group="content.halo.run"
+                                        th:kind="${commentKind}"
+                                        th:attr="name=${commentName}"
+                                    />
+                                </th:block>
                             </th:block>
                         </th:block>
-                    </th:block>
-                </div>
+                    </div>
+                </th:block>
             </th:block>
-        </th:block>
-        
-    </th:block>
 
+        </th:block>
+
+    </th:block>
 </th:block>

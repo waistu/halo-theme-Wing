@@ -145,13 +145,47 @@ spec:
           id: comment_provider
           key: comment_provider
           label: 评论系统
-          help: 选择要使用的评论系统，默认使用 Halo 官方评论
           value: halo
           options:
             - label: Halo 官方评论
               value: halo
             - label: Twikoo 评论
               value: twikoo
+        - $formkit: switch
+          if: $get(comment_provider).value == 'twikoo'
+          name: anonymous_comment
+          id: anonymous_comment
+          key: anonymous_comment
+          label: 匿名评论
+          value: false
+          help: Twikoo 模式下有效，开启后用户点击匿名评论按钮自动填充预设信息
+        - $formkit: group
+          if: $get(anonymous_comment).value == true
+          name: anonymous_config
+          key: anonymous_config
+          label: 匿名评论配置
+          value:
+            anonymous_email: anonymous@yourdomain.com
+            anonymous_nickname: momo
+          children:
+            - $formkit: email
+              name: anonymous_email
+              label: 匿名邮箱
+              placeholder: anonymous@example.com
+              value: anonymous@yourdomain.com
+              help: 匿名评论使用的邮箱
+            - $formkit: text
+              name: anonymous_nickname
+              label: 匿名昵称
+              placeholder: 匿名网友
+              value: momo
+              help: 匿名评论使用的昵称
+        - $formkit: url
+          name: privacy_policy_url
+          label: 隐私协议链接
+          placeholder: https://
+          value: /privacy
+          help: 隐私协议超链接地址
         - $formkit: group
           if: $get(comment_provider).value == 'twikoo'
           name: twikoo_config
