@@ -76,13 +76,18 @@
                 <main class="notes-core full-width">
                     <div class="page-header">
                         <div class="flex items-center justify-between">
-                            <h1 class="page-title">友链</h1>
-                            <!-- HeroUI 风格按钮：申请友链 -->
+                            <div th:replace="~{includes/widgets/headingShadow :: headingShadowResources}"></div>
+                            <h1 class="text-5xl font-bold">
+                                My
+                                <div
+                                    th:replace="~{includes/widgets/headingShadow :: headingShadow(text='Friend', shadowColor='black', className='italic')}">
+                                </div>
+                            </h1>
+                            <!-- Shimmer Button：申请友链 -->
                             <th:block th:if="${pluginFinder.available('link-submit')}">
-                                <a href="javascript:LinkSubmitWidget.open()" class="link-apply-btn-solid">
-                                    <span>申请友链</span>
-                                    <i class="czs czs-add"></i>
-                                </a>
+                                <div data-shimmer-button data-text="申请友链" data-icon="czs czs-add"
+                                    data-class="shadow-2xl" data-onclick="LinkSubmitWidget.open()">
+                                </div>
                             </th:block>
                             <th:block th:unless="${pluginFinder.available('link-submit')}">
                                 <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请"
@@ -146,27 +151,43 @@
                         </div>
                     </th:block>
                     <!-- 评论区 -->
-                    <div class="comments-section" th:if="${pluginFinder.available('PluginCommentWidget')}">
-                        <div class="comments-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <i class="czs czs-comment-l"></i>
-                                <span class="comments-title">评论</span>
-                            </div>
-                            <div style="display: flex; gap: 16px;">
-                                <th:block th:if="${theme.config.comment?.comment_provider == 'twikoo' and theme.config.comment?.anonymous_comment == true}">
-                                    <a href="javascript:void(0)" id="anonymous-comment-btn" 
-                                       th:data-email="${theme.config.comment?.anonymous_config?.anonymous_email}" 
-                                       th:data-nickname="${theme.config.comment?.anonymous_config?.anonymous_nickname}">匿名评论</a>
+                    <th:block
+                        th:if="${theme.config.links?.enable_comment == true and pluginFinder.available('PluginCommentWidget')}">
+                        <th:block th:with="commentProvider=${theme.config.comment?.comment_provider}">
+                            <div class="comments-section">
+                                <div class="comments-header"
+                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="czs czs-comment-l"></i>
+                                        <span class="comments-title">评论</span>
+                                    </div>
+                                    <div style="display: flex; gap: 16px;">
+                                        <th:block
+                                            th:if="${commentProvider == 'twikoo' and theme.config.comment?.anonymous_comment == true}">
+                                            <a href="javascript:void(0)" class="anonymous-comment-btn"
+                                                th:data-email="${theme.config.comment?.anonymous_config?.anonymous_email}"
+                                                th:data-nickname="${theme.config.comment?.anonymous_config?.anonymous_nickname}">匿名评论</a>
+                                        </th:block>
+                                        <th:block th:if="${theme.config.comment?.privacy_policy_url}">
+                                            <a th:href="${theme.config.comment.privacy_policy_url}"
+                                                target="_blank">隐私协议</a>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <!-- Twikoo 评论 -->
+                                <th:block th:if="${commentProvider == 'twikoo'}">
+                                    <div th:replace="~{includes/comment/twikoo :: twikoo}"></div>
                                 </th:block>
-                                <th:block th:if="${theme.config.comment?.privacy_policy_url}">
-                                    <a th:href="${theme.config.comment.privacy_policy_url}" target="_blank">隐私协议</a>
+                                <!-- Halo 官方评论 -->
+                                <th:block th:unless="${commentProvider == 'twikoo'}">
+                                    <div class="article-comment round">
+                                        <halo:comment group="plugin.halo.run" kind="Plugin"
+                                            th:attr="name=${pluginName}" />
+                                    </div>
                                 </th:block>
                             </div>
-                        </div>
-                        <div class="article-comment round" id="comment-wrapper">
-                            <div id="comment-plugin-halo-run-Plugin-PluginLinks"></div>
-                        </div>
-                    </div>
+                        </th:block>
+                    </th:block>
                 </main>
             </div>
         </div>
@@ -243,27 +264,27 @@
     </th:block>
     <!-- 匿名评论功能 -->
     <script th:inline="javascript">
-        (function() {
+        (function () {
             var anonymousBtn = document.getElementById('anonymous-comment-btn');
             if (!anonymousBtn) return;
-            
+
             var email = anonymousBtn.getAttribute('data-email');
             var nickname = anonymousBtn.getAttribute('data-nickname');
-            
+
             if (!email || !nickname) return;
-            
-            anonymousBtn.addEventListener('click', function() {
+
+            anonymousBtn.addEventListener('click', function () {
                 // 等待评论组件加载完成
-                var fillAnonymous = function() {
+                var fillAnonymous = function () {
                     // 查找所有可能的输入框
                     var allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input:not([type])');
                     var emailInput = null;
                     var nickInput = null;
-                    
-                    allInputs.forEach(function(input) {
+
+                    allInputs.forEach(function (input) {
                         var placeholder = (input.placeholder || '').toLowerCase();
                         var name = (input.name || '').toLowerCase();
-                        
+
                         // 通过 placeholder 或 name 判断
                         if (!emailInput && (placeholder.includes('邮') || name.includes('mail') || name.includes('email'))) {
                             emailInput = input;
@@ -272,7 +293,7 @@
                             nickInput = input;
                         }
                     });
-                    
+
                     if (emailInput) {
                         emailInput.value = email;
                         emailInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -283,13 +304,13 @@
                         nickInput.dispatchEvent(new Event('input', { bubbles: true }));
                         nickInput.dispatchEvent(new Event('change', { bubbles: true }));
                     }
-                    
+
                     // 如果还没找到，短暂重试
                     if ((!emailInput || !nickInput) && window.commentWidget) {
                         setTimeout(fillAnonymous, 500);
                     }
                 };
-                
+
                 fillAnonymous();
             });
         })();
