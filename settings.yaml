@@ -182,6 +182,49 @@ spec:
               placeholder: https://cdn.jsdelivr.net/npm/twikoo@1.7.0/dist/twikoo.nocss.js
               help: 使用 nocss 版本（推荐），主题会自动注入自定义样式。如填写 all.min.js 也会自动转换为 nocss 版本。
               value: https://cdn.cbd.int/twikoo@1.7.0/dist/twikoo.nocss.js
+    - group: links
+      label: 友链页面
+      formSchema:
+        - $formkit: array
+          name: link_accordions
+          label: 折叠信息
+          help: 在友链列表下方添加可折叠的信息区块，如友链申请须知、网站介绍等
+          value:
+            - title: 友链申请须知
+              subtitle: 申请前请阅读以下要求
+              expanded: true
+              content: |
+                1. 网站内容健康，无违法违规信息
+                2. 网站稳定运行，无频繁无法访问
+                3. 申请时请提供网站名称、链接和简介
+                4. 审核通过后会在 3 个工作日内添加
+          itemLabels:
+            - type: text
+              label: "$value.title"
+          children:
+            - $formkit: text
+              name: title
+              label: 标题
+              placeholder: 如：友链申请须知
+              validation: required
+            - $formkit: text
+              name: subtitle
+              label: 副标题
+              placeholder: 如：申请前请阅读以下要求
+            - $formkit: textarea
+              name: content
+              label: 内容
+              placeholder: 支持 Markdown 格式
+              rows: 6
+            - $formkit: radio
+              name: expanded
+              label: 默认展开
+              options:
+                - label: 展开
+                  value: true
+                - label: 收起
+                  value: false
+              value: false
     - group: author
       label: 作者卡片
       formSchema:

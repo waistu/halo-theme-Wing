@@ -75,8 +75,23 @@
             <div id="notes" class="notes-layout">
                 <main class="notes-core full-width">
                     <div class="page-header">
-                        <h1 class="page-title">友链</h1>
-                        <p class="page-description">交换友链请联系博主</p>
+                        <div class="flex items-center justify-between">
+                            <h1 class="page-title">友链</h1>
+                            <!-- HeroUI 风格按钮：申请友链 -->
+                            <th:block th:if="${pluginFinder.available('link-submit')}">
+                                <a href="javascript:LinkSubmitWidget.open()" class="link-apply-btn-solid">
+                                    <span>申请友链</span>
+                                    <i class="czs czs-add"></i>
+                                </a>
+                            </th:block>
+                            <th:block th:unless="${pluginFinder.available('link-submit')}">
+                                <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请" class="link-apply-btn-solid">
+                                    <span>申请友链</span>
+                                    <i class="czs czs-add"></i>
+                                </a>
+                            </th:block>
+                        </div>
+                        <p class="page-description mt-2">交换友链请联系博主</p>
                     </div>
                     <!-- 友链列表区域 -->
                     <div class="links-list" th:if="${#lists.isEmpty(linkGroups)}">
@@ -108,6 +123,27 @@
                         </th:block>
 
                     </th:block>
+                    <!-- 折叠信息区域 -->
+                    <th:block th:if="${not #lists.isEmpty(theme.config.links?.link_accordions)}">
+                        <div class="link-accordions">
+                            <div th:each="item, iterStat : ${theme.config.links.link_accordions}" 
+                                 class="accordion-item"
+                                 th:class="'accordion-item' + (${item.expanded} ? ' expanded' : '')">
+                                <div class="accordion-header" th:data-index="${iterStat.index}">
+                                    <div class="accordion-title-wrapper">
+                                        <h3 class="accordion-title" th:text="${item.title}">标题</h3>
+                                        <p class="accordion-subtitle" th:if="${item.subtitle}" th:text="${item.subtitle}">副标题</p>
+                                    </div>
+                                    <div class="accordion-indicator">
+                                        <i class="czs czs-angle-down"></i>
+                                    </div>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="accordion-body" th:utext="${item.content}">内容</div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
                     <!-- 评论区 -->
                     <th:block th:with="allSinglePagesList=${singlePageFinder.list(1, 50)}">
                         <th:block th:each="sp : ${allSinglePagesList.items}" th:if="${sp.spec.template == 'links.html' and sp.spec.allowComment}">
@@ -126,6 +162,11 @@
     </div>
     <!-- 页脚部分 -->
     <div th:replace="includes/components/footer :: footer"></div>
+    <!-- LinkSubmitWidget 插件资源 -->
+    <th:block th:if="${pluginFinder.available('link-submit')}">
+        <script src="/plugins/link-submit/assets/static/link-submit-widget.iife.js?version=1.0.6" defer></script>
+        <link rel="stylesheet" href="/plugins/link-submit/assets/static/var.css?version=1.0.6" />
+    </th:block>
     <script>
         (function () {
             var path = window.location.pathname;
@@ -151,6 +192,44 @@
             });
         })();
     </script>
+    <!-- Markdown 解析器 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <!-- Accordion 折叠组件脚本 -->
+    <script>
+        (function () {
+            // 渲染 Markdown 内容
+            var bodies = document.querySelectorAll('.accordion-body');
+            bodies.forEach(function (body) {
+                var rawContent = body.textContent || body.innerText || '';
+                if (rawContent && typeof marked !== 'undefined') {
+                    body.innerHTML = marked.parse(rawContent);
+                }
+            });
+
+            // 折叠交互
+            var accordions = document.querySelectorAll('.accordion-item');
+            accordions.forEach(function (accordion) {
+                var header = accordion.querySelector('.accordion-header');
+                if (!header) return;
+                
+                header.addEventListener('click', function () {
+                    var isExpanded = accordion.classList.contains('expanded');
+                    
+                    // 切换当前项状态
+                    if (isExpanded) {
+                        accordion.classList.remove('expanded');
+                    } else {
+                        accordion.classList.add('expanded');
+                    }
+                });
+            });
+        })();
+    </script>
+    <!-- Link Submit 插件资源加载 -->
+    <th:block th:if="${pluginFinder.available('link-submit')}">
+        <link rel="stylesheet" th:href="@{/plugins/link-submit/assets/static/var.css}">
+        <script th:src="@{/plugins/link-submit/assets/static/link-submit-widget.iife.js}"></script>
+    </th:block>
 </body>
 
 </html>
