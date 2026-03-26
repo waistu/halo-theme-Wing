@@ -13,7 +13,7 @@
 
 ## 1️⃣ 简介
 
-[halo-theme-wring](https://github.com/waistu/halo-theme-wring) 基于 [Tokinx/Wing](https://github.com/tokinx/Wing) 移植、重构并适配 Halo 博客系统的主题。
+[halo-theme-wing](https://github.com/waistu/halo-theme-wring) 基于 [Tokinx/Wing](https://github.com/tokinx/Wing) 移植、重构并适配 Halo 博客系统的主题。
 
 原主题为 WordPress 版本，本项目已几乎完全重写前端结构与逻辑，保持风格一致。
 
