@@ -6,7 +6,7 @@
 <!-- 快捷导航 -->
 <p align="center">
 
-[主题预览](https://blog.waistu.com/) | [快速上手](#-安装使用) | [使用文档](#) | [加入我们](#-讨论)
+[主题预览](https://blog.waistu.com/) | [快速上手](#-安装使用) | [使用文档](https://blog.waistu.com/doc/wing/index.html) | [加入我们](#-讨论)
 
 </p>
 </div>

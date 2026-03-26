@@ -15,11 +15,11 @@
     <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
     <!-- 主题配置透传给 main.js -->
     <script th:inline="javascript">
-      window.__WING_THEME__ = {
-        serverMode: /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto',
-        lightStart: /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00',
-        darkStart: /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00'
-      };
+        window.__WING_THEME__ = {
+            serverMode: /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto',
+            lightStart: /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00',
+            darkStart: /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00'
+        };
     </script>
     <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
     <script th:src="@{/assets/vendor/relativeTime.js}"></script>
@@ -85,7 +85,8 @@
                                 </a>
                             </th:block>
                             <th:block th:unless="${pluginFinder.available('link-submit')}">
-                                <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请" class="link-apply-btn-solid">
+                                <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请"
+                                    class="link-apply-btn-solid">
                                     <span>申请友链</span>
                                     <i class="czs czs-add"></i>
                                 </a>
@@ -126,13 +127,13 @@
                     <!-- 折叠信息区域 -->
                     <th:block th:if="${not #lists.isEmpty(theme.config.links?.link_accordions)}">
                         <div class="link-accordions">
-                            <div th:each="item, iterStat : ${theme.config.links.link_accordions}" 
-                                 class="accordion-item"
-                                 th:class="'accordion-item' + (${item.expanded} ? ' expanded' : '')">
+                            <div th:each="item, iterStat : ${theme.config.links.link_accordions}" class="accordion-item"
+                                th:class="'accordion-item' + (${item.expanded} ? ' expanded' : '')">
                                 <div class="accordion-header" th:data-index="${iterStat.index}">
                                     <div class="accordion-title-wrapper">
                                         <h3 class="accordion-title" th:text="${item.title}">标题</h3>
-                                        <p class="accordion-subtitle" th:if="${item.subtitle}" th:text="${item.subtitle}">副标题</p>
+                                        <p class="accordion-subtitle" th:if="${item.subtitle}"
+                                            th:text="${item.subtitle}">副标题</p>
                                     </div>
                                     <div class="accordion-indicator">
                                         <i class="czs czs-angle-down"></i>
@@ -145,17 +146,17 @@
                         </div>
                     </th:block>
                     <!-- 评论区 -->
-                    <th:block th:with="allSinglePagesList=${singlePageFinder.list(1, 50)}">
-                        <th:block th:each="sp : ${allSinglePagesList.items}" th:if="${sp.spec.template == 'links.html' and sp.spec.allowComment}">
-                            <div class="comments-section">
-                                <div class="comments-header">
-                                    <i class="czs czs-comment-l"></i>
-                                    <span class="comments-title">评论</span>
-                                </div>
-                                <div th:replace="~{includes/comment/comment :: comment}" th:with="singlePage=${sp}"></div>
-                            </div>
-                        </th:block>
-                    </th:block>
+                    <div class="comments-section" th:if="${pluginFinder.available('PluginCommentWidget')}">
+                        <div class="comments-header">
+                            <i class="czs czs-comment-l"></i>
+                            <span class="comments-title">评论</span>
+                        </div>
+                        <div class="article-comment round" id="comment-wrapper">
+                            <div id="comment-plugin-halo-run-Plugin-PluginLinks"></div>
+                        </div>
+
+
+                    </div>
                 </main>
             </div>
         </div>
@@ -192,6 +193,15 @@
             });
         })();
     </script>
+    <!-- 👇 关键：不要加 data-pjax，不要加版本号 -->
+    <script type="module" th:inline="javascript">
+        import { init } from /*[[@{/plugins/PluginCommentWidget/assets/static/comment-widget.js}]]*/ "";
+        init("#comment-plugin-halo-run-Plugin-PluginLinks", {
+            group: "plugin.halo.run",
+            kind: "Plugin",
+            name: "PluginLinks"
+        });
+    </script>
     <!-- Markdown 解析器 -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
     <!-- Accordion 折叠组件脚本 -->
@@ -211,10 +221,10 @@
             accordions.forEach(function (accordion) {
                 var header = accordion.querySelector('.accordion-header');
                 if (!header) return;
-                
+
                 header.addEventListener('click', function () {
                     var isExpanded = accordion.classList.contains('expanded');
-                    
+
                     // 切换当前项状态
                     if (isExpanded) {
                         accordion.classList.remove('expanded');
