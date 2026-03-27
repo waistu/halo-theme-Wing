@@ -70,6 +70,8 @@
 
     <!-- 引入构建后的 CSS -->
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">
+    <!-- Ripple 涟漪背景 CSS -->
+    <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}">
     <!-- Header 样式：防止遮挡内容 + 滚动隐藏 -->
     <style>
       #header {
@@ -96,6 +98,9 @@
 <body
     class="min-h-screen flex flex-col bg-rose-50 dark:bg-rose-950 text-gray-800 dark:text-rose-100 transition-colors duration-300">
 
+    <!-- Ripple 涟漪背景 -->
+    <div id="ripple-bg" data-ripple-bg class="fixed inset-0 -z-10 pointer-events-none"></div>
+
     <!-- 头部导航栏 -->
     <header th:replace="~{includes/components/header :: header}"></header>
 
@@ -113,6 +118,8 @@
 
     <!-- 引入构建后的 JavaScript -->
     <script th:src="@{/assets/dist/js/main.js}"></script>
+    <!-- Ripple 涟漪背景 JS -->
+    <script th:src="@{/assets/vendor/magic-ui/ripple.js}"></script>
     <!-- Header 滚动隐藏脚本 -->
     <script>
       (function() {

@@ -10,6 +10,8 @@
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <!-- Meteor 流星背景 CSS -->
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/meteor.css}">
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
@@ -28,6 +30,8 @@
 </head>
 
 <body>
+  <!-- Meteor 流星背景（仅深色模式生效） -->
+  <div id="meteor-bg" class="fixed inset-0 -z-10 pointer-events-none" th:if="${theme.config.style?.meteor_effect != false}"></div>
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
@@ -392,6 +396,8 @@
         });
       })();
     </script>
+  <!-- Meteor 流星背景 JS -->
+  <script th:src="@{/assets/vendor/magic-ui/meteor.js}"></script>
 </body>
 
 </html>

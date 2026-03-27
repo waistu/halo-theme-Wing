@@ -1,0 +1,70 @@
+/* ================================================
+   Meteor 流星背景 - 基于 Magic-UI 原版实现
+   ================================================ */
+
+#meteor-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  /* 深色模式下显示，亮色模式下隐藏 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+html.dark #meteor-bg,
+[data-theme="dark"] #meteor-bg,
+.dark #meteor-bg {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 流星头部 - 基于原版 size-0.5 rounded-full */
+.meteor {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
+  animation: meteor-fall linear infinite;
+  animation-delay: var(--meteor-delay, 0s);
+  animation-duration: var(--meteor-duration, 5s);
+  will-change: transform;
+}
+
+/* 流星尾巴 - 基于原版 w-12.5 h-px bg-linear-to-r from-zinc-500 to-transparent */
+.meteor::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
+  transform-origin: left center;
+  transform: translateY(-50%);
+  opacity: 0.8;
+}
+
+@keyframes meteor-fall {
+  0% {
+    transform: rotate(var(--meteor-angle, 35deg)) translateX(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--meteor-angle, 35deg)) translateX(-500px);
+    opacity: 0;
+  }
+}
