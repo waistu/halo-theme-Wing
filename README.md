@@ -43,6 +43,9 @@
 
 直接下载本项目放入 Halo 主题目录启用即可。
 
+## 特别说明
+本主题使用 Tailwind CSS 构建，部分视觉组件（如渐变标题、动画按钮、Bento 布局）参考自 Magic UI，已转换为纯 HTML + Tailwind 格式，无 React 依赖。
+
 ## 🔒 开源协议
 
 - 原项目 **Tokinx/Wing** 采用 **MIT License** 开源
