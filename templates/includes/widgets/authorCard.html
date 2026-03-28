@@ -1,4 +1,15 @@
-<div th:fragment="authorCard(postCount, stats)" class="author-card widget-box bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+<!-- 作者卡片 CSS -->
+<th:block th:fragment="authorCard-css">
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}">
+</th:block>
+
+<!-- 作者卡片 JS -->
+<th:block th:fragment="authorCard-js">
+  <script th:src="@{/assets/vendor/magic-ui/border-beam.js}" defer></script>
+</th:block>
+<div th:fragment="authorCard(postCount, stats)"
+  class="card author-card widget-box bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700"
+  data-border-beam data-beam-duration="8" data-beam-size="100">
   <!-- 封面背景 -->
   <div class="author-cover">
     <th:block th:if="${not #strings.isEmpty(theme.config.author.cover)}">
@@ -14,17 +25,12 @@
       btnIcon=${theme.config.author.follow_btn_icon ?: 'czs-add'},
       btnText=${theme.config.author.follow_btn_text ?: '关注'}
     ">
-      <a th:if="${not #strings.isEmpty(btnUrl)}"
-         th:href="${btnUrl}"
-         target="_blank"
-         class="author-follow-btn"
-         th:title="${btnText}">
+      <a th:if="${not #strings.isEmpty(btnUrl)}" th:href="${btnUrl}" target="_blank" class="author-follow-btn"
+        th:title="${btnText}">
         <span class="follow-btn-text" th:text="${btnText}">关注</span>
         <i th:class="'czs ' + ${btnIcon}"></i>
       </a>
-      <button th:unless="${not #strings.isEmpty(btnUrl)}"
-              class="author-follow-btn"
-              th:title="${btnText}">
+      <button th:unless="${not #strings.isEmpty(btnUrl)}" class="author-follow-btn" th:title="${btnText}">
         <span class="follow-btn-text" th:text="${btnText}">关注</span>
         <i th:class="'czs ' + ${btnIcon}"></i>
       </button>
@@ -44,7 +50,7 @@
   <!-- 作者信息 -->
   <div class="author-info">
     <h3 class="author-name text-gray-900 dark:text-white"
-        th:text="${not #strings.isEmpty(theme.config.author.name) ? theme.config.author.name : site.title}">站点名称</h3>
+      th:text="${not #strings.isEmpty(theme.config.author.name) ? theme.config.author.name : site.title}">站点名称</h3>
     <p class="author-bio text-gray-600 dark:text-gray-400"
       th:text="${theme.config.author.bio ?: 'Product Designer who focuses on simplicity & usability.'}">简介</p>
   </div>
@@ -75,7 +81,9 @@
         <th:block th:with="socials=${theme.config.author.socials_default}"></th:block>
       </th:block>
       <a th:each="social : ${socials}" th:if="${not #strings.isEmpty(social.url)}" th:href="${social.url}"
-        target="_blank" class="social-link text-gray-600 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400" th:title="${social.label}">
+        target="_blank"
+        class="social-link text-gray-600 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400"
+        th:title="${social.label}">
         <i th:class="'czs ' + ${social.icon}"></i>
       </a>
     </th:block>

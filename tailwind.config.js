@@ -24,11 +24,8 @@ module.exports = {
           700: '#1d4ed8',
         }
       },
-      // 自定义响应式断点（可选）
-      screens: {
-        'xs': '475px',
-        '3xl': '1920px',
-      },
+      // 断点配置已迁移到 src/css/main.css 的 @theme 中定义
+      // 使用 Tailwind v4 标准的 CSS 变量方式管理断点
     },
   },
   plugins: [
