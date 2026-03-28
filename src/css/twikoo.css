@@ -35,12 +35,14 @@
 }
 
 
+/* ========== Twikoo 评论表单样式 - HeroUI 风格 ========== */
+
 .tk-meta-input {
   display: flex;
 }
 .tk-meta-input .el-input {
   width: auto;
-  width: calc((100% - 1rem) / 3); /* Fix Safari */
+  width: calc((100% - 1rem) / 3);
   flex: 1;
 }
 .tk-meta-input .el-input + .el-input {
@@ -64,6 +66,107 @@
     margin-left: 0;
     margin-top: 0.5rem;
 }
+}
+
+
+/* 发送按钮样式优化 */
+.tk-send {
+  padding: 8px 20px;
+  font-size: 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tk-send:hover {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tk-send:active {
+  transform: scale(0.97);
+}
+
+.tk-meta-input {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  position: relative;
+  padding-right: 100px; /* 为发送按钮留空间 */
+}
+
+.tk-meta-input .el-input {
+  flex: 1 1 calc(33.333% - 0.35rem);
+  min-width: 120px;
+}
+
+.tk-meta-input .el-input-group__prepend {
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+/* 发送按钮 - 使用绝对定位放在输入框右侧 */
+.tk-send {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tk-send:hover {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tk-send:active {
+  transform: scale(0.97);
+}
+
+/* 文本域区域 */
+.tk-input {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.tk-row.actions {
+  margin-left: 0;
+  margin-top: 0.75rem;
+  justify-content: flex-end;
+}
+
+/* 响应式 - 移动端 */
+@media screen and (max-width: 767px) {
+  .tk-col {
+    flex-direction: column;
+  }
+  
+  .tk-meta-input {
+    padding-right: 0;
+  }
+  
+  .tk-meta-input .el-input {
+    flex: 1 1 100%;
+  }
+  
+  .tk-send {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
 }
 
 
