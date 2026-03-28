@@ -47,7 +47,7 @@
         <main class="notes-core">
 
           <!-- ===== Tab 栏：根据 homepageMode 切换顺序和链接 ===== -->
-          <div class="notes-tabbar sticky bg-blur bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div class="notes-tabbar sticky">
             <ul class="tab global-list">
               <!-- 笔记首页模式：笔记(/) 在前高亮，文章（用户配置路径）在后 -->
               <th:block th:if="${homepageMode == 'moments'}"

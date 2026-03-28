@@ -1,0 +1,57 @@
+/* Border Beam - Pure CSS Animation */
+
+.border-beam-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.border-beam-mask {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-style: solid;
+  border-color: transparent;
+  -webkit-mask-image: linear-gradient(transparent, transparent), linear-gradient(#000, #000);
+  mask-image: linear-gradient(transparent, transparent), linear-gradient(#000, #000);
+  -webkit-mask-clip: padding-box, border-box;
+  mask-clip: padding-box, border-box;
+  -webkit-mask-composite: intersect;
+  mask-composite: intersect;
+}
+
+.border-beam {
+  position: absolute;
+  aspect-ratio: 1;
+  offset-path: rect(0 auto auto 0 round var(--beam-size));
+  offset-distance: var(--beam-start, 0%);
+  background: linear-gradient(to left, var(--beam-color-from, #ffaa40), var(--beam-color-to, #9c40ff), transparent);
+  animation: border-beam-animation var(--beam-duration, 6s) linear infinite;
+  animation-delay: var(--beam-delay, 0s);
+}
+
+.border-beam.reverse {
+  animation-name: border-beam-animation-reverse;
+}
+
+@keyframes border-beam-animation {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes border-beam-animation-reverse {
+  0% {
+    offset-distance: 100%;
+  }
+  100% {
+    offset-distance: 0%;
+  }
+}
+
+/* Spring animation variant */
+.border-beam.spring {
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
