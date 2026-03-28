@@ -65,19 +65,29 @@
 
         <div class="archives-content">
           <th:block th:each="archive : ${archives.items}">
-            <h1 class="archive-year-title">
-              <span class="year-text" th:text="${archive.year}"></span>
-            </h1>
-            <ul class="archive-list">
-              <th:block th:each="month : ${archive.months}">
-                <li th:each="post : ${month.posts}">
-                  <a th:href="@{${post.status.permalink}}">
-                    <span th:text="${post.spec.title}"></span>
-                    <span class="archive-date" th:text="${#strings.substring(post.spec.publishTime, 5, 10)}"></span>
-                  </a>
-                </li>
-              </th:block>
-            </ul>
+            <div class="archive-wrapper">
+              <h1 class="archive-year-title">
+                <span class="year-text" th:text="${archive.year}"></span>
+              </h1>
+              <ul class="archive-list">
+                <th:block th:each="month : ${archive.months}">
+                  <li th:each="post : ${month.posts}">
+                    <a th:href="@{${post.status.permalink}}" class="archive-card">
+                      <div class="archive-cover" th:if="${not #strings.isEmpty(post.spec.cover)}">
+                        <img th:src="${post.spec.cover}" alt="封面">
+                      </div>
+                      <div class="archive-content">
+                        <div class="archive-title-row">
+                          <span class="archive-title" th:text="${post.spec.title}"></span>
+                          <span class="archive-date" th:text="${#strings.substring(post.spec.publishTime, 5, 10)}"></span>
+                        </div>
+                        <p class="archive-excerpt" th:text="${not #strings.isEmpty(post.status.excerpt) ? post.status.excerpt : #strings.abbreviate(post.spec.title, 50)}"></p>
+                      </div>
+                    </a>
+                  </li>
+                </th:block>
+              </ul>
+            </div>
           </th:block>
         </div>
 
@@ -93,16 +103,17 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      var yearTitles = document.querySelectorAll('.archive-year-title');
-      var archiveLists = document.querySelectorAll('.archive-list');
-      yearTitles.forEach(function (title, index) {
+      var wrappers = document.querySelectorAll('.archive-wrapper');
+      wrappers.forEach(function (wrapper) {
+        var yearTitle = wrapper.querySelector('.archive-year-title');
+        var archiveList = wrapper.querySelector('.archive-list');
         var count = 0;
-        if (archiveLists[index]) {
-          var lis = archiveLists[index].querySelectorAll('li');
+        if (archiveList) {
+          var lis = archiveList.querySelectorAll('li');
           count = lis.length;
         }
-        if (count > 0) {
-          title.innerHTML += '<span class="year-count">' + count + '</span>';
+        if (count > 0 && yearTitle) {
+          yearTitle.innerHTML += '<span class="year-count">' + count + '</span>';
         }
       });
     });
