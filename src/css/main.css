@@ -2,7 +2,6 @@
 @import "tailwindcss";
 @import "./twikoo.css";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
 /* ========== 自定义主题变量（Tailwind v4 方式） ========== */
