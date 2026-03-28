@@ -70,8 +70,9 @@
 
     <!-- 引入构建后的 CSS -->
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">
-    <!-- Ripple 涟漪背景 CSS -->
+    <!-- Magic UI 组件 CSS -->
     <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}">
+    <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}">
     <!-- Header 样式：防止遮挡内容 + 滚动隐藏 -->
     <style>
       #header {
@@ -151,6 +152,9 @@
         }, { passive: true });
       })();
     </script>
+
+    <!-- Magic UI 组件 JS -->
+    <script th:src="@{/assets/vendor/magic-ui/border-beam.js}"></script>
 
     <!-- 自定义脚本（如果有） -->
     <script th:if="${theme.config.custom_js}" th:src="@{${theme.config.custom_js}}"></script>

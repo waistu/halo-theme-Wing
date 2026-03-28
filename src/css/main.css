@@ -1542,7 +1542,13 @@ html.dark .widget-box,
 .author-card {
   margin-top: calc(var(--spacing) * 5.5);
   padding: 0;
+  overflow: visible;
+}
+
+.author-card .author-cover {
   overflow: hidden;
+  margin: 12px;
+  border-radius: 8px;
 }
 
 .author-cover {
@@ -1669,7 +1675,7 @@ html.dark .author-follow-btn:hover,
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--shadow-sm);
-  border: 3px solid var(--bg-card);
+  border: 1px solid var(--bg-card);
   position: relative;
   z-index: 1;
 }
