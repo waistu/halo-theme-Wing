@@ -31,6 +31,40 @@
                     el: '#twikoo-container',
                     path: window.location.pathname,
                     lang: 'zh-CN'
+                }).then(function() {
+                    // Twikoo 初始化完成后，调整评论输入区布局
+                    var adjustLayout = function() {
+                        var tkInput = document.querySelector('.tk-input');
+                        var tkRowActionsStart = document.querySelector('.tk-row-actions-start');
+                        var tkSubmit = document.querySelector('.tk-submit');
+                        var metaInput = document.querySelector('.tk-meta-input');
+                        var sendBtn = document.querySelector('.tk-send');
+
+                        // 把 tk-row-actions-start 移到 tk-input 里面
+                        if (tkInput && tkRowActionsStart && tkRowActionsStart.parentNode !== tkInput) {
+                            tkInput.appendChild(tkRowActionsStart);
+                        }
+
+                        // 移动发送按钮到 meta-input 后面
+                        if (metaInput && sendBtn && sendBtn.parentNode !== metaInput.parentNode) {
+                            metaInput.parentNode.insertBefore(sendBtn, metaInput.nextSibling);
+                        }
+                    };
+
+                    // 多次尝试调整
+                    setTimeout(adjustLayout, 100);
+                    setTimeout(adjustLayout, 300);
+                    setTimeout(adjustLayout, 500);
+                    setTimeout(adjustLayout, 1000);
+
+                    // 监听 DOM 变化
+                    var observer = new MutationObserver(function() {
+                        adjustLayout();
+                    });
+                    var container = document.getElementById('twikoo-container');
+                    if (container) {
+                        observer.observe(container, { childList: true, subtree: true });
+                    }
                 });
             };
             script.onerror = function () {
