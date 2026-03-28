@@ -208,6 +208,12 @@
               <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
                 <p>暂无瞬间</p>
               </div>
+              <!-- 内容加载完毕提示 -->
+              <div class="moments-end-tip" id="momentsEndTip" th:if="${not #lists.isEmpty(moments.items)}">
+                <span class="end-line"></span>
+                <span class="end-text">内容已加载完毕</span>
+                <span class="end-line"></span>
+              </div>
             </div>
           </th:block>
         </main>
