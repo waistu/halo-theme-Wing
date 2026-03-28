@@ -4396,6 +4396,11 @@ html.dark .moment-post-title,
   margin-right: 12px;
 }
 
+/* 瞬间正文中的纯文本标签（与 moment-tags 重复，隐藏） */
+.moment-content .tag-text {
+  display: none;
+}
+
 /* 瞬间标签 */
 .moment-tags {
   display: flex;

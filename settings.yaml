@@ -137,11 +137,6 @@ spec:
               value: funky
             - label: Solarized Light (亮色护眼)
               value: solarizedlight
-        - $formkit: switch
-          name: meteor_effect
-          label: 流星背景效果
-          value: true
-          help: 启用后深色模式下显示流星背景动画（仅深色模式生效）
     - group: comment
       label: 评论与互动
       formSchema:
