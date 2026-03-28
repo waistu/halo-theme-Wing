@@ -310,7 +310,7 @@
   font-size: 14px;
   line-height: 1.5;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow-x: auto;
   margin: 16px 0;
 }
@@ -430,7 +430,7 @@
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 13px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s;
 }
 
@@ -795,7 +795,7 @@ html.dark .theme-dropdown-trigger:hover,
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 6px;
   z-index: 999;
@@ -826,7 +826,7 @@ html.dark .theme-dropdown-menu,
   align-items: center;
   gap: 8px;
   padding: 7px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   color: var(--text-primary);
   font-size: 13px;
@@ -905,7 +905,7 @@ html.dark .theme-opt-check,
   font-size: 14px;
   height: 36px;
   outline: none;
-  border-radius: 30px;
+  border-radius: 1.875rem;
   background: transparent;
   transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, transform 0.3s ease-out;
   transform: translateX(10px);
@@ -983,7 +983,7 @@ body {
   flex: 1;
   min-height: 700px;
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   box-sizing: border-box;
   border: 1px solid var(--border-color);
 
@@ -1001,7 +1001,7 @@ html.dark .content,
 /* 通用小盒子样式 */
 .widget-box {
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   padding: 20px;
   width: 100%;
   box-shadow: var(--shadow-md);
@@ -1027,7 +1027,7 @@ html.dark .widget-box,
   position: relative;
   height: 120px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-top: 12px;
   margin-left: 10px;
   margin-right: 10px;
@@ -1042,7 +1042,7 @@ html.dark .widget-box,
 .author-cover-gradient {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
@@ -1053,7 +1053,7 @@ html.dark .widget-box,
   /* 默认收起状态：只显示图标圆形 */
   width: 28px;
   height: 28px;
-  border-radius: 14px;
+  border-radius: 0.875rem;
   border: none;
   background: rgba(255, 255, 255, 0.9);
   cursor: pointer;
@@ -1201,7 +1201,7 @@ html.dark .author-bio,
   background-color: var(--bg-secondary);
   padding: 16px 7px;
   margin: 6px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   border-top: 1px solid var(--border-color);
 }
 
@@ -1319,7 +1319,7 @@ html.dark .nav-item a svg,
   padding: 8px 12px;
   color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   transition: all 0.2s;
 }
@@ -1421,7 +1421,7 @@ html.dark .sub-arrow,
   padding: 8px 12px;
   color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   transition: all 0.2s;
 }
@@ -1460,7 +1460,7 @@ html.dark .nav-subitem.active a,
 .sidebar-menu {
   background: var(--bg-secondary);
   min-height: 200px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   padding: 20px;
 }
 
@@ -1478,7 +1478,7 @@ html.dark .sidebar-menu,
 .widget {
   background: var(--bg-secondary);
   min-height: 150px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   padding: 20px;
 }
 
@@ -1594,7 +1594,7 @@ html.dark .theme-by-wing .text-bold,
       #00cc00 60%,
       #0000ff 80%,
       #660099 100%);
-  border-radius: 1px;
+  border-radius: 0.0625rem;
   box-shadow: 0 0 0 1px var(--bg-card);
   /* 白色描边，和原图一致 */
 }
@@ -1644,7 +1644,7 @@ html.dark .theme-by-wing .text-bold,
   color: var(--text-on-accent) !important;
   text-decoration: none;
   font-size: 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   transition: background 0.2s ease;
 }
 
@@ -1727,7 +1727,7 @@ html.dark .notes-aside,
   padding: 8px 16px;
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  border-radius: 20px;
+  border-radius: var(--radius-3xl);
   text-decoration: none;
   transition: all 0.3s;
 }
@@ -1886,7 +1886,7 @@ html.dark .moment-card-content,
 
 .moment-card-content img {
   max-width: 100%;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin: 8px 0;
 }
 
@@ -1902,7 +1902,7 @@ html.dark .moment-card-content,
   color: var(--moment-accent);
   background: var(--moment-accent-bg);
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   text-decoration: none;
 }
 
@@ -1940,7 +1940,7 @@ html.dark .noteCard-tag:hover,
 
 .moment-excerpt img {
   max-width: 100%;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin: 8px 0;
 }
 
@@ -2013,7 +2013,7 @@ html.dark .noteCard:hover .card-title,
   width: 210px;
   height: 90px;
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-secondary);
 }
@@ -2093,7 +2093,7 @@ html.dark .card-meta,
   background: var(--accent-bg);
   color: var(--accent-color);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 html.dark .card-tag,
@@ -2125,7 +2125,7 @@ html.dark .read-more,
 /* 文章卡片 - 封面样式 */
 .article-item {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--bg-card);
   box-shadow: var(--shadow-md);
@@ -2219,7 +2219,7 @@ html.dark .article-item,
   margin-top: 18px;
   padding: 10px;
   background-color: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   align-items: center;
 }
 
@@ -2293,7 +2293,7 @@ html.dark .stats-divider,
   position: absolute;
   inset: 0;
   background: var(--bg-secondary);
-  border-radius: 2px;
+  border-radius: 0.125rem;
   border: 1px solid var(--border-color);
   transition: transform 0.2s ease;
   box-sizing: border-box;
@@ -2315,7 +2315,7 @@ html.dark .heatmap-map__item-block,
 .heatmap-map__item-inner {
   position: absolute;
   inset: 0;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   display: none;
   transition: transform 0.2s ease;
 }
@@ -2353,7 +2353,7 @@ html.dark .heatmap-map__item-block,
 .heatmap-tooltip {
   position: fixed;
   background: var(--color-primary-500);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 8px 12px;
   font-size: 12px;
   color: var(--text-secondary);
@@ -2412,7 +2412,7 @@ html.dark .topic-list,
   justify-content: space-between;
   align-items: center;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 0.3125rem;
   /* border-bottom: 1px solid #f0f0f0; */
   transition: background 0.2s ease;
 }
@@ -2500,7 +2500,7 @@ html.dark .topic-count,
   padding: 8px 14px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 0.625rem;
   text-decoration: none;
   transition: all 0.2s ease;
 }
@@ -2546,7 +2546,7 @@ html.dark .tags-page .tag-name,
   font-size: 0.75rem;
   background: rgba(0, 0, 0, 0.08);
   padding: 2px 6px;
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .tags-page .tag-block:hover .tag-count {
@@ -2664,7 +2664,7 @@ html.dark .archive-year-title::after,
   color: var(--link-color) !important;
   font-size: 0.95rem;
   padding: 4px 8px 4px 49px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s ease;
   position: relative;
   height: 50px;
@@ -2732,7 +2732,7 @@ html.dark .archive-pagination,
 .archive-pagination a {
   padding: 8px 16px;
   background: var(--bg-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -2768,7 +2768,7 @@ html.dark .archive-pagination a,
 .archive-pagination .page-btn {
   padding: 8px 16px;
   background: var(--bg-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -2800,7 +2800,7 @@ html.dark .archive-pagination .page-btn,
   width: 100%;
   height: 300px;
   overflow: hidden;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .page-cover img {
@@ -2813,7 +2813,7 @@ html.dark .archive-pagination .page-btn,
 .page-cover-empty {
   width: 100%;
   height: 300px;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2926,7 +2926,7 @@ html.dark .page-content,
 .page-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin: 16px 0;
 }
 
@@ -2973,7 +2973,7 @@ html.dark .page-content,
 .page-content pre {
   background: var(--bg-secondary);
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow-x: auto;
   margin: 16px 0;
 }
@@ -2986,7 +2986,7 @@ html.dark .page-content pre,
 .page-content code {
   background: var(--bg-secondary);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-family: 'Monaco', 'Menlo', monospace;
   font-size: 0.9em;
 }
@@ -3003,7 +3003,7 @@ html.dark .page-content code,
   color: var(--text-secondary);
   background: var(--bg-secondary);
   padding: 12px 16px;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
 html.dark .page-content blockquote,
@@ -3113,7 +3113,7 @@ html.dark .page-content th,
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  border-radius: 10px;
+  border-radius: 0.625rem;
   box-shadow: var(--shadow-md);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -3295,7 +3295,7 @@ html.dark .post-content h1,
 .post-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin: 20px 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -3320,7 +3320,7 @@ html.dark .post-content h1,
 .code-block-wrapper {
   position: relative;
   margin: 20px 0 !important;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   overflow: hidden;
   background: var(--prism-bg, #272822);
   /* 默认 Okaidia */
@@ -3378,7 +3378,7 @@ html.dark .post-content h1,
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.6);
   padding: 3px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -3559,7 +3559,7 @@ pre[data-line].line-highlight {
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.7);
   padding: 5px 18px;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 0.625rem 0.625rem;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -3606,7 +3606,7 @@ code[class*="language-"] {
 .post-content code:not([class*="language-"]) {
   background: var(--bg-secondary);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   font-size: 0.875em;
   color: #dc2626;
@@ -3632,7 +3632,7 @@ html.dark .post-content code:not([class*="language-"]),
   padding: 12px 20px;
   color: var(--text-secondary);
   background: var(--bg-secondary);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   font-style: italic;
 }
 
@@ -3741,7 +3741,7 @@ html.dark .post-content tr:hover td,
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   margin-bottom: 1px;
   /* background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); */
@@ -3755,7 +3755,7 @@ html.dark .post-content tr:hover td,
   height: 36px;
   background: var(--bg-secondary);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--text-secondary);
@@ -3827,7 +3827,7 @@ html.dark .sidebar-tab:hover,
   background: var(--link-color);
   color: var(--text-on-accent) !important;
   font-size: 0.8125rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
 }
@@ -3858,7 +3858,7 @@ html.dark .sidebar-tab:hover,
   color: var(--text-secondary) !important;
   font-size: 0.8125rem;
   font-weight: 500;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   /* 胶囊形状 */
   text-decoration: none !important;
   transition: all 0.2s ease;
@@ -4144,7 +4144,7 @@ html.dark .moment-item,
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background-color: var(--bg-secondary);
 }
 
@@ -4158,7 +4158,7 @@ html.dark .moment-item,
 .moment-media audio {
   max-width: 100%;
   width: 100%;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 8px;
 }
 
@@ -4168,7 +4168,7 @@ html.dark .moment-item,
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: 8px;
 }
@@ -4221,7 +4221,7 @@ html.dark .moment-item,
   gap: 4px;
   padding: 2px 8px;
   background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   color: var(--text-on-accent);
   margin-top: 6px;
@@ -4244,7 +4244,7 @@ html.dark .moment-item,
 .moment-audio-wrapper audio {
   width: 100%;
   height: 40px;
-  border-radius: 20px;
+  border-radius: var(--radius-3xl);
 }
 
 .moment-audio-wrapper .moment-media-badge {
@@ -4264,7 +4264,7 @@ html.dark .moment-item,
 .moment-post-card {
   display: flex;
   background: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
@@ -4370,7 +4370,7 @@ html.dark .moment-post-title,
 .video-viewer-content video {
   max-width: 100%;
   max-height: 90vh;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .video-viewer-close {
@@ -4414,7 +4414,7 @@ html.dark .moment-post-title,
   padding: 2px 8px;
   background: var(--accent-bg);
   color: var(--accent-color);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   line-height: 1.4;
   text-decoration: none;
@@ -4440,7 +4440,7 @@ html.dark .moment-tag,
   padding: 4px 12px;
   background: var(--accent-bg);
   border: 1px solid var(--link-color);
-  border-radius: 16px;
+  border-radius: var(--radius-2xl);
   font-size: 13px;
   margin-left: auto;
 }
@@ -4555,7 +4555,7 @@ html.dark .moment-filter-bar,
   padding: 40px 20px;
   margin: 20px;
   background: var(--bg-secondary);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   border: 1px dashed var(--border-color);
 }
 
@@ -4642,7 +4642,7 @@ html.dark .plugin-notice,
   font-size: 24px;
   padding: 15px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: background 0.2s;
 }
 
@@ -4697,7 +4697,7 @@ html.dark .plugin-notice,
   font-size: 14px;
   background: rgba(0, 0, 0, 0.5);
   padding: 6px 16px;
-  border-radius: 20px;
+  border-radius: var(--radius-3xl);
 }
 
 /* ==================== 瞬间评论样式 ==================== */
@@ -4832,7 +4832,7 @@ html.dark .comment-item:not(:last-child),
   flex: 1;
   padding: 8px 12px;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   resize: none;
   min-height: 36px;
@@ -4859,7 +4859,7 @@ html.dark .comment-input,
   background: var(--link-color);
   color: var(--text-on-accent);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s;
@@ -4949,7 +4949,7 @@ body .moment-item .moment-comments-wrapper.hidden {
 /* 提交按钮 */
 .halo-comment-widget-submit-btn {
   background: var(--link-color) !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-md) !important;
   height: 36px !important;
   padding: 0 16px !important;
 }
@@ -5037,7 +5037,7 @@ body .moment-item .moment-comments-wrapper.hidden {
 .plugin-notice-dialog {
   position: relative;
   background: var(--bg-card);
-  border-radius: 16px;
+  border-radius: var(--radius-2xl);
   padding: 40px;
   max-width: 360px;
   text-align: center;
@@ -5109,7 +5109,7 @@ html.dark .plugin-notice-dialog,
 .friend-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   padding: 16px;
   margin-bottom: 16px;
   transition: all 0.3s ease;
@@ -5209,7 +5209,7 @@ html.dark .friend-card,
   text-decoration: none;
   background: var(--bg-secondary);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s, color 0.2s;
@@ -5258,7 +5258,7 @@ html.dark .friend-card,
   text-decoration: none;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -5289,7 +5289,7 @@ html.dark .pagination-page:hover:not(.current),
 .pagination.simple .pagination-list.simple-list .pagination-page {
   min-width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   padding: 0 6px;
 }
@@ -5361,7 +5361,7 @@ html.dark .pagination-gap,
   padding: 8px 16px;
   background: var(--link-color);
   color: var(--text-on-accent) !important;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   text-decoration: none;
   font-size: 14px;
   transition: all 0.3s ease;
@@ -5419,7 +5419,7 @@ html.dark .pagination-gap,
   padding: 16px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   text-decoration: none;
   color: inherit;
   transition: all 0.3s ease;
@@ -5443,7 +5443,7 @@ html.dark .link-item,
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   margin-right: 12px;
 }
@@ -5642,7 +5642,7 @@ html.dark .link-item.style-lost,
   .content {
     flex: 1;
     min-height: auto;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
   }
 
   /* 搜索框：移动端宽度缩小 */
@@ -5702,7 +5702,7 @@ html.dark .link-item.style-lost,
   /* 侧边栏内容盒子 */
   .sidebar .sidebar-content {
     width: 280px;
-    border-radius: 12px;
+    border-radius: var(--radius-xl);
     padding: 20px;
   }
 
@@ -6395,7 +6395,7 @@ html.dark {
 .link-accordions {
   margin: 32px 0;
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--bg-card);
 }
@@ -6581,7 +6581,7 @@ html.dark .accordion-body a {
 .accordion-body code {
   background: var(--bg-secondary);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-family: 'JetBrains Mono', 'Fira Code', Monaco, Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--text-primary);
@@ -6595,7 +6595,7 @@ html.dark .accordion-body code {
 /* 代码块样式 */
 .accordion-body pre {
   background: #1e1e2e;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   padding: 16px 20px;
   margin: 16px 0;
   overflow-x: auto;
@@ -6655,7 +6655,7 @@ html.dark .accordion-body code {
   margin: 12px 0;
   padding: 8px 16px;
   background: var(--bg-secondary);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
 html.dark .accordion-body blockquote {
@@ -6696,13 +6696,14 @@ html.dark .accordion-body blockquote {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+  --radius-full: 9999px;
   --animate-line-shadow: line-shadow 15s linear infinite;
 
   @keyframes line-shadow {
