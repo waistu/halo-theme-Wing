@@ -1551,6 +1551,8 @@ body {
   visibility: visible;
   transform: translateX(0);
   box-shadow: var(--shadow-sidebar);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* sm 断点以上：平板/小笔记本 */
