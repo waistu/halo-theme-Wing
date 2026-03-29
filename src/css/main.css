@@ -1148,6 +1148,14 @@ html.dark :root,
   justify-content: space-between;
   padding: var(--spacing-3) var(--spacing-4);
   height: 56px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  transition: transform var(--duration-slower) var(--ease-default);
 }
 
 /* sm 断点以上：平板/小笔记本 */
@@ -1162,6 +1170,9 @@ html.dark :root,
   #header {
     padding: calc(var(--spacing) * 7.5) var(--spacing-20);
     height: auto;
+    position: static;
+    background-color: transparent;
+    border-bottom: none;
   }
 }
 
@@ -1508,6 +1519,7 @@ body {
   display: flex;
   gap: 10px;
   padding: calc(var(--spacing) * 2.5) 0;
+  padding-top: 56px;
   box-sizing: border-box;
 }
 
@@ -1515,6 +1527,7 @@ body {
 @media (min-width: var(--breakpoint-sm)) {
   .container {
     padding: var(--spacing-3) var(--spacing-4);
+    padding-top: 56px;
     gap: 12px;
   }
 }
@@ -1523,6 +1536,7 @@ body {
 @media (min-width: var(--breakpoint-md)) {
   .container {
     padding: var(--spacing-5) var(--spacing-20);
+    padding-top: var(--spacing-5);
     gap: var(--spacing-5);
   }
 }
