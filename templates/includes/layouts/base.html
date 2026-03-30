@@ -121,38 +121,6 @@
     <script th:src="@{/assets/dist/js/main.js}"></script>
     <!-- Ripple 涟漪背景 JS -->
     <script th:src="@{/assets/vendor/magic-ui/ripple.js}"></script>
-    <!-- Header 滚动隐藏脚本 -->
-    <script>
-      (function() {
-        var header = document.getElementById('header');
-        if (!header) return;
-        var lastScrollY = 0;
-        var ticking = false;
-        
-        function updateHeader() {
-          var currentScrollY = window.scrollY;
-          if (currentScrollY > 100) {
-            if (currentScrollY > lastScrollY) {
-              header.classList.add('header-hidden');
-            } else {
-              header.classList.remove('header-hidden');
-            }
-          } else {
-            header.classList.remove('header-hidden');
-          }
-          lastScrollY = currentScrollY;
-          ticking = false;
-        }
-        
-        window.addEventListener('scroll', function() {
-          if (!ticking) {
-            requestAnimationFrame(updateHeader);
-            ticking = true;
-          }
-        }, { passive: true });
-      })();
-    </script>
-
     <!-- Magic UI 组件 JS -->
     <script th:src="@{/assets/vendor/magic-ui/border-beam.js}"></script>
 

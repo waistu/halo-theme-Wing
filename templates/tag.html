@@ -57,24 +57,6 @@
   <div th:replace="~{includes/components/footer :: footer}"></div>
   <!-- Header 滚动隐藏脚本 -->
   <script>
-    (function() {
-      var header = document.getElementById('header');
-      if (!header) return;
-      var lastScrollY = 0;
-      window.onscroll = function() {
-        var currentScrollY = window.scrollY;
-        if (currentScrollY > 100) {
-          if (currentScrollY > lastScrollY) {
-            header.classList.add('header-hidden');
-          } else {
-            header.classList.remove('header-hidden');
-          }
-        } else {
-          header.classList.remove('header-hidden');
-        }
-        lastScrollY = currentScrollY;
-      };
-    })();
   </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </body>
