@@ -1156,6 +1156,16 @@ html.dark :root,
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
   transition: transform var(--duration-slower) var(--ease-default);
+  /* iOS 弹性滚动兼容 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  /* 防止抖动 */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* 确保在 iOS Safari 中正确显示 */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 /* sm 断点以上：平板/小笔记本 */
@@ -1173,12 +1183,15 @@ html.dark :root,
     position: static;
     background-color: transparent;
     border-bottom: none;
+    /* 重置移动端优化 */
+    -webkit-overflow-scrolling: auto;
+    overscroll-behavior: auto;
+    will-change: auto;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    -webkit-transform: none;
+    transform: none;
   }
-}
-
-/* Header 隐藏状态 */
-#header.header-hidden {
-  transform: translateY(-100%);
 }
 
 /* Logo 区域 */
