@@ -73,15 +73,6 @@
     <!-- Magic UI 组件 CSS -->
     <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}">
     <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}">
-    <!-- Header 样式：防止遮挡内容 + 滚动隐藏 -->
-    <style>
-      #header {
-        transition: transform 0.3s ease;
-      }
-      #header.header-hidden {
-        transform: translateY(-100%);
-      }
-    </style>
 
     <!-- 可选的额外样式 -->
     <link th:if="${theme.config.custom_css}" rel="stylesheet" th:href="@{${theme.config.custom_css}}">
