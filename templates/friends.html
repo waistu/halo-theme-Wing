@@ -41,60 +41,59 @@
             <!-- nav -->
             <div th:replace="includes/components/nav :: nav"></div>
             <!-- author card -->
-            <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+            <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})">
+            </div>
         </aside>
         <!-- 右侧：主内容大盒子 -->
         <div class="content">
-            <div id="notes" class="notes-layout">
-                <main class="notes-core">
-                    <div class="page-header">
-                        <h1 class="page-title">朋友圈</h1>
-                        <p class="page-description">关注博主的友链更新</p>
+            <main class="friends">
+                <div class="page-header">
+                    <h1 class="page-title">朋友圈</h1>
+                    <p class="page-description">关注博主的友链更新</p>
+                </div>
+                <!-- 朋友圈列表 -->
+                <th:block th:if="${friends == null}">
+                    <div class="empty-state">
+                        <p>暂无朋友圈动态</p>
                     </div>
-                    <!-- 朋友圈列表 -->
-                    <th:block th:if="${friends == null}">
+                </th:block>
+                <th:block th:unless="${friends == null}">
+                    <th:block th:if="${#lists.isEmpty(friends.items)}">
                         <div class="empty-state">
                             <p>暂无朋友圈动态</p>
                         </div>
                     </th:block>
-                    <th:block th:unless="${friends == null}">
-                        <th:block th:if="${#lists.isEmpty(friends.items)}">
-                            <div class="empty-state">
-                                <p>暂无朋友圈动态</p>
-                            </div>
-                        </th:block>
-                        <!-- 朋友圈内容 -->
-                        <th:block th:unless="${#lists.isEmpty(friends.items)}" th:each="friend : ${friends.items}">
-                            <div class="friend-card">
-                                <div class="friend-header">
-                                    <img class="friend-avatar" th:src="${friend.spec.logo}" th:alt="${friend.spec.author}"
-                                        onerror="this.src=@{/assets/images/author-avatar.png}" />
-                                    <div class="friend-info">
-                                        <a class="friend-author" th:href="${friend.spec.authorUrl}" target="_blank"
-                                            th:text="${friend.spec.author}">作者</a>
-                                        <span class="friend-date"
-                                            th:text="${#dates.format(friend.spec.pubDate, 'yyyy-MM-dd HH:mm')}">发布日期</span>
-                                    </div>
+                    <!-- 朋友圈内容 -->
+                    <th:block th:unless="${#lists.isEmpty(friends.items)}" th:each="friend : ${friends.items}">
+                        <div class="friend-card">
+                            <div class="friend-header">
+                                <img class="friend-avatar" th:src="${friend.spec.logo}" th:alt="${friend.spec.author}"
+                                    onerror="this.src=@{/assets/images/author-avatar.png}" />
+                                <div class="friend-info">
+                                    <a class="friend-author" th:href="${friend.spec.authorUrl}" target="_blank"
+                                        th:text="${friend.spec.author}">作者</a>
+                                    <span class="friend-date"
+                                        th:text="${#dates.format(friend.spec.pubDate, 'yyyy-MM-dd HH:mm')}">发布日期</span>
                                 </div>
-                                <a class="friend-content" th:href="${friend.spec.postLink}" target="_blank">
-                                    <h3 class="friend-title" th:text="${friend.spec.title}">文章标题</h3>
-                                    <p class="friend-desc" th:text="${friend.spec.description}">文章描述</p>
-                                </a>
                             </div>
-                        </th:block>
-                        <!-- 分页 -->
-                        <div th:replace="includes/components/pagination :: simple-pagination(
+                            <a class="friend-content" th:href="${friend.spec.postLink}" target="_blank">
+                                <h3 class="friend-title" th:text="${friend.spec.title}">文章标题</h3>
+                                <p class="friend-desc" th:text="${friend.spec.description}">文章描述</p>
+                            </a>
+                        </div>
+                    </th:block>
+                    <!-- 分页 -->
+                    <div th:replace="includes/components/pagination :: simple-pagination(
                                page=${friends.page},
                                totalPages=${friends.totalPages},
                                baseUrl=@{/friends}
                              )"></div>
-                    </th:block>
-                    <!-- 评论区 -->
-                    <div class="post-comment-section" th:if="${singlePage != null}">
-                        <div th:replace="~{includes/comment/comment :: comment}"></div>
-                    </div>
-                </main>
-            </div>
+                </th:block>
+                <!-- 评论区 -->
+                <div class="post-comment-section" th:if="${singlePage != null}">
+                    <div th:replace="~{includes/comment/comment :: comment}"></div>
+                </div>
+            </main>
         </div>
     </div>
     <!-- 页脚部分 -->
