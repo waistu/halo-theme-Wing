@@ -1504,6 +1504,7 @@ body {
   flex: 1;
   width: 100%;
   max-width: calc(var(--spacing) * 325);
+  margin: 0 auto;
   display: flex;
   gap: 10px;
   position: sticky;
@@ -1569,6 +1570,7 @@ html.dark .sidebar,
 
   @media (width < 48rem) {
     display: block;
+    z-index: var(--z-tooltip);
   }
 }
 
@@ -1585,9 +1587,13 @@ html.dark .sidebar,
   border-radius: var(--radius-lg);
   box-sizing: border-box;
   border: 1px solid var(--border-color);
-
+  padding: 0;
   min-width: 0;
   overflow: hidden;
+
+  @media (width <48rem) {
+    padding: 40px 0;
+  }
 
   @media (width >=64rem) {
     border-radius: var(--radius-xl);
@@ -2338,7 +2344,7 @@ html.dark .notes-core,
   width: calc(var(--spacing) * 57.5);
   background: var(--bg-card);
 
-  @media (width <= 64rem) {
+  @media (width <=64rem) {
     display: none;
   }
 }
@@ -2399,7 +2405,7 @@ html.dark .page-btn,
   z-index: var(--z-sticky);
 
   @media (width < 48rem) {
-    top: 35px;
+    top: 0px;
 
   }
 }
@@ -3132,7 +3138,7 @@ html.dark .topic-count,
 
 /* 标签块样式 */
 .tags-wrapper {
-  padding: calc(var(--spacing) * 12.5) var(--spacing-16);
+  padding: calc(var(--spacing) * 8.5) var(--spacing-8);
 }
 
 .tags-page .tags-cloud {
@@ -3753,7 +3759,7 @@ html.dark .page-content th,
   display: block;
 
   @media (width <48rem) {
-    padding-top: 40px;
+    padding-top: 10px;
   }
 }
 

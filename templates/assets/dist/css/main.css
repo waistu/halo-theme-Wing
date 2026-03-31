@@ -1257,6 +1257,7 @@ to {
     --spacing-7: 1.75rem;
     --spacing-8: calc(var(--spacing) * 8);
     --spacing-10: calc(var(--spacing) * 10);
+    --spacing-12: calc(var(--spacing) * 12);
     --spacing-16: calc(var(--spacing) * 16);
     --spacing-20: calc(var(--spacing) * 20);
     --spacing-24: calc(var(--spacing) * 24);
@@ -5123,6 +5124,7 @@ html, body {
   box-sizing: border-box;
   flex: 1;
   gap: 10px;
+  margin: 0 auto;
   padding-top: 20px;
   display: flex;
   position: sticky;
@@ -5189,6 +5191,7 @@ html, body {
 
 @media not all and (min-width: 48rem) {
   .sidebar.active {
+    z-index: var(--z-tooltip);
     display: block;
   }
 }
@@ -5204,7 +5207,14 @@ html, body {
   border: 1px solid var(--border-color);
   flex: 1;
   min-width: 0;
+  padding: 0;
   overflow: hidden;
+}
+
+@media not all and (min-width: 48rem) {
+  .content {
+    padding: 40px 0;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -5935,7 +5945,7 @@ html.dark .page-btn, [data-theme="dark"] .page-btn {
 
 @media not all and (min-width: 48rem) {
   .notes-tabbar {
-    top: 35px;
+    top: 0;
   }
 }
 
@@ -6603,7 +6613,7 @@ html.dark .topic-count, [data-theme="dark"] .topic-count {
 }
 
 .tags-wrapper {
-  padding: calc(var(--spacing) * 12.5) var(--spacing-16);
+  padding: calc(var(--spacing) * 8.5) var(--spacing-8);
 }
 
 .tags-page .tags-cloud {
@@ -7164,7 +7174,7 @@ html.dark .page-content th, [data-theme="dark"] .page-content th {
 
 @media not all and (min-width: 48rem) {
   .article-list {
-    padding-top: 40px;
+    padding-top: 10px;
   }
 }
 
