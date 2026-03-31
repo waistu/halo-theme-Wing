@@ -17,6 +17,7 @@
 
 <body>
   <div th:replace="~{includes/components/header :: header}"></div>
+  <th:block th:with="defaultCover=${theme.config.style?.default_cover}">
   <div class="container">
     <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <div th:replace="~{includes/components/nav :: nav}"></div>
@@ -31,7 +32,10 @@
           <div th:each="post : ${posts.items}" class="post-card">
             <div class="post-card-cover">
               <img th:if="${not #strings.isEmpty(post.spec.cover)}" th:src="${post.spec.cover}" alt="封面">
-              <div th:if="${#strings.isEmpty(post.spec.cover)}" class="post-card-cover-empty"></div>
+              <th:block th:if="${#strings.isEmpty(post.spec.cover)}">
+                <img th:if="${not #strings.isEmpty(defaultCover)}" th:src="${defaultCover}" alt="封面">
+                <div th:if="${#strings.isEmpty(defaultCover)}" class="post-card-cover-empty"></div>
+              </th:block>
             </div>
             <div class="post-card-content">
               <h2 class="post-card-title">

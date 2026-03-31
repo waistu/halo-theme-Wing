@@ -33,7 +33,7 @@
   <!-- 页面主体容器 -->
   <!-- homepageMode: moments=笔记首页（默认），posts=文章首页 -->
   <div class="container"
-    th:with="homepageMode=${theme.config.layout.homepage_content ?: 'moments'}, postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
+    th:with="homepageMode=${theme.config.layout.homepage_content ?: 'moments'}, postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, defaultCover=${theme.config.style?.default_cover}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}"
       data-sidebar>
@@ -201,7 +201,8 @@
                   date=${post.spec.publishTime},
                   cover=${post.spec.cover},
                   permalink=${post.status.permalink},
-                  comments=${post.stats.comment}
+                  comments=${post.stats.comment},
+                  defaultCover=${defaultCover}
                 )"></div>
               </th:block>
               <div id="emptyState" class="empty-state" th:unless="${hasPosts}" style="display: none;">

@@ -1,4 +1,4 @@
-<div th:fragment="noteCard(type, title, excerpt, date, cover, permalink, comments)" class="noteCard bg-white dark:bg-gray-800">
+<div th:fragment="noteCard(type, title, excerpt, date, cover, permalink, comments, defaultCover)" class="noteCard bg-white dark:bg-gray-800">
     <a th:href="${permalink}" class="article-card">
         <!-- 标题单独一行 -->
         <h3 class="card-title text-gray-900 dark:text-white">[[${title}]]</h3>
@@ -6,9 +6,16 @@
         <!-- 摘要和封面水平排列 -->
         <div class="card-content">
             <p class="card-excerpt text-gray-600 dark:text-gray-400">[[${excerpt}]]</p>
-            <div class="card-cover" th:if="${cover != null and cover != ''}">
-                <img th:src="${cover}" alt="封面">
-            </div>
+            <th:block th:if="${not #strings.isEmpty(cover)}">
+                <div class="card-cover">
+                    <img th:src="${cover}" alt="封面">
+                </div>
+            </th:block>
+            <th:block th:if="${#strings.isEmpty(cover) and not #strings.isEmpty(defaultCover)}">
+                <div class="card-cover">
+                    <img th:src="${defaultCover}" alt="封面">
+                </div>
+            </th:block>
         </div>
 
         <!-- 底部：时间和阅读全部 -->
