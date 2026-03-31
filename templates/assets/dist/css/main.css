@@ -5875,7 +5875,7 @@ html.dark .notes-core, [data-theme="dark"] .notes-core {
   background: var(--bg-card);
 }
 
-@media not all and (min-width: 48rem) {
+@media (max-width: 64rem) {
   .notes-aside {
     display: none;
   }
