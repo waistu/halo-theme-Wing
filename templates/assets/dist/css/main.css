@@ -1197,8 +1197,6 @@ to {
     --color-gray-900: #111827;
     --color-white: #fff;
     --spacing: .25rem;
-    --breakpoint-sm: 40rem;
-    --breakpoint-md: 48rem;
     --text-xs: .75rem;
     --text-sm: .875rem;
     --text-base: 1rem;
@@ -1230,7 +1228,6 @@ to {
     --ease-in: cubic-bezier(.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, .2, 1);
     --ease-in-out: cubic-bezier(.4, 0, .2, 1);
-    --blur-2xl: 40px;
     --default-transition-duration: .15s;
     --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
     --default-font-family: "Geist Variable", sans-serif;
@@ -1245,7 +1242,6 @@ to {
     --color-primary-700: #be123c;
     --color-primary-800: #9f1239;
     --color-primary-900: #881337;
-    --spacing-0\.5: .125rem;
     --spacing-1: calc(var(--spacing) * 1);
     --spacing-1\.5: .375rem;
     --spacing-2: calc(var(--spacing) * 2);
@@ -1257,7 +1253,6 @@ to {
     --spacing-7: 1.75rem;
     --spacing-8: calc(var(--spacing) * 8);
     --spacing-10: calc(var(--spacing) * 10);
-    --spacing-12: calc(var(--spacing) * 12);
     --spacing-16: calc(var(--spacing) * 16);
     --spacing-20: calc(var(--spacing) * 20);
     --spacing-24: calc(var(--spacing) * 24);
@@ -1288,7 +1283,6 @@ to {
     --shadow-ring-focus: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--color-primary-500);
     --shadow-sidebar: 4px 0 20px #00000026;
     --z-header: 50;
-    --z-dropdown: 150;
     --z-sticky: 100;
     --z-tooltip: 1000;
     --z-toast: 9999;
@@ -1396,6 +1390,10 @@ to {
 
   summary {
     display: list-item;
+  }
+
+  ol, ul, menu {
+    list-style: none;
   }
 
   button, input, select, optgroup, textarea {
@@ -1671,6 +1669,95 @@ to {
     --shadow-ring-focus: var(--shadow-ring-focus);
     --shadow-sidebar: var(--shadow-sidebar);
     --shadow-dark: var(--shadow-dark-md);
+  }
+
+  :root .post-content ul, :root .post-content ol, :root .page-content ul, :root .page-content ol, :root .moment-content ul, :root .moment-content ol {
+    margin: 1em 0;
+    padding-left: 1.5em;
+  }
+
+  :root .post-content ul, :root .page-content ul, :root .moment-content ul {
+    list-style-type: disc;
+  }
+
+  :root .post-content ul ul, :root .post-content ol ul, :root .page-content ul ul, :root .page-content ol ul, :root .moment-content ul ul, :root .moment-content ol ul {
+    list-style-type: circle;
+  }
+
+  :root .post-content ol, :root .page-content ol, :root .moment-content ol {
+    list-style-type: decimal;
+  }
+
+  :root .post-content li, :root .page-content li, :root .moment-content li {
+    margin: .5em 0;
+    line-height: 1.8;
+  }
+
+  :root .post-content p, :root .page-content p, :root .moment-content p {
+    margin: 1em 0;
+    line-height: 1.8;
+  }
+
+  :root .post-content pre, :root .page-content pre, :root .moment-content pre {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    margin: 1em 0;
+    padding: 1em;
+    overflow-x: auto;
+  }
+
+  :root .post-content code, :root .page-content code, :root .moment-content code {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    padding: .2em .4em;
+    font-family: Monaco, Menlo, monospace;
+    font-size: .9em;
+  }
+
+  :root .post-content pre code, :root .page-content pre code, :root .moment-content pre code {
+    background: none;
+    padding: 0;
+  }
+
+  :root .post-content blockquote, :root .page-content blockquote, :root .moment-content blockquote {
+    border-left: 4px solid var(--color-primary-500);
+    color: var(--text-secondary);
+    margin: 1em 0;
+    padding-left: 1em;
+  }
+
+  :root .post-content table, :root .page-content table, :root .moment-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+  }
+
+  :root .post-content th, :root .post-content td, :root .page-content th, :root .page-content td, :root .moment-content th, :root .moment-content td {
+    border: 1px solid var(--border-color);
+    text-align: left;
+    padding: .5em 1em;
+  }
+
+  :root .post-content th, :root .page-content th, :root .moment-content th {
+    background: var(--bg-secondary);
+  }
+
+  :root .post-content a, :root .page-content a, :root .moment-content a {
+    color: var(--color-primary-600);
+    text-decoration: underline;
+  }
+
+  :root .post-content a:hover, :root .page-content a:hover, :root .moment-content a:hover {
+    color: var(--color-primary-500);
+  }
+
+  :root .post-content h1, :root .post-content h2, :root .post-content h3, :root .post-content h4, :root .post-content h5, :root .post-content h6, :root .page-content h1, :root .page-content h2, :root .page-content h3, :root .page-content h4, :root .page-content h5, :root .page-content h6, :root .moment-content h1, :root .moment-content h2, :root .moment-content h3, :root .moment-content h4, :root .moment-content h5, :root .moment-content h6 {
+    color: var(--text-primary);
+    margin: 1.5em 0 .5em;
+    font-weight: 600;
+  }
+
+  :root {
     --ease-default: var(--ease-default);
     --ease-in: var(--ease-in);
     --ease-out: var(--ease-out);
@@ -1786,7 +1873,7 @@ to {
     font-weight: inherit;
   }
 
-  ol, ul, menu {
+  nav ol, nav ul, nav menu, .nav-list ol, .nav-list ul, .nav-list menu, .global-list ol, .global-list ul, .global-list menu {
     list-style: none;
   }
 
@@ -1910,10 +1997,6 @@ to {
 
   .fixed {
     position: fixed;
-  }
-
-  .relative {
-    position: relative;
   }
 
   .static {

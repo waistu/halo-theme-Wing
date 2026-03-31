@@ -543,6 +543,140 @@
     /* 兼容旧变量 */
     --shadow-dark: var(--shadow-dark-md);
 
+    /* ========== Markdown 渲染内容样式 ========== */
+    /* 文章内容容器 */
+    .post-content ul,
+    .post-content ol,
+    .page-content ul,
+    .page-content ol,
+    .moment-content ul,
+    .moment-content ol {
+      padding-left: 1.5em;
+      margin: 1em 0;
+    }
+
+    .post-content ul,
+    .page-content ul,
+    .moment-content ul {
+      list-style-type: disc;
+    }
+
+    .post-content ul ul,
+    .post-content ol ul,
+    .page-content ul ul,
+    .page-content ol ul,
+    .moment-content ul ul,
+    .moment-content ol ul {
+      list-style-type: circle;
+    }
+
+    .post-content ol,
+    .page-content ol,
+    .moment-content ol {
+      list-style-type: decimal;
+    }
+
+    .post-content li,
+    .page-content li,
+    .moment-content li {
+      margin: 0.5em 0;
+      line-height: 1.8;
+    }
+
+    .post-content p,
+    .page-content p,
+    .moment-content p {
+      margin: 1em 0;
+      line-height: 1.8;
+    }
+
+    /* 代码块 */
+    .post-content pre,
+    .page-content pre,
+    .moment-content pre {
+      background: var(--bg-secondary);
+      padding: 1em;
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+
+    .post-content code,
+    .page-content code,
+    .moment-content code {
+      background: var(--bg-secondary);
+      padding: 0.2em 0.4em;
+      border-radius: var(--radius-sm);
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9em;
+    }
+
+    .post-content pre code,
+    .page-content pre code,
+    .moment-content pre code {
+      background: none;
+      padding: 0;
+    }
+
+    /* 引用 */
+    .post-content blockquote,
+    .page-content blockquote,
+    .moment-content blockquote {
+      border-left: 4px solid var(--color-primary-500);
+      padding-left: 1em;
+      margin: 1em 0;
+      color: var(--text-secondary);
+    }
+
+    /* 表格 */
+    .post-content table,
+    .page-content table,
+    .moment-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+
+    .post-content th,
+    .post-content td,
+    .page-content th,
+    .page-content td,
+    .moment-content th,
+    .moment-content td {
+      border: 1px solid var(--border-color);
+      padding: 0.5em 1em;
+      text-align: left;
+    }
+
+    .post-content th,
+    .page-content th,
+    .moment-content th {
+      background: var(--bg-secondary);
+    }
+
+    /* 链接 */
+    .post-content a,
+    .page-content a,
+    .moment-content a {
+      color: var(--color-primary-600);
+      text-decoration: underline;
+    }
+
+    .post-content a:hover,
+    .page-content a:hover,
+    .moment-content a:hover {
+      color: var(--color-primary-500);
+    }
+
+    /* 标题 */
+    .post-content h1, .post-content h2, .post-content h3, .post-content h4, .post-content h5, .post-content h6,
+    .page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6,
+    .moment-content h1, .moment-content h2, .moment-content h3, .moment-content h4, .moment-content h5, .moment-content h6 {
+      margin: 1.5em 0 0.5em;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
     /* ========== Transition Scale（运行时变量，引用 @theme 变量）========== */
     /* 缓动函数 */
     --ease-default: var(--ease-default);
@@ -682,10 +816,17 @@
     font-weight: inherit;
   }
 
-  /* 列表元素：去除默认列表样式 */
-  ol,
-  ul,
-  menu {
+  /* 列表元素：去除默认列表样式（仅用于导航等特定区域） */
+  /* ol, ul, menu 全局默认保留样式，文章内的列表需要显示 */
+  nav ol,
+  nav ul,
+  nav menu,
+  .nav-list ol,
+  .nav-list ul,
+  .nav-list menu,
+  .global-list ol,
+  .global-list ul,
+  .global-list menu {
     list-style: none;
   }
 
