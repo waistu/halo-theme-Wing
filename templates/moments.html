@@ -87,13 +87,13 @@
                   <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}">
                   </div>
                   <!-- 标签（带 #，可点击筛选） -->
-                  <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
+                  <!-- <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
                     <div class="moment-tags">
                       <th:block th:each="tag : ${moment.spec.tags}">
                         <a class="moment-tag" th:href="${momentsUrl} + '?tag=' + ${tag}" th:text="'#' + ${tag}"></a>
                       </th:block>
                     </div>
-                  </th:block>
+                  </th:block> -->
                   <!-- 媒体内容 -->
                   <th:block th:if="${not #lists.isEmpty(content.medium)}">
                     <div class="moment-media">
@@ -181,7 +181,8 @@
                     </div>
                   </div>
                   <!-- Halo 官方评论组件（默认收起） -->
-                  <div class="moment-comments-wrapper moment-comments-hidden" th:id="'comments-wrapper-' + ${moment.metadata.name}">
+                  <div class="moment-comments-wrapper moment-comments-hidden"
+                    th:id="'comments-wrapper-' + ${moment.metadata.name}">
                     <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
                   </div>
                 </div>
