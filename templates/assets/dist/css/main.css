@@ -6119,12 +6119,12 @@ html.dark .noteCard-tag:hover, [data-theme="dark"] .noteCard-tag:hover {
   margin: var(--spacing-2) 0;
 }
 
-.moment-tags-inline {
+.tags-inline {
   color: var(--moment-accent);
   font-size: var(--text-xs);
 }
 
-html.dark .moment-tags-inline, [data-theme="dark"] .moment-tags-inline {
+html.dark .tags-inline, [data-theme="dark"] .tags-inline {
   color: var(--moment-accent-dark);
 }
 
@@ -8345,14 +8345,15 @@ html.dark .moment-post-title, [data-theme="dark"] .moment-post-title {
   display: none;
 }
 
-.moment-tags {
+.tags {
   gap: var(--spacing-2);
   margin-top: var(--spacing-2);
   flex-wrap: wrap;
+  padding: 5px 0;
   display: flex;
 }
 
-.moment-tag {
+.tag {
   padding: calc(var(--spacing) * .5) var(--spacing-2);
   background: var(--accent-bg);
   color: var(--accent-color);
@@ -8364,12 +8365,12 @@ html.dark .moment-post-title, [data-theme="dark"] .moment-post-title {
   display: inline-block;
 }
 
-.moment-tag:hover {
+.tag:hover {
   background: var(--link-color);
   color: var(--text-on-accent) !important;
 }
 
-html.dark .moment-tag, [data-theme="dark"] .moment-tag {
+html.dark .tag, [data-theme="dark"] .tag {
   background: var(--accent-bg-dark);
   color: var(--accent-color-dark);
 }
