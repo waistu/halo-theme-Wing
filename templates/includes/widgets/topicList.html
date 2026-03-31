@@ -1,0 +1,88 @@
+<!--
+  =============================================
+  标签组件 - 瞬间标签和文章标签
+  =============================================
+-->
+
+<!-- 瞬间标签（从 momentTags 对象或 moments 数据提取） -->
+<div th:fragment="moment-tags(momentTags, moments)" class="topic-card" style="padding: 0 var(--spacing-5); margin-top: var(--spacing-4);">
+    <th:block th:if="${momentTags != null}">
+        <th:block th:with="tags = ${momentTags}">
+            <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
+                <ul class="topic-items" style="border-left: 1px solid var(--border-color); padding-left: var(--spacing-2\.5);">
+                    <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.momentCount}">
+                        <a th:href="@{/moments(tag=${tag.name})}" th:text="${tag.name}"></a>
+                        <span class="topic-count" th:text="${tag.momentCount}">0</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+        </th:block>
+    </th:block>
+    <th:block th:unless="${momentTags != null}">
+        <th:block th:if="${moments != null and not #lists.isEmpty(moments.items)}">
+            <div class="topic-list">
+                <ul class="topic-items" id="momentTagsFromData" style="border-left: 1px solid var(--border-color); padding-left: var(--spacing-2\.5);">
+                    <th:block th:each="moment : ${moments.items}">
+                        <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
+                            <th:block th:each="tagName : ${moment.spec.tags}">
+                                <li class="topic-item __hm_tag_raw" th:attr="data-tag=${tagName}" style="display:none">
+                                    <span th:text="${tagName}"></span>
+                                </li>
+                            </th:block>
+                        </th:block>
+                    </th:block>
+                </ul>
+            </div>
+            <script>
+            (function () {
+                var ul = document.getElementById('momentTagsFromData');
+                if (!ul) return;
+                var raw = ul.querySelectorAll('.__hm_tag_raw');
+                var countMap = {};
+                raw.forEach(function (el) {
+                    var t = el.dataset.tag;
+                    countMap[t] = (countMap[t] || 0) + 1;
+                    el.remove();
+                });
+                var sorted = Object.keys(countMap).sort(function (a, b) { return countMap[b] - countMap[a]; });
+                if (sorted.length === 0) {
+                    var empty = document.createElement('div');
+                    empty.className = 'topic-empty';
+                    empty.textContent = '暂无标签';
+                    ul.parentNode.replaceChild(empty, ul.parentNode);
+                    return;
+                }
+                sorted.forEach(function (name) {
+                    var li = document.createElement('li');
+                    li.className = 'topic-item';
+                    li.setAttribute('data-count', countMap[name]);
+                    li.innerHTML = '<a href="/moments?tag=' + encodeURIComponent(name) + '">' + name + '</a>'
+                        + '<span class="topic-count">' + countMap[name] + '</span>';
+                    ul.appendChild(li);
+                });
+                ul.style.display = '';
+                ul.closest('.topic-list').style.display = '';
+            })();
+            </script>
+        </th:block>
+        <th:block th:unless="${moments != null and not #lists.isEmpty(moments.items)}">
+            <div class="topic-empty">暂无标签</div>
+        </th:block>
+    </th:block>
+</div>
+
+<!-- 文章标签 -->
+<div th:fragment="post-tags" class="topic-card" style="padding: 0 var(--spacing-5); margin-top: var(--spacing-4);">
+    <th:block th:with="tags = ${tagFinder.listAll()}">
+        <div class="topic-list" th:unless="${#lists.isEmpty(tags)}">
+            <ul class="topic-items" style="border-left: 1px solid var(--border-color); padding-left: var(--spacing-2\.5);">
+                <li class="topic-item" th:each="tag : ${tags}" th:attr="data-count=${tag.postCount}">
+                    <a th:href="${tag.status.permalink}" th:text="${tag.spec.displayName}"></a>
+                    <span class="topic-count" th:text="${tag.postCount}">0</span>
+                </li>
+            </ul>
+        </div>
+        <div class="topic-empty" th:if="${#lists.isEmpty(tags)}">暂无标签</div>
+    </th:block>
+</div>

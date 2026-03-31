@@ -207,6 +207,9 @@
               th:replace="includes/widgets/heatmap :: heatmap(momentTags=${momentTags}, momentsForHeatmap=${momentsForHeatmap})">
             </div>
           </div>
+          <div class="topic-box">
+            <div th:replace="includes/widgets/topicList :: moment-tags(${momentTags}, ${moments})"></div>
+          </div>
         </aside>
       </div>
     </div>
