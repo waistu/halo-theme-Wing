@@ -357,12 +357,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========== 标签页切换 ==========
   const tabItems = document.querySelectorAll('.tab-item')
-  tabItems.forEach(item => {
-    item.addEventListener('click', () => {
-      tabItems.forEach(i => i.classList.remove('active'))
-      item.classList.add('active')
+  if (tabItems && tabItems.length > 0) {
+    tabItems.forEach(item => {
+      item.addEventListener('click', () => {
+        tabItems.forEach(i => i.classList.remove('active'))
+        item.classList.add('active')
+      })
     })
-  })
+  }
+
+  // ========== 桌面端强制显示 sidebar（覆盖内联样式）==========
+  (function() {
+    const sidebar = document.querySelector('.sidebar[data-sidebar]');
+    if (sidebar && window.matchMedia('(min-width: 768px)').matches) {
+      sidebar.style.display = '';
+    }
+  })();
 
   // ========== 移动端菜单图标 ==========
   const menuIcon = document.getElementById('menuIcon')
@@ -431,4 +441,36 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
+  // ========== 移动端 notes-tabbar 固定在 header 下方 ==========
+  const notesTabbar = document.querySelector('.notes-tabbar')
+  const notesLayout = document.querySelector('.notes-layout')
+  if (notesTabbar && notesLayout && window.innerWidth < 500) {
+    notesTabbar.style.position = 'fixed'
+    notesTabbar.style.top = '56px'
+    notesTabbar.style.left = '0'
+    notesTabbar.style.right = '0'
+    notesTabbar.style.zIndex = '99'
+    notesLayout.style.paddingTop = '48px'
+  }
+
+  // ========== post.html 和 about.html 页面移动端 header 固定定位 ==========
+  if (window.innerWidth < 500) {
+    const header = document.querySelector('#header')
+    const container = document.querySelector('.container')
+    if (header && container) {
+      // 检测是否是 post.html 或 about.html（通过检查 sidebar 结构）
+      const sidebar = container.querySelector('.sidebar')
+      const notesLayout = container.querySelector('.notes-layout')
+      // post.html 和 about.html 有 sidebar 但没有 notes-layout
+      if (sidebar && !notesLayout) {
+        header.style.position = 'fixed'
+        header.style.top = '0'
+        header.style.zIndex = '100'
+        header.style.width = '100%'
+        container.style.paddingTop = '56px'
+      }
+    }
+  }
+
 })

@@ -140,7 +140,7 @@
   <div th:replace="~{includes/components/header :: header}"></div>
 
   <div class="container">
-    <aside class="sidebar">
+    <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- 侧边栏切换组件 -->
       <div class="sidebar-tabs">
         <button class="sidebar-tab active" data-tab="toc" title="文章目录">

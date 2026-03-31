@@ -162,36 +162,63 @@
     上一页
   </span>
 
-  <!--/* 页码列表 */-->
+  <!--/* 页码列表 - 简洁版：始终显示首页、末页和省略号 */-->
   <div class="pagination-list">
     <th:block th:with="urlPrefix=${baseUrl == '/' ? '' : baseUrl}">
 
-      <!--/* 页码 ≤ 7：全部显示 */-->
-      <th:block th:if="${totalPages <= 7}">
+      <!--/* 页码 ≤ 5：全部显示 */-->
+      <th:block th:if="${totalPages le 5}">
         <a th:each="i : ${#numbers.sequence(1, totalPages)}"
            th:href="${i == 1 ? baseUrl : urlPrefix + '/page/' + i}"
            th:text="${i}"
            th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
       </th:block>
 
-      <!--/* 页码 > 7：智能省略号 */-->
-      <th:block th:if="${totalPages > 7}">
+      <!--/* 页码 > 5：始终显示首页、末页和省略号 */-->
+      <th:block th:if="${totalPages gt 5}">
+        <!--/* 首页 */-->
         <a th:href="${baseUrl}"
            th:class="${page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
 
-        <span th:if="${page > 4}" class="pagination-gap">…</span>
+        <!--/* 左边省略号：当前页 > 3 */-->
+        <span th:if="${page gt 3}" class="pagination-gap">…</span>
 
-        <th:block th:with="
-          start=${page <= 4 ? 2 : (page >= totalPages - 3 ? totalPages - 5 : page - 2)},
-          end=${page <= 4   ? 6 : (page >= totalPages - 3 ? totalPages - 1 : page + 2)}">
-          <a th:each="i : ${#numbers.sequence(start, end)}"
-             th:href="${urlPrefix + '/page/' + i}"
-             th:text="${i}"
-             th:class="${i == page} ? 'pagination-page current' : 'pagination-page'"></a>
+        <!--/* 左边第2页：当前页 <= 3 */-->
+        <th:block th:if="${page le 3}">
+          <a th:href="${urlPrefix + '/page/2'}"
+             th:class="${page == 2} ? 'pagination-page current' : 'pagination-page'">2</a>
         </th:block>
 
-        <span th:if="${page < totalPages - 3}" class="pagination-gap">…</span>
+        <!--/* 左边倒数第2页：当前页 >= totalPages - 2 */-->
+        <th:block th:if="${page ge totalPages - 2 and page lt totalPages}">
+          <a th:href="${urlPrefix + '/page/' + (totalPages - 2)}" class="pagination-page"
+             th:text="${totalPages - 2}"></a>
+        </th:block>
 
+        <!--/* 中间页：当前页不在首页末页且不是上面情况时 */-->
+        <th:block th:if="${page gt 3 and page lt totalPages - 2}">
+          <a th:href="${urlPrefix + '/page/' + (page - 1)}" class="pagination-page" th:text="${page - 1}"></a>
+          <a th:class="'pagination-page current'" th:text="${page}"></a>
+          <a th:href="${urlPrefix + '/page/' + (page + 1)}" class="pagination-page" th:text="${page + 1}"></a>
+        </th:block>
+
+        <!--/* 右边省略号：当前页 < totalPages - 2 */-->
+        <span th:if="${page lt totalPages - 2}" class="pagination-gap">…</span>
+
+        <!--/* 右边第2页：当前页 >= totalPages - 2 */-->
+        <th:block th:if="${page ge totalPages - 2}">
+          <a th:href="${urlPrefix + '/page/' + (totalPages - 1)}"
+             th:class="${page == totalPages - 1} ? 'pagination-page current' : 'pagination-page'"
+             th:text="${totalPages - 1}"></a>
+        </th:block>
+
+        <!--/* 右边第2页：当前页 <= 3 */-->
+        <th:block th:if="${page le 3 and totalPages gt 4}">
+          <a th:href="${urlPrefix + '/page/3'}"
+             th:class="${page == 3} ? 'pagination-page current' : 'pagination-page'">3</a>
+        </th:block>
+
+        <!--/* 末页 */-->
         <a th:href="${urlPrefix + '/page/' + totalPages}"
            th:class="${page == totalPages} ? 'pagination-page current' : 'pagination-page'"
            th:text="${totalPages}"></a>

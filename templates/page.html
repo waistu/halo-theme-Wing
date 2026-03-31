@@ -33,7 +33,7 @@
 
   <!-- 主体：侧边栏 + 内容区 -->
   <div class="container">
-    <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}">
+    <aside class="sidebar" th:with="stats=${siteStatsFinder.getStats()}" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <div th:replace="includes/components/nav :: nav"></div>
       <div
         th:replace="includes/widgets/authorCard :: authorCard(postCount=${postFinder.listAll().size()}, stats=${stats})">
