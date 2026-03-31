@@ -74,11 +74,66 @@
         </div>
 
         <!-- 分页 -->
-        <div th:replace="includes/components/pagination :: simple-pagination(
-               page=${archives.page},
-               totalPages=${archives.totalPages},
-               baseUrl=@{/archives}
-             )"></div>
+        <nav aria-label="Page navigation" class="pagination" th:if="${archives.totalPages > 1}">
+          <!-- 上一页 -->
+          <a th:if="${archives.page > 1}"
+             th:href="${archives.page == 2} ? @{/archives} : @{/archives/page/{page}(page=${archives.page - 1})}"
+             class="pagination-previous">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+            上一页
+          </a>
+          <span th:unless="${archives.page > 1}" class="pagination-previous disabled">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+            上一页
+          </span>
+
+          <!-- 页码：移动端有省略号显示3个，两边对齐 -->
+          <div class="pagination-list" style="justify-content: center;">
+            <th:block th:if="${archives.totalPages le 4}">
+              <a th:each="i : ${#numbers.sequence(1, archives.totalPages)}"
+                 th:href="${i == 1} ? @{/archives} : @{/archives/page/{page}(page=${i})}"
+                 th:text="${i}"
+                 th:class="${i == archives.page} ? 'pagination-page current' : 'pagination-page'"></a>
+            </th:block>
+            <th:block th:if="${archives.totalPages gt 4}">
+              <a th:href="@{/archives}" th:class="${archives.page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
+              <span th:if="${archives.page gt 2}" class="pagination-gap">…</span>
+              <th:block th:if="${archives.page == 2}">
+                <a th:href="@{/archives/page/2}" class="pagination-page current">2</a>
+                <a th:href="@{/archives/page/3}" class="pagination-page">3</a>
+                <a th:href="@{/archives/page/4}" class="pagination-page">4</a>
+              </th:block>
+              <th:block th:if="${archives.page ge 3 and archives.page le archives.totalPages - 2}">
+                <a th:href="@{/archives/page/{page}(page=${archives.page - 1})}" class="pagination-page" th:text="${archives.page - 1}"></a>
+                <a th:href="@{/archives/page/{page}(page=${archives.page})}" class="pagination-page current" th:text="${archives.page}"></a>
+                <a th:href="@{/archives/page/{page}(page=${archives.page + 1})}" class="pagination-page" th:text="${archives.page + 1}"></a>
+              </th:block>
+              <th:block th:if="${archives.page == archives.totalPages - 1}">
+                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 3})}" class="pagination-page" th:text="${archives.totalPages - 3}"></a>
+                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 1})}" class="pagination-page current" th:text="${archives.totalPages - 1}"></a>
+                <a th:href="@{/archives/page/{page}(page=${archives.totalPages})}" class="pagination-page" th:text="${archives.totalPages}"></a>
+              </th:block>
+              <th:block th:if="${archives.page == archives.totalPages}">
+                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 2})}" class="pagination-page" th:text="${archives.totalPages - 2}"></a>
+                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 1})}" class="pagination-page" th:text="${archives.totalPages - 1}"></a>
+              </th:block>
+              <span th:if="${archives.page lt archives.totalPages - 1}" class="pagination-gap">…</span>
+              <a th:href="@{/archives/page/{page}(page=${archives.totalPages})}" th:class="${archives.page == archives.totalPages} ? 'pagination-page current' : 'pagination-page'" th:text="${archives.totalPages}"></a>
+            </th:block>
+          </div>
+
+          <!-- 下一页 -->
+          <a th:if="${archives.page < archives.totalPages}"
+             th:href="@{/archives/page/{page}(page=${archives.page + 1})}"
+             class="pagination-next">
+            下一页
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
+          </a>
+          <span th:unless="${archives.page < archives.totalPages}" class="pagination-next disabled">
+            下一页
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
+          </span>
+        </nav>
       </div>
     </div>
   </div>

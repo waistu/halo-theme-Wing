@@ -138,7 +138,8 @@
 <nav th:fragment="simple-pagination(page, totalPages, baseUrl)"
      aria-label="Page navigation"
      class="pagination"
-     th:if="${totalPages > 1}">
+     th:if="${totalPages > 1}"
+     style="justify-content: center;">
 
   <!--/* 上一页 */-->
   <a th:if="${page > 1}"
