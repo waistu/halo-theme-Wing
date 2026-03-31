@@ -109,7 +109,7 @@
                       <th:block th:each="item : ${content.medium}">
                         <th:block th:if="${item.type.name == 'VIDEO'}">
                           <div class="moment-video-wrapper" th:data-video-src="${item.url}">
-                            <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls
+                            <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls muted
                               onloadedmetadata="handleVideoMetadata(this)"></video>
                             <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
                               <div class="moment-video-play-icon">▶</div>
@@ -234,7 +234,7 @@
     <div class="video-viewer-backdrop"></div>
     <div class="video-viewer-content">
       <button class="video-viewer-close" id="videoViewerClose">&times;</button>
-      <video id="viewerVideo" controls></video>
+      <video id="viewerVideo" controls muted></video>
     </div>
   </div>
 
@@ -390,6 +390,7 @@
         const videoSrc = wrapper.dataset.videoSrc;
         if (!videoSrc) return;
 
+        viewerVideo.muted = true;
         viewerVideo.src = videoSrc;
         videoViewer.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -618,14 +619,312 @@
           currentOpenBtn = null;
         }
       });
-      // 修正 moment-content 中的标签链接
-      document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-        var tag = el.getAttribute('href').match(/tag=([^&]+)/);
-        if (tag) {
-          el.setAttribute('href', 'moments?tag=' + tag[1]);
+      // ==================== 标签无刷新切换功能 ====================
+      (function() {
+        var currentTag = null;
+        var isLoading = false;
+
+        // 发起 AJAX 请求获取瞬间列表
+        function loadMomentsByTag(tag, page) {
+          if (isLoading) return;
+          isLoading = true;
+
+          var url = '/apis/api.moment.halo.run/v1alpha1/moments?size=20&page=' + (page || 1);
+          if (tag) {
+            url += '&tag=' + encodeURIComponent(tag);
+          }
+
+          fetch(url)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+              renderMoments(data.items);
+              updateFilterBar(tag);
+              // 更新 URL 不刷新
+              if (tag) {
+                history.pushState(null, '', '/moments?tag=' + encodeURIComponent(tag));
+              } else {
+                history.pushState(null, '', '/moments');
+              }
+              currentTag = tag;
+            })
+            .catch(function(err) {
+              console.error('加载瞬间失败:', err);
+            })
+            .finally(function() {
+              isLoading = false;
+            });
         }
-      });
-    })();
+
+        // 渲染瞬间列表
+        function renderMoments(items) {
+          var container = document.getElementById('articleList');
+          if (!container) return;
+
+          // 保留原有的moments-end-tip
+          var endTip = container.querySelector('.moments-end-tip');
+          var emptyTip = container.querySelector('.empty-moments');
+
+          // 构建新内容（复用原有结构）
+          var html = '';
+          if (!items || items.length === 0) {
+            html = '<div class="empty-moments"><p>暂无瞬间</p></div>';
+          } else {
+            items.forEach(function(moment) {
+              var content = moment.spec.content;
+              html += '<div class="moment-item">';
+              html += '<div class="moment-header">';
+              html += '<span class="moment-time" data-date="' + moment.spec.releaseTime + '">' + moment.spec.releaseTime + '</span>';
+              html += '</div>';
+
+              if (content.html) {
+                html += '<div class="moment-content">' + content.html + '</div>';
+              }
+
+              if (content.medium && content.medium.length > 0) {
+                html += '<div class="moment-media">';
+                content.medium.forEach(function(medium) {
+                  if (medium.type.name === 'PHOTO') {
+                    html += '<div class="moment-photos"><div class="photo-item"><img src="' + medium.url + '" alt="瞬间图片" /></div></div>';
+                  } else if (medium.type.name === 'VIDEO') {
+                    html += '<div class="moment-video-wrapper" data-video-src="' + medium.url + '">';
+                    html += '<video class="moment-video" src="' + medium.url + '" data-src="' + medium.url + '" controls muted onloadedmetadata="handleVideoMetadata(this)"></video>';
+                    html += '<div class="moment-video-overlay" style="display:none" onclick="openVideoPopup(this)"><div class="moment-video-play-icon">▶</div></div>';
+                    html += '<div class="moment-media-badge"><span class="media-icon">🎬</span><span class="media-label">视频</span></div>';
+                    html += '</div>';
+                  } else if (medium.type.name === 'AUDIO') {
+                    html += '<div class="moment-audio-wrapper"><audio src="' + medium.url + '" controls></audio>';
+                    html += '<div class="moment-media-badge"><span class="media-icon">🎵</span><span class="media-label">音频</span></div></div>';
+                  } else if (medium.type.name === 'POST') {
+                    html += '<a class="moment-post-link" href="' + medium.url + '" target="_blank">';
+                    html += '<div class="moment-post-card">';
+                    if (medium.cover) {
+                      html += '<div class="moment-post-cover"><img src="' + medium.cover + '" alt="封面" /></div>';
+                    }
+                    html += '<div class="moment-post-info"><h4 class="moment-post-title">' + (medium.title || '文章标题') + '</h4>';
+                    if (medium.excerpt) {
+                      html += '<p class="moment-post-excerpt">' + medium.excerpt + '</p>';
+                    }
+                    html += '<div class="moment-post-meta"><span class="moment-media-badge"><span class="media-icon">📄</span><span class="media-label">文章</span></span></div>';
+                    html += '</div></div></a>';
+                  }
+                });
+                html += '</div>';
+              }
+
+              html += '<div class="moment-footer"><div class="moment-actions">';
+              html += '<a class="action-item moment-like" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
+              html += '<i class="czs-heart-l"></i><span class="like-count">' + (moment.stats && moment.stats.upvote ? moment.stats.upvote : 0) + '</span></a>';
+              html += '<a class="action-item moment-comments-toggle" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
+              html += '<i class="czs-comment-l"></i>';
+              if (moment.stats && moment.stats.totalComment > 0) {
+                html += '<span class="comment-count">' + moment.stats.totalComment + '</span>';
+              } else {
+                html += '<span class="comment-count"></span>';
+              }
+              html += '</a></div><div class="moment-source"><i class="czs-image"></i><span>Write from Webpage</span></div></div>';
+              html += '<div class="moment-comments-wrapper moment-comments-hidden" id="comments-wrapper-' + moment.metadata.name + '"></div>';
+              html += '</div>';
+            });
+            html += '<div class="moments-end-tip" id="momentsEndTip"><span class="end-line"></span><span class="end-text">内容已加载完毕</span><span class="end-line"></span></div>';
+          }
+
+          // 替换内容
+          container.innerHTML = html;
+
+          // 重新绑定图片灯箱事件
+          initImageViewer();
+          // 重新绑定点赞事件
+          initLikeButtons();
+          // 重新绑定评论展开事件
+          initCommentToggles();
+          // 重新绑定视频事件
+          initVideoPlayer();
+        }
+
+        // 更新筛选栏
+        function updateFilterBar(tag) {
+          var filterBar = document.querySelector('.moment-filter-bar');
+          if (!filterBar) {
+            var tabbar = document.querySelector('.notes-tabbar');
+            if (tag) {
+              filterBar = document.createElement('div');
+              filterBar.className = 'moment-filter-bar';
+              filterBar.innerHTML = '<span class="moment-filter-tag">' + tag + '</span><a class="moment-filter-clear" href="javascript:void(0)"></a>';
+              tabbar.appendChild(filterBar);
+              filterBar.querySelector('.moment-filter-clear').addEventListener('click', function() {
+                loadMomentsByTag(null, 1);
+              });
+            }
+          } else {
+            if (tag) {
+              filterBar.querySelector('.moment-filter-tag').textContent = tag;
+              filterBar.style.display = '';
+            } else {
+              filterBar.style.display = 'none';
+            }
+          }
+        }
+
+        // 初始化图片灯箱
+        function initImageViewer() {
+          document.querySelectorAll('.moment-photos .photo-item img').forEach(function(img) {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function(e) {
+              e.preventDefault();
+              var photosContainer = img.closest('.moment-photos');
+              var images = Array.from(photosContainer.querySelectorAll('img')).map(function(i) { return i.src; });
+              window._tempImages = images;
+              window._tempIndex = images.indexOf(img.src);
+              document.getElementById('imageViewer').style.display = 'flex';
+              document.getElementById('viewerImage').src = img.src;
+              document.body.style.overflow = 'hidden';
+            });
+          });
+        }
+
+        // 初始化点赞按钮
+        function initLikeButtons() {
+          document.querySelectorAll('.moment-like').forEach(function(btn) {
+            btn.addEventListener('click', debounce(function(e) {
+              e.preventDefault();
+              var momentName = this.dataset.momentName;
+              var iconEl = this.querySelector('i');
+              var countEl = this.querySelector('.like-count');
+              var isLiked = iconEl.classList.contains('czs-heart');
+              var currentCount = parseInt(countEl.textContent) || 0;
+
+              var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
+              promise.then(function(result) {
+                var likedList = getLikedMoments();
+                if (isLiked) {
+                  var idx = likedList.indexOf(momentName);
+                  if (idx !== -1) likedList.splice(idx, 1);
+                } else {
+                  if (likedList.indexOf(momentName) === -1) likedList.push(momentName);
+                }
+                saveLikedMoments(likedList);
+                var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
+                countEl.textContent = newCount;
+                if (isLiked) {
+                  iconEl.classList.remove('czs-heart', 'liked');
+                  iconEl.classList.add('czs-heart-l');
+                } else {
+                  iconEl.classList.remove('czs-heart-l');
+                  iconEl.classList.add('czs-heart', 'liked');
+                }
+              }).catch(function(err) {
+                console.error('操作失败:', err);
+              });
+            }, 300));
+          });
+        }
+
+        // 初始化评论展开
+        function initCommentToggles() {
+          document.querySelectorAll('.moment-comments-toggle').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              var momentName = this.dataset.momentName;
+              var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
+              var iconEl = this.querySelector('i');
+              if (wrapperEl.classList.contains('moment-comments-hidden')) {
+                wrapperEl.classList.remove('moment-comments-hidden');
+                iconEl.classList.add('active');
+              } else {
+                wrapperEl.classList.add('moment-comments-hidden');
+                iconEl.classList.remove('active');
+              }
+            });
+          });
+        }
+
+        // 初始化视频
+        function initVideoPlayer() {
+          document.querySelectorAll('.moment-video').forEach(function(video) {
+            video.addEventListener('loadedmetadata', function() {
+              window.handleVideoMetadata(video);
+            });
+          });
+        }
+
+        // 获取localStorage中的点赞列表
+        function getLikedMoments() {
+          try {
+            var stored = localStorage.getItem('halo_moment_liked');
+            return stored ? JSON.parse(stored) : [];
+          } catch (e) { return []; }
+        }
+
+        function saveLikedMoments(list) {
+          try { localStorage.setItem('halo_moment_liked', JSON.stringify(list)); } catch (e) {}
+        }
+
+        function likeMoment(momentName) {
+          return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: momentName })
+          }).then(function(res) {
+            if (res.status === 204 || res.status === 200) return res.json().catch(function() { return { upvote: null }; });
+            return res.json();
+          });
+        }
+
+        function unlikeMoment(momentName) {
+          return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: momentName })
+          }).then(function(res) {
+            if (res.status === 204 || res.status === 200) return res.json().catch(function() { return { upvote: null }; });
+            return res.json();
+          });
+        }
+
+        function debounce(fn, delay) {
+          var timer = null;
+          return function() {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function() { fn.apply(context, args); }, delay);
+          };
+        }
+
+        // 绑定侧边栏标签点击事件
+        document.querySelectorAll('.topic-item a').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var href = this.getAttribute('href');
+            var match = href.match(/moments\?tag=(.+)/);
+            if (match) {
+              loadMomentsByTag(decodeURIComponent(match[1]), 1);
+            } else if (href === '/moments' || href === 'moments') {
+              loadMomentsByTag(null, 1);
+            }
+          });
+        });
+
+        // 绑定内容中标签点击事件
+        document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var href = this.getAttribute('href');
+            var match = href.match(/moments\?tag=(.+)/);
+            if (match) {
+              loadMomentsByTag(decodeURIComponent(match[1]), 1);
+            }
+          });
+        });
+
+        // 处理筛选栏清除按钮
+        var clearBtn = document.querySelector('.moment-filter-clear');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadMomentsByTag(null, 1);
+          });
+        }
+      })();
   </script>
 </body>
 
