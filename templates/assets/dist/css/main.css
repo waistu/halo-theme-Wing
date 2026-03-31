@@ -5945,7 +5945,7 @@ html.dark .page-btn, [data-theme="dark"] .page-btn {
 
 @media not all and (min-width: 48rem) {
   .notes-tabbar {
-    top: 0;
+    top: -2px;
   }
 }
 

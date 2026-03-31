@@ -2405,7 +2405,7 @@ html.dark .page-btn,
   z-index: var(--z-sticky);
 
   @media (width < 48rem) {
-    top: 0px;
+    top: -2px;
 
   }
 }
