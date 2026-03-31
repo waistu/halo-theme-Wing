@@ -223,6 +223,12 @@
           <div class="heatmap-box">
             <div th:replace="includes/widgets/heatmap :: heatmap(${momentTags}, ${momentsForHeatmap})"></div>
           </div>
+          <div class="topic-box" th:if="${homepageMode == 'moments'}">
+            <div th:replace="includes/widgets/topicList :: moment-tags(${null}, ${moments})"></div>
+          </div>
+          <div class="topic-box" th:unless="${homepageMode == 'moments'}">
+            <div th:replace="includes/widgets/topicList :: post-tags"></div>
+          </div>
         </aside>
       </div>
     </div>

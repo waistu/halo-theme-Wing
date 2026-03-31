@@ -3045,12 +3045,10 @@ html.dark .heatmap-map__item-block,
   padding-top: var(--spacing-3);
   padding-left: var(--spacing-2\.5);
   padding-right: var(--spacing-2\.5);
-  border-left: 1px solid var(--border-color);
 }
 
 html.dark .topic-list,
 [data-theme="dark"] .topic-list {
-  border-color: var(--border-color-dark);
 }
 
 .topic-list .topic-items {
