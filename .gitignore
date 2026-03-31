@@ -26,6 +26,9 @@ RELEASE.md
 tmp/
 temp/
 .workbuddy/
+.agents/
+skills/
+skills-lock.json
 
 # 环境变量（敏感信息）
 .env

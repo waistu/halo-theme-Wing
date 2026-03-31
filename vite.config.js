@@ -16,6 +16,8 @@ export default defineConfig({
     emptyOutDir: true,
     // 强制合并所有 CSS 到一个文件
     cssCodeSplit: false,
+    // 禁用 CSS minify（解决 lightningcss 在媒体查询中处理 CSS 变量的问题）
+    cssMinify: false,
 
     rollupOptions: {
       input: {
