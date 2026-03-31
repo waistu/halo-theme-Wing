@@ -60,6 +60,12 @@ spec:
     - group: style
       label: 外观与样式
       formSchema:
+        - $formkit: text
+          name: default_cover
+          label: 默认文章封面
+          placeholder: https://...
+          value: https://s3.api.waistu.com/bucket-alpha-bravo-charlie-12345/upload/2026/04/01/69cc5e4fa7db4.webp
+          help: 文章没有设置封面时使用的默认图片链接
         - $formkit: radio
           name: theme_mode
           id: theme_mode

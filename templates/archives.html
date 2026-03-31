@@ -55,9 +55,18 @@
                 <th:block th:each="month : ${archive.months}">
                   <li th:each="post : ${month.posts}">
                     <a th:href="@{${post.status.permalink}}" class="archive-card">
-                      <div class="archive-cover" th:if="${not #strings.isEmpty(post.spec.cover)}">
-                        <img th:src="${post.spec.cover}" alt="封面">
-                      </div>
+                      <th:block th:with="defaultCover=${theme.config.style?.default_cover}">
+                        <th:block th:if="${not #strings.isEmpty(post.spec.cover)}">
+                          <div class="archive-cover">
+                            <img th:src="${post.spec.cover}" alt="封面">
+                          </div>
+                        </th:block>
+                        <th:block th:if="${#strings.isEmpty(post.spec.cover) and not #strings.isEmpty(defaultCover)}">
+                          <div class="archive-cover">
+                            <img th:src="${defaultCover}" alt="封面">
+                          </div>
+                        </th:block>
+                      </th:block>
                       <div class="archive-content">
                         <div class="archive-title-row">
                           <span class="archive-title" th:text="${post.spec.title}"></span>

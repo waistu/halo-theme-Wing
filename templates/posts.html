@@ -37,7 +37,8 @@
   -->
   <th:block th:with="
       postsPage=${T(java.lang.Integer).parseInt(#strings.isEmpty(#strings.toString(param.page)) ? '1' : #strings.toString(param.page))},
-      postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'}
+      postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'},
+      defaultCover=${theme.config.style?.default_cover}
     ">
   <th:block th:with="postsList=${postFinder.list(postsPage, 10)}">
   <div class="container"
@@ -80,7 +81,8 @@
                 date=${post.spec.publishTime},
                 cover=${post.spec.cover},
                 permalink=${post.status.permalink},
-                comments=${post.stats.comment}
+                comments=${post.stats.comment},
+                defaultCover=${defaultCover}
               )"></div>
             </th:block>
             <div class="empty-state" th:unless="${hasPosts}">
