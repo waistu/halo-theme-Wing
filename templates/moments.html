@@ -90,7 +90,7 @@
                   <!-- <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
                     <div class="moment-tags">
                       <th:block th:each="tag : ${moment.spec.tags}">
-                        <a class="moment-tag" th:href="${momentsUrl} + '?tag=' + ${tag}" th:text="'#' + ${tag}"></a>
+                        <a class="moment-tag" th:attr="data-tag=${tag}" href="javascript:void(0)" th:text="'#' + ${tag}"></a>
                       </th:block>
                     </div>
                   </th:block> -->
@@ -616,6 +616,13 @@
           }
           currentOpenWrapper = null;
           currentOpenBtn = null;
+        }
+      });
+      // 修正 moment-content 中的标签链接
+      document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
+        var tag = el.getAttribute('href').match(/tag=([^&]+)/);
+        if (tag) {
+          el.setAttribute('href', 'moments?tag=' + tag[1]);
         }
       });
     })();

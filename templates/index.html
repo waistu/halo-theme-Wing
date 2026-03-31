@@ -419,6 +419,12 @@
       document.querySelectorAll('.moment-content').forEach(function (el) {
         el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5]+)/g, '$1<span class="tag-text">$2</span>');
       });
+      document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
+        var tag = el.getAttribute('href').match(/tag=([^&]+)/);
+        if (tag) {
+          el.setAttribute('href', '?moments?tag=' + tag[1]);
+        }
+      });
     })();
   </script>
 </body>
