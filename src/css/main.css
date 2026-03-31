@@ -1338,7 +1338,6 @@ html.dark .theme-dropdown-trigger:hover,
   right: 0;
   min-width: calc(var(--spacing) * 32.5);
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -1356,6 +1355,11 @@ html.dark .theme-dropdown-trigger:hover,
 .theme-dropdown-menu.open {
   opacity: 1;
   transform: scale(1) translateY(0);
+
+  @media (width < 48rem) {
+    backdrop-filter: blur(16px) saturate(180%);
+  }
+
   pointer-events: auto;
 }
 
@@ -1506,10 +1510,12 @@ body {
   max-width: calc(var(--spacing) * 325);
   display: flex;
   gap: 10px;
+  position: sticky;
+  top: 10px;
   padding: calc(var(--spacing) * 2.5) 0;
   padding-top: 20px;
   box-sizing: border-box;
-  top: 100px;
+  top: 0;
 
   @media (width >=48rem) {
     padding: var(--spacing-3) var(--spacing-4);
@@ -1518,6 +1524,8 @@ body {
   }
 
   @media (width >=64rem) {
+    position: sticky;
+    top: 10px;
     padding: var(--spacing-5) var(--spacing-20);
     padding-top: var(--spacing-5);
     gap: var(--spacing-5);
@@ -1577,18 +1585,15 @@ html.dark .sidebar,
 
 .content {
   flex: 1;
-  min-height: auto;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-sizing: border-box;
   border: 1px solid var(--border-color);
 
-  /* ✅ 关键修复：不破坏内部布局，同时防止被撑开 */
   min-width: 0;
   overflow: hidden;
 
   @media (width >=64rem) {
-    min-height: calc(var(--spacing) * 175);
     border-radius: var(--radius-xl);
   }
 }
@@ -2298,9 +2303,9 @@ html.dark .theme-by-wing .text-bold,
   display: flex;
   flex: 7 0 0;
   width: 100%;
-  height: calc(100vh - 120px);
+  height: calc(100vh);
   max-width: calc(var(--spacing) * 400);
-  margin: 0 auto;
+  margin: 0 auto 10px auto;
   align-items: stretch;
 }
 
@@ -2330,6 +2335,7 @@ html.dark .notes-core,
   width: 100%;
   max-width: calc(var(--spacing) * 300);
   margin: var(--spacing-3) auto;
+  padding: 0 20px;
 }
 
 .notes-aside {
@@ -2397,7 +2403,7 @@ html.dark .page-btn,
   z-index: var(--z-sticky);
 
   @media (width < 48rem) {
-    top: 56px;
+    top: 35px;
 
   }
 }
@@ -7665,4 +7671,8 @@ html.dark .accordion-body blockquote {
 
 .moments-end-tip .end-text {
   white-space: nowrap;
+}
+
+.friends {
+  padding: 0 20px;
 }

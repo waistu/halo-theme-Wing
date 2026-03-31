@@ -212,7 +212,7 @@
         <aside class="notes-aside"
           th:style="${theme.config.layout.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
-            <div th:replace="includes/widgets/heatmap :: heatmap(${homepageMode == 'moments' ? momentTags : null}, ${homepageMode == 'moments' ? momentsForHeatmap : null})"></div>
+            <div th:replace="includes/widgets/heatmap :: heatmap(${momentTags}, ${momentsForHeatmap})"></div>
           </div>
         </aside>
       </div>
