@@ -3048,8 +3048,7 @@ html.dark .heatmap-map__item-block,
 }
 
 html.dark .topic-list,
-[data-theme="dark"] .topic-list {
-}
+[data-theme="dark"] .topic-list {}
 
 .topic-list .topic-items {
   display: flex;
