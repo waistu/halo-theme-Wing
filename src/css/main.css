@@ -590,10 +590,10 @@
       line-height: 1.8;
     }
 
-    /* 代码块 */
-    .post-content pre,
-    .page-content pre,
-    .moment-content pre {
+    /* 代码块（普通 pre，未被 Shiki 包装时的样式） */
+    .post-content pre:not(.shiki),
+    .page-content pre:not(.shiki),
+    .moment-content pre:not(.shiki) {
       background: var(--bg-secondary);
       padding: 1em;
       border-radius: var(--radius-lg);
@@ -1682,6 +1682,13 @@ body {
   /* 动画 */
   transition: all var(--duration-slower) var(--ease-default);
   box-sizing: border-box;
+  /* 大屏幕 sticky 固定 */
+  @media (width >=64rem) {
+    position: sticky;
+    top: calc(var(--spacing) * 5);
+    height: calc(100vh - var(--spacing) * 10);
+    overflow-y: auto;
+  }
 
   @media (width < 48rem) {
     display: none;
@@ -3790,7 +3797,7 @@ html.dark .page-content,
   text-decoration: underline !important;
 }
 
-.page-content pre {
+.page-content pre:not(.shiki) {
   background: var(--bg-secondary);
   padding: var(--spacing-4);
   border-radius: var(--radius-lg);
@@ -3798,8 +3805,8 @@ html.dark .page-content,
   margin: var(--spacing-4) 0;
 }
 
-html.dark .page-content pre,
-[data-theme="dark"] .page-content pre {
+html.dark .page-content pre:not(.shiki),
+[data-theme="dark"] .page-content pre:not(.shiki) {
   background: var(--bg-secondary-dark);
 }
 
@@ -4155,297 +4162,22 @@ html.dark .post-content h1,
 }
 
 /* ========================================
- * 代码块 - Prism 完整适配
+ * 代码块基础样式
  * ======================================== */
 
-/* 代码块包装器 - 背景色由主题设置控制 */
-.code-block-wrapper {
-  position: relative;
-  margin: var(--spacing-5) 0 !important;
+.post-content pre {
+  background: var(--bg-secondary);
+  padding: var(--spacing-4);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--prism-bg, #272822);
-  /* 默认 Okaidia */
-  box-shadow: var(--shadow-md);
-}
-
-/* 代码块头部栏（语言标签 + 按钮组） */
-.code-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: calc(var(--spacing) * 1.5) var(--spacing-4);
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  user-select: none;
-}
-
-/* 亮色主题适配 */
-.code-block-wrapper[style*="fdfdfd"],
-.code-block-wrapper[style*="fdf6e3"] {
-  box-shadow: var(--shadow-soft-sm);
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-header,
-.code-block-wrapper[style*="fdf6e3"] .code-block-header {
-  background: rgba(0, 0, 0, 0.05);
-  border-bottom-color: rgba(0, 0, 0, 0.08);
-}
-
-/* 语言标签 */
-.code-block-lang {
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-lang,
-.code-block-wrapper[style*="fdf6e3"] .code-block-lang {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-/* 按钮组 */
-.code-block-btn-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* 头部栏按钮通用样式 */
-.code-block-btn-group button {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.6);
-  padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 2.5);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  transition: all var(--duration-slow) var(--ease-default);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.4;
-}
-
-.code-block-btn-group button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* 复制按钮 - 已复制状态 */
-.code-block-copy[data-copy-state="copied"] {
-  background: rgba(72, 199, 142, 0.2);
-  border-color: rgba(72, 199, 142, 0.3);
-  color: #48c78e;
-}
-
-/* 换行开关 - 激活状态 */
-.code-block-wrap[data-wrap="on"] {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #60a5fa;
-}
-
-.code-block-wrap[data-wrap="on"]:hover {
-  background: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
-}
-
-/* 收起按钮 */
-.code-block-collapse {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.25);
-  color: #fbbf24;
-}
-
-.code-block-collapse:hover {
-  background: rgba(245, 158, 11, 0.25);
-  color: #fcd34d;
-}
-
-/* 亮色主题按钮适配 */
-.code-block-wrapper[style*="fdfdfd"] .code-block-btn-group button,
-.code-block-wrapper[style*="fdf6e3"] .code-block-btn-group button {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-btn-group button:hover,
-.code-block-wrapper[style*="fdf6e3"] .code-block-btn-group button:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-wrap[data-wrap="on"],
-.code-block-wrapper[style*="fdf6e3"] .code-block-wrap[data-wrap="on"] {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.25);
-  color: #2563eb;
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-collapse,
-.code-block-wrapper[style*="fdf6e3"] .code-block-collapse {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.2);
-  color: #d97706;
-}
-
-/* 代码块容器 */
-.code-block-wrapper pre {
-  background: transparent !important;
-  padding: var(--spacing-4) !important;
-  margin: 0 !important;
-  border-radius: 0;
-  overflow-x: auto;
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  /* 自动换行 */
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-  word-break: break-all;
-}
-
-/* code 元素继承换行 */
-.code-block-wrapper code[class*="language-"] {
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: var(--text-sm);
-  color: inherit;
-  background: transparent;
-  padding: 0;
-}
-
-/* 行号样式（覆盖插件默认 + 适配包装器） */
-.code-block-wrapper pre[class*="line-numbers"] {
-  position: relative;
-  padding-left: 3.8em !important;
-}
-
-.code-block-wrapper pre[class*="line-numbers"]::before {
-  content: attr(data-start);
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 3.2em;
-  text-align: right;
-  padding-right: 0.6em;
-  color: rgba(255, 255, 255, 0.25);
-  font-size: var(--text-xs);
-  line-height: 1.7;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* 高亮行（line-highlight 插件） */
-.code-block-wrapper pre[class*="line-numbers"]>a[class*="line-highlight"],
-pre[data-line].line-highlight {
-  background: rgba(255, 255, 182, 0.12) !important;
-  border-left: 3px solid #ffd86e;
-}
-
-.code-block-wrapper .line-highlight {
-  margin: 0 calc(var(--spacing) * -4);
-  padding: 0 var(--spacing-4);
-}
-
-/* ========================================
- * 代码折叠（高度 > 200px 自动折叠）
- * ======================================== */
-
-/* 折叠状态：限制 pre 最大高度 */
-.code-block-wrapper.code-collapsed pre {
-  max-height: 200px;
-  overflow: hidden;
-}
-
-/* 展开状态 */
-.code-block-wrapper.code-expanded pre {
-  max-height: none;
   overflow-x: auto;
 }
 
-/* 底部遮罩 + 展开按钮容器 */
-.code-block-footer {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  padding-top: 0;
-  transition: padding-top var(--duration-slow) var(--ease-default);
+html.dark .post-content pre,
+[data-theme="dark"] .post-content pre {
+  background: var(--bg-secondary-dark);
 }
 
-/* 渐变遮罩 - 使用 CSS 变量适配不同主题 */
-.code-block-footer::before {
-  content: '';
-  position: absolute;
-  top: -40px;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, var(--prism-bg, #272822));
-  pointer-events: none;
-  transition: opacity var(--duration-slower) var(--ease-default);
-}
-
-/* 展开状态隐藏遮罩 */
-.code-block-wrapper.code-expanded .code-block-footer::before {
-  opacity: 0;
-}
-
-/* 展开/收起按钮 */
-.code-block-toggle {
-  position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
-  padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 4.5);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  transition: all var(--duration-slow) var(--ease-default);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  margin-top: -1px;
-}
-
-.code-block-toggle:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.95);
-}
-
-/* 亮色主题按钮适配 */
-.code-block-wrapper[style*="fdfdfd"] .code-block-toggle,
-.code-block-wrapper[style*="fdf6e3"] .code-block-toggle {
-  background: rgba(0, 0, 0, 0.06);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.code-block-wrapper[style*="fdfdfd"] .code-block-toggle:hover,
-.code-block-wrapper[style*="fdf6e3"] .code-block-toggle:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: rgba(0, 0, 0, 0.9);
-}
-
-/* 移除 Prism copy-to-clipboard 插件默认按钮（如有） */
-pre>button[data-copy-button] {
-  display: none !important;
-}
-
-/* 全局自动换行（兜底，对未包装的代码块生效） */
-pre[class*="language-"] {
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-}
-
-code[class*="language-"] {
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-}
-
-/* 行内代码 */
-.post-content code:not([class*="language-"]) {
+.post-content code {
   background: var(--bg-secondary);
   padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 1.5);
   border-radius: var(--radius-sm);
@@ -4454,20 +4186,23 @@ code[class*="language-"] {
   color: #dc2626;
 }
 
-html.dark .post-content code:not([class*="language-"]),
-[data-theme="dark"] .post-content code:not([class*="language-"]) {
+html.dark .post-content code,
+[data-theme="dark"] .post-content code {
   background: var(--bg-secondary-dark);
+  color: #f87171;
 }
 
-/* Prism 代码块内的 code 不需要额外样式 */
-.post-content pre code[class*="language-"] {
+.post-content pre code {
   background: transparent;
   padding: 0;
   font-size: var(--text-sm);
   color: inherit;
 }
 
-/* 引用块 */
+/* ========================================
+ * 引用块
+ * ======================================== */
+
 .post-content blockquote {
   border-left: 4px solid var(--link-color);
   margin: var(--spacing-5) 0;
