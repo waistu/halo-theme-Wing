@@ -6,9 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "build": "vite build --config vite.config.js && vite build --config vite.config.shiki.js",
-    "build:main": "vite build --config vite.config.js",
-    "build:shiki": "vite build --config vite.config.shiki.js",
+    "build": "vite build --config vite.config.js",
     "build:prod": "NODE_ENV=production npm run build",
     "preview": "vite preview"
   },
@@ -34,7 +32,6 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
     "markdown-it": "^14.1.1",
-    "shiki": "^1.24.4",
     "tw-animate-css": "^1.4.0"
   }
 }
