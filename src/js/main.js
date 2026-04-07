@@ -390,6 +390,76 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  // ========== B 站视频链接自动嵌入 ==========
+  function initBilibiliEmbed() {
+    const selectors = '.post-content, .page-content, .moment-content'
+    document.querySelectorAll(selectors).forEach(container => {
+      if (container.dataset.bilibiliProcessed) return
+      container.dataset.bilibiliProcessed = '1'
+
+      // 0. 将编辑器插入的 <video src="BV号或B站链接"> 的 <figure> 替换为 iframe 播放器
+      container.querySelectorAll('video[src]').forEach(video => {
+        const bv = extractBv(video.getAttribute('src'))
+        if (!bv) return
+        if (video.closest('.bilibili-embed')) return
+        const figure = video.closest('figure') || video
+        const wrapper = document.createElement('div')
+        wrapper.className = 'bilibili-embed'
+        const caption = figure.querySelector('figcaption')
+        const title = caption ? caption.textContent.trim() : bv
+        wrapper.innerHTML = buildIframe(bv, title)
+        figure.replaceWith(wrapper)
+      })
+
+      // 1. 将包含 B 站链接的 <a> 标签转为 iframe 播放器
+      container.querySelectorAll('a[href]').forEach(link => {
+        const bv = extractBv(link.href)
+        if (!bv) return
+        if (link.closest('.bilibili-embed')) return
+        const wrapper = document.createElement('div')
+        wrapper.className = 'bilibili-embed'
+        wrapper.innerHTML = buildIframe(bv, link.textContent.trim())
+        link.replaceWith(wrapper)
+      })
+
+      // 2. 将纯文本中的 BV 号转为播放器（必须跳过已生成的 .bilibili-embed 内部文本）
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
+      const textNodes = []
+      while (walker.nextNode()) textNodes.push(walker.currentNode)
+      textNodes.forEach(node => {
+        const bv = extractBv(node.textContent.trim())
+        if (!bv) return
+        // 跳过已在 <a>、<video>、.bilibili-embed 内的文本
+        if (node.parentElement.closest('a, video, figure, .bilibili-embed')) return
+        const wrapper = document.createElement('div')
+        wrapper.className = 'bilibili-embed'
+        wrapper.innerHTML = buildIframe(bv, node.textContent.trim())
+        node.replaceWith(wrapper)
+      })
+    })
+  }
+
+  function extractBv(text) {
+    if (!text) return null
+    // 匹配完整 B 站 URL 或纯 BV 号
+    const match = text.match(/(BV[a-zA-Z0-9]{10})/)
+    if (match) return match[1]
+    return null
+  }
+
+  function buildIframe(bv, title) {
+    const safeTitle = (title || bv).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    return '<div class="bilibili-player">'
+      + '<div class="bilibili-player-title">' + safeTitle + '</div>'
+      + '<div class="bilibili-player-wrapper">'
+      + '<iframe src="//player.bilibili.com/player.html?bvid=' + bv + '&autoplay=0&mute=1" '
+      + 'scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" '
+      + 'sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts allow-popups"></iframe>'
+      + '</div></div>'
+  }
+
+  initBilibiliEmbed()
+
   // ========== 全局视频默认静音（仅首次播放） ==========
   document.querySelectorAll('video').forEach(video => {
     video.muted = true

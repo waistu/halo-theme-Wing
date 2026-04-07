@@ -4313,6 +4313,39 @@ html.dark .post-content tr:hover td,
   text-decoration: line-through;
 }
 
+/* ========== B 站视频嵌入播放器 ========== */
+.bilibili-embed {
+  margin: var(--spacing-5) 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+html.dark .bilibili-embed,
+[data-theme="dark"] .bilibili-embed {
+  border-color: var(--border-color-dark);
+}
+
+.bilibili-player-title {
+  display: none;
+}
+
+.bilibili-player-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.bilibili-player-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 /* ========== 侧边栏切换组件 ========== */
 .sidebar-tabs {
   display: flex;
