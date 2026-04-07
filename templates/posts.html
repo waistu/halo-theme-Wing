@@ -90,11 +90,11 @@
             </div>
           </div>
 
-          <!-- 分页（使用查询参数形式 ?page=x，减少页码显示，确保按钮显示） -->
+          <!-- 分页（拼接 /{slug}?page=x） -->
           <nav aria-label="Page navigation" class="pagination" th:if="${postsList.totalPages > 1}" style="justify-content: center;">
             <!-- 上一页 -->
             <a th:if="${postsList.page > 1}"
-               th:href="@{/posts(page=${postsList.page - 1})}"
+               th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page - 1}}"
                class="pagination-previous">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
               上一页
@@ -108,47 +108,47 @@
             <div class="pagination-list" style="justify-content: center;">
               <th:block th:if="${postsList.totalPages le 3}">
                 <a th:each="i : ${#numbers.sequence(1, postsList.totalPages)}"
-                   th:href="@{/posts(page=${i})}"
+                   th:href="@{'/' + ${postsSlug} + '?page=' + ${i}}"
                    th:text="${i}"
                    th:class="${i == postsList.page} ? 'pagination-page current' : 'pagination-page'"></a>
               </th:block>
               <th:block th:if="${postsList.totalPages gt 3}">
                 <!-- 首页 -->
-                <a th:href="@{/posts(page=1)}" th:class="${postsList.page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
+                <a th:href="@{'/' + ${postsSlug} + '?page=1'}" th:class="${postsList.page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
                 <!-- 左边省略号 -->
                 <span th:if="${postsList.page gt 2}" class="pagination-gap">…</span>
                 <!-- 当前页及相邻页（最多3个） -->
                 <th:block th:if="${postsList.page == 1}">
-                  <a th:href="@{/posts(page=2)}" class="pagination-page">2</a>
-                  <a th:href="@{/posts(page=3)}" class="pagination-page">3</a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=2'}" class="pagination-page">2</a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=3'}" class="pagination-page">3</a>
                 </th:block>
                 <th:block th:if="${postsList.page == 2}">
-                  <a th:href="@{/posts(page=2)}" class="pagination-page current">2</a>
-                  <a th:href="@{/posts(page=3)}" class="pagination-page">3</a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=2'}" class="pagination-page current">2</a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=3'}" class="pagination-page">3</a>
                 </th:block>
                 <th:block th:if="${postsList.page == postsList.totalPages}">
-                  <a th:href="@{/posts(page=${postsList.totalPages - 2})}" class="pagination-page" th:text="${postsList.totalPages - 2}"></a>
-                  <a th:href="@{/posts(page=${postsList.totalPages - 1})}" class="pagination-page" th:text="${postsList.totalPages - 1}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.totalPages - 2}}" class="pagination-page" th:text="${postsList.totalPages - 2}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.totalPages - 1}}" class="pagination-page" th:text="${postsList.totalPages - 1}"></a>
                 </th:block>
                 <th:block th:if="${postsList.page == postsList.totalPages - 1}">
-                  <a th:href="@{/posts(page=${postsList.page - 1})}" class="pagination-page" th:text="${postsList.page - 1}"></a>
-                  <a th:href="@{/posts(page=${postsList.page})}" class="pagination-page current" th:text="${postsList.page}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page - 1}}" class="pagination-page" th:text="${postsList.page - 1}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page}}" class="pagination-page current" th:text="${postsList.page}"></a>
                 </th:block>
                 <th:block th:if="${postsList.page gt 2 and postsList.page lt postsList.totalPages - 1}">
-                  <a th:href="@{/posts(page=${postsList.page - 1})}" class="pagination-page" th:text="${postsList.page - 1}"></a>
-                  <a th:href="@{/posts(page=${postsList.page})}" class="pagination-page current" th:text="${postsList.page}"></a>
-                  <a th:href="@{/posts(page=${postsList.page + 1})}" class="pagination-page" th:text="${postsList.page + 1}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page - 1}}" class="pagination-page" th:text="${postsList.page - 1}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page}}" class="pagination-page current" th:text="${postsList.page}"></a>
+                  <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page + 1}}" class="pagination-page" th:text="${postsList.page + 1}"></a>
                 </th:block>
                 <!-- 右边省略号 -->
                 <span th:if="${postsList.page lt postsList.totalPages - 1}" class="pagination-gap">…</span>
                 <!-- 末页 -->
-                <a th:href="@{/posts(page=${postsList.totalPages})}" th:class="${postsList.page == postsList.totalPages} ? 'pagination-page current' : 'pagination-page'" th:text="${postsList.totalPages}"></a>
+                <a th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.totalPages}}" th:class="${postsList.page == postsList.totalPages} ? 'pagination-page current' : 'pagination-page'" th:text="${postsList.totalPages}"></a>
               </th:block>
             </div>
 
             <!-- 下一页 -->
             <a th:if="${postsList.page < postsList.totalPages}"
-               th:href="@{/posts(page=${postsList.page + 1})}"
+               th:href="@{'/' + ${postsSlug} + '?page=' + ${postsList.page + 1}}"
                class="pagination-next">
               下一页
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
