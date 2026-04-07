@@ -7548,3 +7548,41 @@ html.dark .accordion-body blockquote {
 .friends {
   padding: 0 20px;
 }
+
+/* ========== 归档页面分页响应式 ========== */
+/* Tailwind 断点：sm=640px, md=768px */
+
+/* PC 端分页默认隐藏（小于 md 断点时） */
+.pagination-list.hidden.md\:flex {
+  display: none;
+}
+
+/* 移动端分页样式优化 */
+@media (max-width: 767px) {
+  .pagination {
+    justify-content: center !important;
+    overflow-x: visible;
+    padding: 0 8px;
+  }
+  .pagination-previous,
+  .pagination-next {
+    min-width: 70px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  .pagination-page {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+/* PC 端（>= 768px）：隐藏移动端分页，显示 PC 端分页 */
+@media (min-width: 768px) {
+  .pagination-list.sm\:hidden {
+    display: none !important;
+  }
+  .pagination-list.hidden.md\:flex {
+    display: flex !important;
+  }
+}
