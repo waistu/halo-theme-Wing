@@ -2249,6 +2249,18 @@ to {
     }
   }
 
+  @media (min-width: 40rem) {
+    .sm\:hidden {
+      display: none;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .md\:flex {
+      display: flex;
+    }
+  }
+
   .dark\:border-gray-600:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *) {
     border-color: var(--color-gray-600);
   }
@@ -10425,6 +10437,40 @@ html.dark .accordion-body blockquote {
 
 .friends {
   padding: 0 20px;
+}
+
+.pagination-list.hidden.md\:flex {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pagination {
+    padding: 0 8px;
+    overflow-x: visible;
+    justify-content: center !important;
+  }
+
+  .pagination-previous, .pagination-next {
+    min-width: 70px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .pagination-page {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 768px) {
+  .pagination-list.sm\:hidden {
+    display: none !important;
+  }
+
+  .pagination-list.hidden.md\:flex {
+    display: flex !important;
+  }
 }
 
 @property --tw-rotate-x {

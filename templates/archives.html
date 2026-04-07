@@ -82,63 +82,119 @@
           </th:block>
         </div>
 
-        <!-- 分页 -->
-        <nav aria-label="Page navigation" class="pagination" th:if="${archives.totalPages > 1}">
+        <!-- 分页：archives.page 从 0 开始 -->
+        <nav aria-label="Page navigation" class="pagination" th:if="${archives.totalPages > 1}"
+             th:with="cp=${archives.page + 1}">
           <!-- 上一页 -->
-          <a th:if="${archives.page > 1}"
-             th:href="${archives.page == 2} ? @{/archives} : @{/archives/page/{page}(page=${archives.page - 1})}"
+          <a th:if="${archives.hasPrevious}"
+             th:href="${archives.prevUrl}"
              class="pagination-previous">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
             上一页
           </a>
-          <span th:unless="${archives.page > 1}" class="pagination-previous disabled">
+          <span th:unless="${archives.hasPrevious}" class="pagination-previous disabled">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
             上一页
           </span>
 
-          <!-- 页码：移动端有省略号显示3个，两边对齐 -->
-          <div class="pagination-list" style="justify-content: center;">
+          <!-- 移动端分页：最多显示 4 个页码 -->
+          <div class="pagination-list sm:hidden" style="justify-content: center;">
             <th:block th:if="${archives.totalPages le 4}">
-              <a th:each="i : ${#numbers.sequence(1, archives.totalPages)}"
-                 th:href="${i == 1} ? @{/archives} : @{/archives/page/{page}(page=${i})}"
-                 th:text="${i}"
-                 th:class="${i == archives.page} ? 'pagination-page current' : 'pagination-page'"></a>
+              <th:block th:each="i : ${#numbers.sequence(1, archives.totalPages)}">
+                <a th:href="${i == 1} ? @{/archives} : @{/archives/page/{page}(page=${i})}"
+                   th:text="${i}"
+                   th:class="${i == cp} ? 'pagination-page current' : 'pagination-page'"></a>
+              </th:block>
             </th:block>
             <th:block th:if="${archives.totalPages gt 4}">
-              <a th:href="@{/archives}" th:class="${archives.page == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
-              <span th:if="${archives.page gt 2}" class="pagination-gap">…</span>
-              <th:block th:if="${archives.page == 2}">
+              <!-- 首页 -->
+              <a th:href="@{/archives}" th:class="${cp == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
+              <!-- 当前页 = 1：显示 2, 3 -->
+              <th:block th:if="${cp == 1}">
+                <span class="pagination-gap">…</span>
+                <a th:href="@{/archives/page/2}" class="pagination-page">2</a>
+                <a th:href="@{/archives/page/3}" class="pagination-page">3</a>
+              </th:block>
+              <!-- 当前页 = 2：显示 2, 3, 4 -->
+              <th:block th:if="${cp == 2}">
+                <span class="pagination-gap">…</span>
                 <a th:href="@{/archives/page/2}" class="pagination-page current">2</a>
                 <a th:href="@{/archives/page/3}" class="pagination-page">3</a>
                 <a th:href="@{/archives/page/4}" class="pagination-page">4</a>
               </th:block>
-              <th:block th:if="${archives.page ge 3 and archives.page le archives.totalPages - 2}">
-                <a th:href="@{/archives/page/{page}(page=${archives.page - 1})}" class="pagination-page" th:text="${archives.page - 1}"></a>
-                <a th:href="@{/archives/page/{page}(page=${archives.page})}" class="pagination-page current" th:text="${archives.page}"></a>
-                <a th:href="@{/archives/page/{page}(page=${archives.page + 1})}" class="pagination-page" th:text="${archives.page + 1}"></a>
+              <!-- 当前页在中间（3 ~ total-2） -->
+              <th:block th:if="${cp ge 3 and cp le archives.totalPages - 2}">
+                <span class="pagination-gap">…</span>
+                <a th:href="@{/archives/page/{page}(page=${cp - 1})}" class="pagination-page" th:text="${cp - 1}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp})}" class="pagination-page current" th:text="${cp}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp + 1})}" class="pagination-page" th:text="${cp + 1}"></a>
+                <span class="pagination-gap">…</span>
               </th:block>
-              <th:block th:if="${archives.page == archives.totalPages - 1}">
-                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 3})}" class="pagination-page" th:text="${archives.totalPages - 3}"></a>
-                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 1})}" class="pagination-page current" th:text="${archives.totalPages - 1}"></a>
-                <a th:href="@{/archives/page/{page}(page=${archives.totalPages})}" class="pagination-page" th:text="${archives.totalPages}"></a>
+              <!-- 当前页 = total-1：显示 total-2, total-1, total -->
+              <th:block th:if="${cp == archives.totalPages - 1}">
+                <span class="pagination-gap">…</span>
+                <a th:href="@{/archives/page/{page}(page=${cp - 1})}" class="pagination-page" th:text="${cp - 1}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp})}" class="pagination-page current" th:text="${cp}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp + 1})}" class="pagination-page" th:text="${cp + 1}"></a>
               </th:block>
-              <th:block th:if="${archives.page == archives.totalPages}">
-                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 2})}" class="pagination-page" th:text="${archives.totalPages - 2}"></a>
-                <a th:href="@{/archives/page/{page}(page=${archives.totalPages - 1})}" class="pagination-page" th:text="${archives.totalPages - 1}"></a>
+              <!-- 当前页 = total -->
+              <th:block th:if="${cp == archives.totalPages}">
+                <span class="pagination-gap">…</span>
+                <a th:href="@{/archives/page/{page}(page=${cp - 2})}" class="pagination-page" th:text="${cp - 2}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp - 1})}" class="pagination-page" th:text="${cp - 1}"></a>
+                <a th:href="@{/archives/page/{page}(page=${cp})}" class="pagination-page current" th:text="${cp}"></a>
               </th:block>
-              <span th:if="${archives.page lt archives.totalPages - 1}" class="pagination-gap">…</span>
-              <a th:href="@{/archives/page/{page}(page=${archives.totalPages})}" th:class="${archives.page == archives.totalPages} ? 'pagination-page current' : 'pagination-page'" th:text="${archives.totalPages}"></a>
+            </th:block>
+          </div>
+
+          <!-- PC 端分页：最多显示 7 个页码 -->
+          <div class="pagination-list hidden md:flex" style="justify-content: center;">
+            <th:block th:if="${archives.totalPages le 7}">
+              <th:block th:each="i : ${#numbers.sequence(1, archives.totalPages)}">
+                <a th:href="${i == 1} ? @{/archives} : @{/archives/page/{page}(page=${i})}"
+                   th:text="${i}"
+                   th:class="${i == cp} ? 'pagination-page current' : 'pagination-page'"></a>
+              </th:block>
+            </th:block>
+            <th:block th:if="${archives.totalPages gt 7}">
+              <!-- 首页 -->
+              <a th:href="@{/archives}" th:class="${cp == 1} ? 'pagination-page current' : 'pagination-page'">1</a>
+              <!-- 当前页在前 4 页 -->
+              <th:block th:if="${cp le 4}">
+                <span class="pagination-gap">…</span>
+                <th:block th:each="i : ${#numbers.sequence(2, 5)}">
+                  <a th:href="@{/archives/page/{page}(page=${i})}" th:text="${i}" th:class="${i == cp} ? 'pagination-page current' : 'pagination-page'"></a>
+                </th:block>
+                <span class="pagination-gap">…</span>
+              </th:block>
+              <!-- 当前页在中间 -->
+              <th:block th:if="${cp ge 5 and cp le archives.totalPages - 4}">
+                <span class="pagination-gap">…</span>
+                <th:block th:each="i : ${#numbers.sequence(cp - 2, cp + 2)}">
+                  <a th:href="@{/archives/page/{page}(page=${i})}" th:text="${i}" th:class="${i == cp} ? 'pagination-page current' : 'pagination-page'"></a>
+                </th:block>
+                <span class="pagination-gap">…</span>
+              </th:block>
+              <!-- 当前页在后 4 页 -->
+              <th:block th:if="${cp gt archives.totalPages - 4}">
+                <span class="pagination-gap">…</span>
+                <th:block th:each="i : ${#numbers.sequence(archives.totalPages - 4, archives.totalPages - 1)}">
+                  <a th:href="@{/archives/page/{page}(page=${i})}" th:text="${i}" th:class="${i == cp} ? 'pagination-page current' : 'pagination-page'"></a>
+                </th:block>
+              </th:block>
+              <!-- 末页 -->
+              <a th:href="@{/archives/page/{page}(page=${archives.totalPages})}" th:class="${cp == archives.totalPages} ? 'pagination-page current' : 'pagination-page'" th:text="${archives.totalPages}"></a>
             </th:block>
           </div>
 
           <!-- 下一页 -->
-          <a th:if="${archives.page < archives.totalPages}"
-             th:href="@{/archives/page/{page}(page=${archives.page + 1})}"
+          <a th:if="${archives.hasNext}"
+             th:href="${archives.nextUrl}"
              class="pagination-next">
             下一页
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
           </a>
-          <span th:unless="${archives.page < archives.totalPages}" class="pagination-next disabled">
+          <span th:unless="${archives.hasNext}" class="pagination-next disabled">
             下一页
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" style="width:1em;height:1em;flex-shrink:0"><path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>
           </span>
