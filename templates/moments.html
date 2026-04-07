@@ -382,6 +382,8 @@
         video.addEventListener('loadedmetadata', function () {
           window.handleVideoMetadata(video);
         });
+        // 强制静音：确保用户点击播放时也是静音的
+        video.addEventListener('play', function () { video.muted = true; });
       });
 
       // 打开视频弹窗
@@ -844,6 +846,7 @@
             video.addEventListener('loadedmetadata', function() {
               window.handleVideoMetadata(video);
             });
+            video.addEventListener('play', function() { video.muted = true; });
           });
         }
 

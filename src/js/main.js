@@ -390,6 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  // ========== 全局视频默认静音（仅首次播放） ==========
+  document.querySelectorAll('video').forEach(video => {
+    video.muted = true
+    video.addEventListener('play', function handler() {
+      video.muted = true
+      video.removeEventListener('play', handler)
+    })
+  })
+
   // ========== 标签列表排序（文章数量） ==========
   const topicList = document.querySelector('.topic-items')
   if (topicList) {
