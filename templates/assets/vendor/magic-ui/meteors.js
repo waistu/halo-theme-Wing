@@ -25,12 +25,25 @@ class Meteors {
   init() {
     const { element, options } = this;
 
-    // 确保父元素有定位
-    element.style.position = 'relative';
+    // 对于 body 元素，容器用 fixed 定位
+    const tagName = element.tagName.toLowerCase();
+    const isBody = tagName === 'body';
+
+    if (!isBody) {
+      const computedStyle = window.getComputedStyle(element);
+      if (computedStyle.position === 'static') {
+        element.style.position = 'relative';
+      }
+    }
 
     // 创建容器
     this.container = document.createElement('div');
     this.container.className = 'meteors-container';
+    
+    // body 用 fixed 定位
+    if (isBody) {
+      this.container.style.position = 'fixed';
+    }
 
     // 生成流星
     for (let i = 0; i < options.number; i++) {
@@ -46,6 +59,11 @@ class Meteors {
     const { options } = this;
     const meteor = document.createElement('span');
     meteor.className = 'meteor';
+    
+    // 外层 wrapper 用于旋转
+    const wrapper = document.createElement('span');
+    wrapper.className = 'meteor-wrapper';
+    wrapper.style.setProperty('--meteor-angle', `-${options.angle}deg`);
 
     // 随机位置
     const left = Math.random() * 100;
@@ -54,12 +72,10 @@ class Meteors {
     // 随机持续时间
     const duration = Math.floor(Math.random() * (options.maxDuration - options.minDuration) + options.minDuration);
 
-    meteor.style.left = `${left}%`;
+    wrapper.style.left = `${left}%`;
     meteor.style.setProperty('--meteor-delay', `${delay}s`);
     meteor.style.setProperty('--meteor-duration', `${duration}s`);
-    meteor.style.setProperty('--meteor-angle', `-${options.angle}deg`);
     meteor.style.background = options.meteorColor;
-    meteor.style.boxShadow = `0 0 0 1px rgba(255, 255, 255, 0.1)`;
 
     // 设置尾巴颜色
     const style = document.createElement('style');
@@ -72,7 +88,8 @@ class Meteors {
     `;
     document.head.appendChild(style);
 
-    return meteor;
+    wrapper.appendChild(meteor);
+    return wrapper;
   }
 
   // 销毁实例
@@ -95,8 +112,12 @@ class Meteors {
 }
 
 // 自动初始化带 data-meteors 属性的元素
-document.addEventListener('DOMContentLoaded', () => {
+function initMeteors() {
   document.querySelectorAll('[data-meteors]').forEach(el => {
+    // 避免重复初始化
+    if (el.classList.contains('meteors-init')) return;
+    el.classList.add('meteors-init');
+    
     const options = {};
     const dataset = el.dataset;
 
@@ -106,12 +127,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dataset.meteorMinDuration) options.minDuration = parseFloat(dataset.meteorMinDuration);
     if (dataset.meteorMaxDuration) options.maxDuration = parseFloat(dataset.meteorMaxDuration);
     if (dataset.meteorAngle) options.angle = parseInt(dataset.meteorAngle);
+    
     if (dataset.meteorColor) options.meteorColor = dataset.meteorColor;
     if (dataset.meteorTailColor) options.tailColor = dataset.meteorTailColor;
 
     new Meteors(el, options);
   });
-});
+}
+
+// 多种时机尝试初始化
+document.addEventListener('DOMContentLoaded', initMeteors);
+document.addEventListener('load', initMeteors);
+window.addEventListener('load', initMeteors);
+
+// 延迟初始化作为后备
+setTimeout(initMeteors, 100);
+setTimeout(initMeteors, 500);
+setTimeout(initMeteors, 1000);
 
 // 导出供模块使用
 if (typeof module !== 'undefined' && module.exports) {

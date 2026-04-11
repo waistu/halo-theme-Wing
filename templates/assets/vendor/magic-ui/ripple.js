@@ -11,7 +11,7 @@ class Ripple {
     circleGap: 70,
     opacityStep: 0.03,
     delayStep: 0.06,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: null,
     borderWidth: 1,
     duration: 5,
   };
@@ -26,12 +26,24 @@ class Ripple {
   init() {
     const { element, options } = this;
 
-    // 确保父元素有定位
-    element.style.position = 'relative';
+    const tagName = element.tagName.toLowerCase();
+    const isBody = tagName === 'body';
+
+    if (!isBody) {
+      const computedStyle = window.getComputedStyle(element);
+      if (computedStyle.position === 'static') {
+        element.style.position = 'relative';
+      }
+    }
 
     // 创建容器
     this.container = document.createElement('div');
     this.container.className = 'ripple-container';
+    
+    // body 用 fixed 定位
+    if (isBody) {
+      this.container.style.position = 'fixed';
+    }
 
     // 创建圆圈
     for (let i = 0; i < options.numCircles; i++) {
@@ -50,13 +62,18 @@ class Ripple {
     const opacity = options.mainCircleOpacity - index * options.opacityStep;
     const delay = index * options.delayStep;
 
+    const isDark = document.documentElement.classList.contains('dark');
+    const borderColor = options.borderColor || (isDark 
+      ? 'rgba(255, 255, 255, 0.25)' 
+      : 'rgba(0, 0, 0, 0.15)');
+
     circle.className = 'ripple-circle';
     circle.style.width = `${size}px`;
     circle.style.height = `${size}px`;
     circle.style.opacity = opacity;
     circle.style.animationDelay = `${delay}s`;
     circle.style.animationDuration = `${options.duration}s`;
-    circle.style.borderColor = options.borderColor;
+    circle.style.borderColor = borderColor;
     circle.style.borderWidth = `${options.borderWidth}px`;
     circle.style.setProperty('--ripple-opacity', opacity);
 

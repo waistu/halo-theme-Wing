@@ -10,6 +10,7 @@
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/meteors.css}" th:if="${theme.config.style.meteors_enabled != 'disabled'}" />
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
@@ -25,9 +26,10 @@
     }
   </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
+  <script th:src="@{/assets/vendor/magic-ui/meteors.js}" th:if="${theme.config.style.meteors_enabled != 'disabled'}"></script>
 </head>
 
-<body>
+<body data-meteors data-meteor-count="40" data-meteor-min-delay="0.1" data-meteor-max-delay="0.8">
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->

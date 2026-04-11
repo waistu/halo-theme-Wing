@@ -26,8 +26,8 @@
   </th:block>
 </head>
 
-<body data-ripple data-ripple-size="400" data-ripple-opacity="0.35" data-ripple-count="6" data-meteors>
-  <div class="login-page"
+<body>
+  <div class="login-page" data-ripple data-ripple-gap="150" data-ripple-opacity="0.95" data-ripple-count="12"
     th:classappend="${theme.config.style.login_bg_image != null and theme.config.style.login_bg_image != ''} ? 'has-bg-image' : ''"
     th:style="${theme.config.style.login_bg_image != null and theme.config.style.login_bg_image != ''} ? 'background-image: url(' + ${theme.config.style.login_bg_image} + ')' : ''">
     <th:block th:replace="${body}" />

@@ -2,22 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN" class="scroll-smooth">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" th:content="${site.description}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" th:content="${site.description}">
 
-    <!-- 网站标题 -->
-    <title th:text="${site_title} + (${post.title} ? ' - ' + ${post.title} : '')" th:remove="tag">
-        网站标题
-    </title>
+  <!-- 网站标题 -->
+  <title th:text="${site_title} + (${post.title} ? ' - ' + ${post.title} : '')" th:remove="tag">
+    网站标题
+  </title>
 
-    <!-- 主题模式早期初始化：必须在 CSS 前执行，避免白闪/黑闪 -->
-    <script th:inline="javascript">
-    (function() {
+  <!-- 主题模式早期初始化：必须在 CSS 前执行，避免白闪/黑闪 -->
+  <script th:inline="javascript">
+    (function () {
       // 从 Thymeleaf 注入的后台配置
-      var serverMode    = /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto';
-      var lightStart    = /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00';
-      var darkStart     = /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00';
+      var serverMode = /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto';
+      var lightStart = /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00';
+      var darkStart = /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00';
 
       // 把配置透传给后续的 main.js（避免重复 Thymeleaf 取值）
       window.__WING_THEME__ = { serverMode: serverMode, lightStart: lightStart, darkStart: darkStart };
@@ -36,8 +36,8 @@
       function getAutoTheme() {
         var now = new Date();
         var cur = now.getHours() * 60 + now.getMinutes();
-        var ls  = timeToMinutes(lightStart);  // 06:00 → 360
-        var ds  = timeToMinutes(darkStart);   // 22:00 → 1320
+        var ls = timeToMinutes(lightStart);  // 06:00 → 360
+        var ds = timeToMinutes(darkStart);   // 22:00 → 1320
         // 跨天判断：深色区间 [ds, 次日 ls)
         if (ds > ls) {
           return (cur >= ds || cur < ls) ? 'dark' : 'light';
@@ -49,11 +49,11 @@
 
       function resolveTheme(mode) {
         if (mode === 'light') return 'light';
-        if (mode === 'dark')  return 'dark';
+        if (mode === 'dark') return 'dark';
         // auto：先看用户在 dropdown 里的选择（wing-user-mode），再按时间算
         var userMode = localStorage.getItem('wing-user-mode');
         if (userMode === 'light') return 'light';
-        if (userMode === 'dark')  return 'dark';
+        if (userMode === 'dark') return 'dark';
         return getAutoTheme();
       }
 
@@ -66,60 +66,61 @@
         document.documentElement.setAttribute('data-theme', 'light');
       }
     })();
-    </script>
+  </script>
 
-    <!-- 引入构建后的 CSS -->
-    <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">
-    <!-- Magic UI 组件 CSS -->
-    <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}">
-    <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}">
+  <!-- 引入构建后的 CSS -->
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}">
+  <!-- Magic UI 组件 CSS -->
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}">
+  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/meteors.css}" />
 
-    <!-- 可选的额外样式 -->
-    <link th:if="${theme.config.custom_css}" rel="stylesheet" th:href="@{${theme.config.custom_css}}">
+  <!-- 可选的额外样式 -->
+  <link th:if="${theme.config.custom_css}" rel="stylesheet" th:href="@{${theme.config.custom_css}}">
 
-    <!-- 预加载关键资源 -->
-    <link rel="preload" th:href="@{/assets/dist/js/main.js}" as="script">
+  <!-- 预加载关键资源 -->
+  <link rel="preload" th:href="@{/assets/dist/js/main.js}" as="script">
 
-    <!-- 主题配色方案 -->
-    <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
+  <!-- 主题配色方案 -->
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
 
-    <!-- RSS 订阅 -->
-    <link rel="alternate" type="application/rss+xml" th:href="@{/atom.xml}" title="RSS">
+  <!-- RSS 订阅 -->
+  <link rel="alternate" type="application/rss+xml" th:href="@{/atom.xml}" title="RSS">
 </head>
 
 <body
-    class="min-h-screen flex flex-col bg-rose-50 dark:bg-rose-950 text-gray-800 dark:text-rose-100 transition-colors duration-300">
+  class="min-h-screen flex flex-col bg-rose-50 dark:bg-rose-950 text-gray-800 dark:text-rose-100 transition-colors duration-300"
+  data-meteors data-meteor-count="40" data-meteor-min-delay="0.1" data-meteor-max-delay="0.8">
 
-    <!-- Ripple 涟漪背景 -->
-    <div id="ripple-bg" data-ripple-bg class="fixed inset-0 -z-10 pointer-events-none"></div>
+  <!-- Ripple 涟漪背景 -->
+  <!-- <div id="ripple-bg" data-ripple-bg class="fixed inset-0 -z-10 pointer-events-none"></div> -->
 
-    <!-- 头部导航栏 -->
-    <header th:replace="~{includes/components/header :: header}"></header>
+  <!-- 头部导航栏 -->
+  <header th:replace="~{includes/components/header :: header}"></header>
 
-    <!-- 主内容区域（由子模板填充） -->
-    <main class="flex-grow" th:fragment="content">
-        <!-- 这里的内容会被子模板替换 -->
-        <div th:replace="${content}"></div>
-    </main>
+  <!-- 主内容区域（由子模板填充） -->
+  <main class="flex-grow" th:fragment="content">
+    <!-- 这里的内容会被子模板替换 -->
+    <div th:replace="${content}"></div>
+  </main>
 
-    <!-- 页脚 -->
-    <footer th:replace="~{includes/components/footer :: footer}"></footer>
+  <!-- 页脚 -->
+  <footer th:replace="~{includes/components/footer :: footer}"></footer>
 
-    <!-- 移动端导航菜单（可选） -->
-    <div th:replace="~{includes/components/mobile-nav :: mobile-nav}"></div>
+  <!-- 移动端导航菜单（可选） -->
+  <div th:replace="~{includes/components/mobile-nav :: mobile-nav}"></div>
 
-    <!-- 引入构建后的 JavaScript -->
-    <script th:src="@{/assets/dist/js/main.js}"></script>
-    <!-- Ripple 涟漪背景 JS -->
-    <script th:src="@{/assets/vendor/magic-ui/ripple.js}"></script>
-    <!-- Magic UI 组件 JS -->
-    <script th:src="@{/assets/vendor/magic-ui/border-beam.js}"></script>
+  <!-- 引入构建后的 JavaScript -->
+  <script th:src="@{/assets/dist/js/main.js}"></script>
+  <!-- Magic UI 组件 JS -->
+  <script th:src="@{/assets/vendor/magic-ui/border-beam.js}"></script>
+  <script th:src="@{/assets/vendor/magic-ui/meteors.js}"></script>
 
-    <!-- 自定义脚本（如果有） -->
-    <script th:if="${theme.config.custom_js}" th:src="@{${theme.config.custom_js}}"></script>
+  <!-- 自定义脚本（如果有） -->
+  <script th:if="${theme.config.custom_js}" th:src="@{${theme.config.custom_js}}"></script>
 
-    <!-- 统计代码（如果有） -->
-    <div th:utext="${theme.config.analytics_code}" th:remove="tag"></div>
+  <!-- 统计代码（如果有） -->
+  <div th:utext="${theme.config.analytics_code}" th:remove="tag"></div>
 </body>
 
 </html>
