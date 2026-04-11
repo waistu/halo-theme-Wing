@@ -81,14 +81,9 @@ spec:
           help: 登录页 Logo 图片 URL，留空显示站点标题文字
         - $formkit: text
           name: login_bg_image
-          label: 登录页背景图（已废弃）
+          label: 登录页背景图
           placeholder: https://...
-          help: 该配置已废弃，请使用「登录页左侧背景图」
-        - $formkit: text
-          name: login_side_image
-          label: 登录页左侧背景图
-          placeholder: https://...
-          help: 登录页左侧大图，PC端显示，移动端自动隐藏，留空使用渐变色
+          help: 登录页左侧背景图
         - $formkit: radio
           name: theme_mode
           id: theme_mode
