@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+  <!-- 退出登录页主体片段 -->
+  <th:block th:fragment="form">
+
+    <div class="login-card">
+      <!-- 左侧眼睛区域 -->
+      <div class="login-card-left">
+        <div class="eye-container">
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧内容区 -->
+      <div class="login-card-right">
+        <!-- Logo/站点标题 -->
+        <div class="login-logo">
+          <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:src="${theme.config.style.login_logo}" alt="Logo" />
+          <div class="login-logo-text"
+            th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:text="${site.title}">站点标题</div>
+        </div>
+
+        <!-- 成功退出提示（JS 控制显示） -->
+        <div id="logout-success" style="display: none;">
+          <h2 class="login-title" data-i18n="logout.success_title">您已成功退出登录</h2>
+          <div class="logout-success-links">
+            <a th:href="@{/login}" class="login-btn" data-i18n="logout.back_login">返回登录</a>
+          </div>
+        </div>
+
+        <!-- 退出确认表单（JS 控制隐藏） -->
+        <div id="logout-confirm">
+          <!-- 退出标题 -->
+          <h2 class="login-title" data-i18n="logout.confirm_title">确定要退出登录吗？</h2>
+
+          <!-- 当前登录用户信息 -->
+          <div th:if="${currentUser != null}" class="logout-user-card">
+            <img
+              th:src="${currentUser.spec.avatar ?: '/images/default-avatar.png'}"
+              th:alt="${currentUser.spec.displayName}"
+              class="logout-user-avatar"
+            />
+            <div class="logout-user-info">
+              <p class="logout-user-label" data-i18n="logout.current_user">当前登录的用户：</p>
+              <p class="logout-user-name">
+                <span th:text="${currentUser.spec.displayName}">用户名</span>
+                <span class="logout-user-username" th:text="'(@' + ${currentUser.metadata.name} + ')'">(@username)</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- 退出按钮 -->
+          <form class="logout-form" id="logout-form-element" th:action="@{/logout(logged_out=true)}" method="post">
+            <!-- CSRF Token -->
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <!-- 退出按钮 -->
+            <button type="submit" class="login-btn logout-btn" data-i18n="logout.btn">退出登录</button>
+          </form>
+
+          <!-- 取消按钮 -->
+          <div class="login-reset-row">
+            <a href="javascript:history.back()" class="login-reset-link" data-i18n="logout.cancel">取消</a>
+          </div>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="login-lang-switcher">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5l3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+          </svg>
+          <select id="lang-select">
+            <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+            <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+            <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+            <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+          </select>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="login-footer">
+          <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 国际化脚本 -->
+    <script th:inline="javascript">
+      (function () {
+        'use strict';
+
+        // ========== 国际化配置 ==========
+        const i18n = {
+          'zh-CN': {
+            'logout.success_title': '您已成功退出登录',
+            'logout.confirm_title': '确定要退出登录吗？',
+            'logout.current_user': '当前登录的用户：',
+            'logout.btn': '退出登录',
+            'logout.cancel': '取消',
+            'logout.back_login': '返回登录',
+            'home': '返回首页'
+          },
+          'en': {
+            'logout.success_title': 'You have been logged out',
+            'logout.confirm_title': 'Are you sure you want to log out?',
+            'logout.current_user': 'Current logged in user:',
+            'logout.btn': 'Log out',
+            'logout.cancel': 'Cancel',
+            'logout.back_login': 'Back to login',
+            'home': 'Back to home'
+          },
+          'zh-TW': {
+            'logout.success_title': '您已成功退出登入',
+            'logout.confirm_title': '確定要退出登入嗎？',
+            'logout.current_user': '當前登入的用戶：',
+            'logout.btn': '退出登入',
+            'logout.cancel': '取消',
+            'logout.back_login': '返回登入',
+            'home': '返回首頁'
+          },
+          'ja': {
+            'logout.success_title': 'ログアウトしました',
+            'logout.confirm_title': 'ログアウトしますか？',
+            'logout.current_user': '現在のログインユーザー：',
+            'logout.btn': 'ログアウト',
+            'logout.cancel': 'キャンセル',
+            'logout.back_login': 'ログインに戻る',
+            'home': 'ホームに戻る'
+          }
+        };
+
+        // 获取当前语言
+        function getCurrentLang() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const langParam = urlParams.get('lang');
+          if (langParam && i18n[langParam]) {
+            return langParam;
+          }
+          const savedLang = localStorage.getItem('login-lang');
+          if (savedLang && i18n[savedLang]) {
+            return savedLang;
+          }
+          return 'zh-CN';
+        }
+
+        // 翻译函数
+        function t(key) {
+          const lang = getCurrentLang();
+          return i18n[lang][key] || i18n['zh-CN'][key] || key;
+        }
+
+        // 更新页面翻译
+        function updateTranslations() {
+          const lang = getCurrentLang();
+          localStorage.setItem('login-lang', lang);
+
+          const langSelect = document.getElementById('lang-select');
+          if (langSelect) {
+            langSelect.value = lang;
+          }
+
+          document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            const key = el.getAttribute('data-i18n');
+            el.textContent = t(key);
+          });
+
+          document.querySelectorAll('[data-i18n-attr]').forEach(function(el) {
+            const attrConfig = el.getAttribute('data-i18n-attr');
+            const [attr, key] = attrConfig.split(':');
+            if (attr && key) {
+              el.setAttribute(attr, t(key));
+            }
+          });
+        }
+
+        // 语言切换
+        function switchLang(lang) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          window.location.href = url.toString();
+        }
+
+        // 绑定语言选择器事件
+        const langSelect = document.getElementById('lang-select');
+        if (langSelect) {
+          langSelect.addEventListener('change', function() {
+            switchLang(this.value);
+          });
+        }
+
+        // ========== 眼睛跟随鼠标效果 ==========
+        const eyeContainer = document.querySelector('.eye-container');
+        const pupils = document.querySelectorAll('.pupil');
+
+        if (eyeContainer && pupils.length > 0) {
+          const maxMove = 8;
+
+          function updatePupils(e) {
+            pupils.forEach(pupil => {
+              const rect = pupil.parentElement.getBoundingClientRect();
+              const eyeCenterX = rect.left + rect.width / 2;
+              const eyeCenterY = rect.top + rect.height / 2;
+
+              const dx = e.clientX - eyeCenterX;
+              const dy = e.clientY - eyeCenterY;
+
+              const angle = Math.atan2(dy, dx);
+              const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxMove);
+
+              const moveX = Math.cos(angle) * distance;
+              const moveY = Math.sin(angle) * distance;
+
+              pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+          }
+
+          document.addEventListener('mousemove', updatePupils);
+        }
+
+        // 检测是否成功退出（通过 URL 参数或 sessionStorage）
+        function checkLogoutSuccess() {
+          const urlParams = new URLSearchParams(window.location.search);
+          // 检查是否从 logout 重定向回来
+          if (urlParams.has('logged_out') || sessionStorage.getItem('logout_success') === 'true') {
+            sessionStorage.removeItem('logout_success');
+            const successView = document.getElementById('logout-success');
+            const confirmView = document.getElementById('logout-confirm');
+            if (successView) successView.style.display = 'block';
+            if (confirmView) confirmView.style.display = 'none';
+            return true;
+          }
+          return false;
+        }
+
+        // 页面加载完成后应用翻译
+        document.addEventListener('DOMContentLoaded', function() {
+          updateTranslations();
+          checkLogoutSuccess();
+        });
+
+        // 提交前标记即将退出
+        document.querySelector('.logout-form')?.addEventListener('submit', function() {
+          sessionStorage.setItem('logout_success', 'true');
+        });
+      })();
+    </script>
+
+  </th:block>
+
+</body>
+</html>

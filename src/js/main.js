@@ -2,6 +2,7 @@
 // twikoo.css 必须在 main.css 之后导入，以便主题覆盖样式生效
 import '../css/twikoo.css'
 import '../css/main.css'
+import '../css/gateway.css'
 
 // ========== 深色模式管理 ==========
 class ThemeManager {

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{gateway_fragments/layout :: layout (title=${'退出登录 - ' + site.title}, head=~{::head}, body=~{::body})}">
+
+<head>
+</head>
+
+<body>
+  <th:block th:replace="~{gateway_fragments/logout :: form}" />
+</body>
+
+</html>

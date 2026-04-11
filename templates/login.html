@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{gateway_fragments/layout :: layout (title=${'登录 - ' + site.title}, head=~{::head}, body=~{::body})}">
+
+<head>
+  <!-- RSA 加密库 -->
+  <script src="/webjars/jsencrypt/bin/jsencrypt.min.js" defer></script>
+</head>
+
+<body>
+  <th:block th:replace="~{gateway_fragments/login :: form}" />
+</body>
+
+</html>

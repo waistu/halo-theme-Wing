@@ -3636,20 +3636,28 @@ html.dark .archive-pagination .page-btn,
   object-fit: cover;
 }
 
-/* 无封面时的默认背景 */
+/* 无封面时的默认背景 - 图标全屏背景效果 */
 .page-cover-empty {
   width: 100%;
   height: calc(var(--spacing) * 75);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  background: transparent;
 }
 
 .page-cover-empty .czs-cup-l {
-  font-size: var(--text-5xl);
-  color: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80vw;
+  color: var(--color-primary-500);
+  opacity: 0.15;
+  transform: translateX(-5%);
+  pointer-events: none;
+  user-select: none;
 }
 
 .page-article .page-header {

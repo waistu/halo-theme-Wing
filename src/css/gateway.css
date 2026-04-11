@@ -1,0 +1,725 @@
+/* ========== 登录页基础样式 ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ========== 背景层 ========== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 默认背景（无自定义图片时）- 点阵格子背景 */
+.login-page:not(.has-bg-image) {
+  background-color: #f9fafb;
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 深色模式下格子变成白色边框 */
+html.dark .login-page:not(.has-bg-image) {
+  background-color: #111827;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 背景遮罩层（有图片时轻微暗化） */
+.login-page.has-bg-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 0;
+}
+
+.login-page>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== 登录卡片（左右分栏） ========== */
+.login-card {
+  display: flex;
+  width: 100%;
+  max-width: 950px;
+  margin: 20px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+}
+
+.has-bg-image .login-card {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .login-card {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ========== 左侧背景区域（眼睛） ========== */
+.login-card-left {
+  width: 65%;
+  min-height: 500px;
+  background: var(--color-primary-500, #3b82f6);
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 眼睛容器 */
+.eye-container {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 单个眼睛 */
+.eye {
+  width: 120px;
+  height: 120px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* 瞳孔 */
+.pupil {
+  width: 50px;
+  height: 50px;
+  background: #1e293b;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.05s ease-out;
+}
+
+/* 瞳孔高光 */
+.pupil::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  top: 8px;
+  left: 8px;
+}
+
+.pupil::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  bottom: 10px;
+  right: 10px;
+  opacity: 0.6;
+}
+
+/* ========== 右侧登录表单区域 ========== */
+.login-card-right {
+  flex: 1;
+  width: 25%;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  isolation: isolate;
+  background-color: rgb(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+}
+
+html.dark .login-card-right {
+  background-color: rgb(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px) saturate(180%);
+  color: #f3f4f6 !important;
+}
+
+/* ========== 标题 ========== */
+.login-title {
+  text-align: center;
+  margin-bottom: 32px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.login-card-right .login-title {
+  color: #111827;
+  text-shadow: none;
+}
+
+html.dark .login-card-right .login-title {
+  color: #fff;
+}
+
+/* ========== 找回密码页面标题 ========== */
+.reset-title {
+  text-align: center;
+  margin-bottom: 12px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+html.dark .reset-title {
+  color: #fff;
+}
+
+.reset-desc {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+html.dark .reset-desc {
+  color: #9ca3af;
+}
+
+/* ========== 表单样式 ========== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: #111827;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+.form-input:focus {
+  background: #fff;
+  border-color: #6b7280;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+}
+
+/* 表单输入框样式 */
+.login-card-right .form-input {
+  color: #111827;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.login-card-right .form-input::placeholder {
+  color: #9ca3af;
+}
+
+html.dark .login-card-right .form-input {
+  color: #f3f4f6;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html.dark .login-card-right .form-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+html.dark .form-input:focus {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+/* 密码框容器 */
+.password-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.login-card-right .password-toggle {
+  color: #9ca3af;
+}
+
+.login-card-right .password-toggle:hover {
+  color: #374151;
+}
+
+html.dark .login-card-right .password-toggle {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+html.dark .login-card-right .password-toggle:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ========== 登录按钮 ========== */
+.login-btn {
+  width: 100%;
+  padding: 14px 24px;
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background: #374151;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.login-card-right .login-btn {
+  background: var(--color-primary-500, #3b82f6);
+  border: none;
+}
+
+.login-card-right .login-btn:hover {
+  background: var(--color-primary-600, #2563eb);
+}
+
+html.dark .login-card-right .login-btn {
+  background: var(--color-primary-500, #3b82f6);
+}
+
+html.dark .login-card-right .login-btn:hover {
+  background: var(--color-primary-600, #2563eb);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/* ========== 找回密码 ========== */
+.login-reset-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.login-reset-link {
+  color: #9ca3af;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-reset-link:hover {
+  color: #374151;
+  text-decoration: underline;
+}
+
+.login-card-right .login-reset-link {
+  color: #6b7280;
+}
+
+.login-card-right .login-reset-link:hover {
+  color: #374151;
+}
+
+html.dark .login-card-right .login-reset-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+html.dark .login-card-right .login-reset-link:hover {
+  color: #fff;
+}
+
+/* ========== 语言切换 ========== */
+.login-lang-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 16px 0 0;
+  color: #9ca3af;
+}
+
+.login-lang-switcher svg {
+  flex-shrink: 0;
+}
+
+.login-lang-switcher select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #9ca3af;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 16px 2px 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%239ca3af' d='M5 6L0 1h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+}
+
+.login-lang-switcher select option {
+  background: #fff;
+  color: #111827;
+}
+
+.login-card-right .login-lang-switcher {
+  color: #9ca3af;
+}
+
+.login-card-right .login-lang-switcher select {
+  color: #9ca3af;
+}
+
+html.dark .login-card-right .login-lang-switcher {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+html.dark .login-card-right .login-lang-switcher select {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+html.dark .login-card-right .login-lang-switcher svg path {
+  fill: rgba(255, 255, 255, 0.55);
+}
+
+/* ========== 记住我选项 ========== */
+.remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 4px;
+  gap: 8px;
+}
+
+.remember-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary-500, #f43f5e);
+  cursor: pointer;
+}
+
+.remember-label {
+  color: #4b5563;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-card-right .remember-label {
+  color: #6b7280;
+}
+
+html.dark .login-card-right .remember-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ========== 底部链接 ========== */
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.login-card-right .login-footer {
+  border-top-color: #e5e7eb;
+}
+
+html.dark .login-card-right .login-footer {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+.login-link {
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.login-card-right .login-link {
+  color: #6b7280;
+}
+
+.login-card-right .login-link:hover {
+  color: #374151;
+}
+
+html.dark .login-card-right .login-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+html.dark .login-card-right .login-link:hover {
+  color: #fff;
+}
+
+/* ========== 错误提示 ========== */
+.error-message {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-page.has-bg-image .login-card-right .error-message,
+html.dark .error-message {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fecaca;
+}
+
+.success-message {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 10px;
+  color: #16a34a;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-page.has-bg-image .login-card-right .success-message,
+html.dark .success-message {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+/* ========== 响应式：移动端隐藏左侧图片 ========== */
+@media (max-width: 768px) {
+  .login-card-left {
+    display: none;
+  }
+
+  .login-card {
+    max-width: 420px;
+  }
+
+  .login-card-right {
+    padding: 32px 24px;
+  }
+
+  .login-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card-right {
+    padding: 28px 20px;
+  }
+}
+
+/* ========== Logo 区域 ========== */
+.login-logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-logo img {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.login-logo-text {
+  color: #111827;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.login-card-right .login-logo-text {
+  color: #111827;
+}
+
+html.dark .login-card-right .login-logo-text {
+  color: #fff;
+}
+
+/* ========== 退出登录页样式 ========== */
+.logout-user-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin: 24px 0;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+html.dark .logout-user-card {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.logout-user-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logout-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.logout-user-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.logout-user-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-user-username {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.logout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(239, 68, 68, 0.5);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.7);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+}
+
+.logout-cancel-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* 退出成功提示样式 */
+.logout-success-links {
+  margin-top: 24px;
+  text-align: center;
+}
+
+#logout-success .logout-btn {
+  display: inline-block;
+  width: auto;
+  padding: 14px 32px;
+}
+
+/* 退出成功提示 - 使用登录按钮样式 */
+#logout-success .login-btn {
+  display: inline-block;
+  width: auto;
+  padding: 14px 32px;
+  margin: 0 auto;
+}

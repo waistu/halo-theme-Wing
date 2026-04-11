@@ -15,13 +15,16 @@
   mask-image: linear-gradient(transparent, transparent), linear-gradient(#000, #000);
   -webkit-mask-clip: padding-box, border-box;
   mask-clip: padding-box, border-box;
-  -webkit-mask-composite: source-over;
-  mask-composite: add;
+  -webkit-mask-composite: intersect;
+  mask-composite: intersect;
+  z-index: 10;
 }
 
 .border-beam {
   position: absolute;
   aspect-ratio: 1;
+  width: var(--beam-size, 30px);
+  height: var(--beam-size, 30px);
   offset-path: rect(0 auto auto 0 round var(--beam-size));
   offset-distance: var(--beam-start, 0%);
   background: linear-gradient(to left, var(--beam-color-from, #ffaa40), var(--beam-color-to, #9c40ff), transparent);
@@ -37,6 +40,7 @@
   0% {
     offset-distance: 0%;
   }
+
   100% {
     offset-distance: 100%;
   }
@@ -46,6 +50,7 @@
   0% {
     offset-distance: 100%;
   }
+
   100% {
     offset-distance: 0%;
   }
