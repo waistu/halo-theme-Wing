@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<body>
+
+  <!-- 登录页主体片段 -->
+  <th:block th:fragment="form">
+
+    <div class="login-card" data-border-beam data-beam-duration="5" data-beam-size="200">
+      <!-- 左侧眼睛区域（CSS绘制，跟随鼠标） -->
+      <div class="login-card-left">
+        <!-- 眼睛容器 -->
+        <div class="eye-container">
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧登录表单区域 -->
+      <div class="login-card-right">
+        <!-- Logo/站点标题 -->
+        <div class="login-logo">
+          <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:src="${theme.config.style.login_logo}" alt="Logo" />
+          <div class="login-logo-text"
+            th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:text="${site.title}">站点标题</div>
+        </div>
+
+        <!-- 错误提示 -->
+        <div th:if="${param.error != null and param.logout == null}" class="error-message">
+          <span th:if="${param.error == 'invalid-credential'}" data-i18n="error.invalid">用户名或密码错误，请重试</span>
+          <span th:if="${param.error == 'rate-limit-exceeded'}" data-i18n="error.rate_limit">登录尝试次数过多，请稍后再试</span>
+          <span th:if="${param.error == 'account-disabled'}" data-i18n="error.disabled">账户已被禁用</span>
+          <span
+            th:unless="${param.error == 'invalid-credential' or param.error == 'rate-limit-exceeded' or param.error == 'account-disabled'}"
+            data-i18n="error.general">登录失败，请重试</span>
+        </div>
+
+        <!-- 登出成功提示 -->
+        <div th:if="${param.logout != null and param.error == null}" class="success-message" data-i18n="logout.success">
+          您已成功退出登录
+        </div>
+
+        <!-- 本地登录表单 -->
+        <form class="login-form" id="login-form" th:action="@{/login}" method="post">
+          <!-- CSRF Token -->
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <!-- 隐藏密码字段（RSA 加密后填入） -->
+          <input type="hidden" name="password" id="password" />
+
+          <!-- 用户名输入框 -->
+          <div class="form-group">
+            <input type="text" id="username" name="username" class="form-input"
+              data-i18n-attr="placeholder:placeholder.username" placeholder="请输入用户名/邮箱" required autofocus
+              autocomplete="username" spellcheck="false" autocorrect="off" autocapitalize="off" />
+          </div>
+
+          <!-- 密码输入框 -->
+          <div class="form-group">
+            <div class="password-wrapper">
+              <input type="password" id="plainPassword" data-i18n-attr="placeholder:placeholder.password"
+                placeholder="请输入密码" required autocomplete="current-password" maxlength="257" class="form-input" />
+              <button type="button" class="password-toggle" id="password-toggle" aria-label="显示/隐藏密码">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 记住我选项 -->
+          <div class="remember-row">
+            <input type="checkbox" id="remember-me" name="remember-me" value="true" class="remember-checkbox" />
+            <label for="remember-me" class="remember-label" data-i18n="remember">保持登录</label>
+          </div>
+
+          <!-- 登录按钮 -->
+          <button type="submit" class="login-btn" data-i18n="login">登录</button>
+        </form>
+
+        <!-- 找回密码 -->
+        <div class="login-reset-row">
+          <a th:href="@{/password-reset/email}" class="login-reset-link" data-i18n="forgot">忘记密码？</a>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="login-lang-switcher">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+          </svg>
+          <select id="lang-select">
+            <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+            <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+            <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+            <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+          </select>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="login-footer">
+          <a th:href="@{/signup}" class="login-link" th:if="${registrationEnabled}" data-i18n="register">注册账号</a>
+          <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 密码显示/隐藏 + RSA 加密 + 国际化脚本 -->
+    <script th:inline="javascript">
+      (function () {
+        'use strict';
+
+        // ========== 国际化配置 ==========
+        const i18n = {
+          'zh-CN': {
+            'placeholder.username': '请输入用户名/邮箱',
+            'placeholder.password': '请输入密码',
+            'remember': '保持登录',
+            'login': '登录',
+            'forgot': '忘记密码？',
+            'register': '注册账号',
+            'home': '返回首页',
+            'logout.success': '您已成功退出登录',
+            'error.invalid': '用户名或密码错误，请重试',
+            'error.rate_limit': '登录尝试次数过多，请稍后再试',
+            'error.disabled': '账户已被禁用',
+            'error.general': '登录失败，请重试'
+          },
+          'en': {
+            'placeholder.username': 'Username or Email',
+            'placeholder.password': 'Password',
+            'remember': 'Remember me',
+            'login': 'Login',
+            'forgot': 'Forgot password?',
+            'register': 'Sign up',
+            'home': 'Back to home',
+            'logout.success': 'You have been logged out successfully',
+            'error.invalid': 'Invalid username or password',
+            'error.rate_limit': 'Too many login attempts, please try again later',
+            'error.disabled': 'Account has been disabled',
+            'error.general': 'Login failed, please try again'
+          },
+          'zh-TW': {
+            'placeholder.username': '請輸入用戶名/郵箱',
+            'placeholder.password': '請輸入密碼',
+            'remember': '保持登入',
+            'login': '登入',
+            'forgot': '忘記密碼？',
+            'register': '註冊帳號',
+            'home': '返回首頁',
+            'logout.success': '您已成功登出',
+            'error.invalid': '用戶名或密碼錯誤，請重試',
+            'error.rate_limit': '登入嘗試次數過多，請稍後再試',
+            'error.disabled': '帳戶已被禁用',
+            'error.general': '登入失敗，請重試'
+          },
+          'ja': {
+            'placeholder.username': 'ユーザー名またはメール',
+            'placeholder.password': 'パスワード',
+            'remember': 'ログイン状態を保持',
+            'login': 'ログイン',
+            'forgot': 'パスワードをお忘れですか？',
+            'register': 'アカウント登録',
+            'home': 'ホームに戻る',
+            'logout.success': 'ログアウトしました',
+            'error.invalid': 'ユーザー名またはパスワードが正しくありません',
+            'error.rate_limit': 'ログイン試行回数が多すぎます。後でもう一度お試しください',
+            'error.disabled': 'アカウントは無効になっています',
+            'error.general': 'ログインに失敗しました。もう一度お試しください'
+          }
+        };
+
+        // 获取当前语言
+        function getCurrentLang() {
+          // 优先从 URL 参数获取
+          const urlParams = new URLSearchParams(window.location.search);
+          const langParam = urlParams.get('lang');
+          if (langParam && i18n[langParam]) {
+            return langParam;
+          }
+          // 其次从 localStorage 获取
+          const savedLang = localStorage.getItem('login-lang');
+          if (savedLang && i18n[savedLang]) {
+            return savedLang;
+          }
+          // 默认中文
+          return 'zh-CN';
+        }
+
+        // 翻译函数
+        function t(key) {
+          const lang = getCurrentLang();
+          return i18n[lang][key] || i18n['zh-CN'][key] || key;
+        }
+
+        // 更新页面翻译
+        function updateTranslations() {
+          const lang = getCurrentLang();
+
+          // 保存语言选择
+          localStorage.setItem('login-lang', lang);
+
+          // 更新 select 的选中状态
+          const langSelect = document.getElementById('lang-select');
+          if (langSelect) {
+            langSelect.value = lang;
+          }
+
+          // 更新所有带 data-i18n 属性的元素
+          document.querySelectorAll('[data-i18n]').forEach(function (el) {
+            const key = el.getAttribute('data-i18n');
+            el.textContent = t(key);
+          });
+
+          // 更新所有带 data-i18n-attr 属性的元素（用于 placeholder 等属性）
+          document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+            const attrConfig = el.getAttribute('data-i18n-attr');
+            const [attr, key] = attrConfig.split(':');
+            if (attr && key) {
+              el.setAttribute(attr, t(key));
+            }
+          });
+        }
+
+        // ========== 原有功能 ==========
+        const publicKey = /*[[${publicKey}]]*/ "";
+
+        const plainPasswordInput = document.getElementById('plainPassword');
+        const passwordHiddenInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('password-toggle');
+        const loginForm = document.getElementById('login-form');
+
+        // RSA 加密函数
+        function encryptPassword(password) {
+          if (!publicKey || !window.JSEncrypt) {
+            return password;
+          }
+          const encrypt = new JSEncrypt();
+          encrypt.setPublicKey(publicKey);
+          return encrypt.encrypt(password);
+        }
+
+        // 表单提交前加密密码
+        if (loginForm) {
+          loginForm.addEventListener('submit', function (e) {
+            if (plainPasswordInput && passwordHiddenInput) {
+              const encrypted = encryptPassword(plainPasswordInput.value);
+              if (encrypted) {
+                passwordHiddenInput.value = encrypted;
+              }
+            }
+          });
+        }
+
+        // 密码显示/隐藏切换
+        if (plainPasswordInput && toggleBtn) {
+          toggleBtn.addEventListener('click', function () {
+            const type = plainPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            plainPasswordInput.setAttribute('type', type);
+            const svg = toggleBtn.querySelector('svg');
+            if (type === 'text') {
+              svg.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+            } else {
+              svg.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+            }
+          });
+        }
+
+        // 语言切换
+        function switchLang(lang) {
+          // 同时更新 URL 参数和 localStorage
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          window.location.href = url.toString();
+        }
+
+        // 绑定语言选择器事件
+        const langSelect = document.getElementById('lang-select');
+        if (langSelect) {
+          langSelect.addEventListener('change', function () {
+            switchLang(this.value);
+          });
+        }
+
+        // ========== 眼睛跟随鼠标效果 ==========
+        const eyeContainer = document.querySelector('.eye-container');
+        const pupils = document.querySelectorAll('.pupil');
+        const loginCardLeft = document.querySelector('.login-card-left');
+
+        if (eyeContainer && pupils.length > 0 && loginCardLeft) {
+          const maxMove = 8; // 瞳孔最大移动距离
+
+          function updatePupils(e) {
+            pupils.forEach(pupil => {
+              const rect = pupil.parentElement.getBoundingClientRect();
+              const eyeCenterX = rect.left + rect.width / 2;
+              const eyeCenterY = rect.top + rect.height / 2;
+
+              const dx = e.clientX - eyeCenterX;
+              const dy = e.clientY - eyeCenterY;
+
+              const angle = Math.atan2(dy, dx);
+              const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxMove);
+
+              const moveX = Math.cos(angle) * distance;
+              const moveY = Math.sin(angle) * distance;
+
+              pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+          }
+
+          document.addEventListener('mousemove', updatePupils);
+        }
+
+        // 页面加载完成后应用翻译
+        document.addEventListener('DOMContentLoaded', updateTranslations);
+      })();
+    </script>
+  </th:block>
+
+</body>
+
+</html>

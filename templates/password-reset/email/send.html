@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{gateway_fragments/layout :: layout (title=${'重置密码 - ' + site.title}, head=~{::head}, body=~{::body})}">
+
+<head>
+  <!-- 可以添加额外的 head 内容 -->
+</head>
+
+<body>
+  <th:block th:replace="~{gateway_fragments/password_reset_email_send :: form(sent=${sent})}" />
+</body>
+
+</html>

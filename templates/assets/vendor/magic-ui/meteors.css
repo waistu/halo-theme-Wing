@@ -1,0 +1,46 @@
+/* Meteors - Pure CSS Animation */
+
+.meteors-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.meteor {
+  position: absolute;
+  top: -5%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #71717a;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: meteor-animation var(--meteor-duration, 5s) linear infinite;
+  animation-delay: var(--meteor-delay, 0s);
+  transform: rotate(var(--meteor-angle, -215deg));
+}
+
+.meteor::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 50px;
+  height: 1px;
+  transform: translateY(-50%) translateX(-100%);
+  background: linear-gradient(to left, #71717a, transparent);
+}
+
+@keyframes meteor-animation {
+  0% {
+    transform: rotate(var(--meteor-angle, -215deg)) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--meteor-angle, -215deg)) translateX(500px);
+    opacity: 0;
+  }
+}
