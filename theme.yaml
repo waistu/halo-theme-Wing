@@ -16,7 +16,7 @@ spec:
   issues: "https://github.com/waistu/halo-theme-Wing/issues"
   settingName: "theme-wing-setting"
   configMapName: "theme-wing-configMap"
-  version: "1.0.5"
+  version: "1.0.6"
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
