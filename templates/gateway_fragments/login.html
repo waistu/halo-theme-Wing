@@ -6,7 +6,7 @@
   <!-- 登录页主体片段 -->
   <th:block th:fragment="form">
 
-    <div class="login-card" data-border-beam data-beam-duration="5" data-beam-size="200">
+    <div class="login-card" data-border-beam data-beam-duration="10" data-beam-size="300">
       <!-- 左侧眼睛区域（CSS绘制，跟随鼠标） -->
       <div class="login-card-left">
         <!-- 眼睛容器 -->
@@ -50,6 +50,8 @@
         <form class="login-form" id="login-form" th:action="@{/login}" method="post">
           <!-- CSRF Token -->
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <!-- 登录成功跳转路径 -->
+          <input type="hidden" name="successUrl" value="/console" />
           <!-- 隐藏密码字段（RSA 加密后填入） -->
           <input type="hidden" name="password" id="password" />
 

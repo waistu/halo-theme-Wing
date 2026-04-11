@@ -60,6 +60,14 @@ spec:
     - group: style
       label: 外观与样式
       formSchema:
+        - $formkit: radio
+          name: meteors_enabled
+          label: 流星效果
+          help: 是否在首页显示流星背景动画
+          options:
+            enabled: 开启
+            disabled: 关闭
+          value: enabled
         - $formkit: text
           name: default_cover
           label: 默认文章封面

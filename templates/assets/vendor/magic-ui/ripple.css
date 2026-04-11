@@ -2,11 +2,15 @@
 
 .ripple-container {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, white, transparent);
-  mask-image: linear-gradient(to bottom, white, transparent);
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom, white 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, white 60%, transparent 100%);
 }
 
 .ripple-circle {
