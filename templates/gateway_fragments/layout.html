@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${title}">登录</title>
 
+  <!-- Favicon -->
+  <link rel="icon" th:if="${site.favicon}" th:href="${site.favicon}" type="image/x-icon">
+  <link rel="shortcut icon" th:if="${site.favicon}" th:href="${site.favicon}" type="image/x-icon">
+
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme}"></th:block>
 
