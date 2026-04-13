@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{gateway_fragments/layout :: layout (title=${'注册账号 - ' + site.title}, head=~{::head}, body=~{::body})}">
+
+<head>
+  <!-- 无额外 head 内容 -->
+</head>
+
+<body>
+  <th:block th:replace="~{gateway_fragments/signup :: form}" />
+</body>
+
+</html>

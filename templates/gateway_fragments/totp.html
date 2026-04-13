@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<body>
+
+  <!-- 两步验证 TOTP 表单片段 -->
+  <th:block th:fragment="form">
+
+    <div class="login-card totp-card" data-border-beam data-beam-duration="10" data-beam-size="300">
+      <!-- 左侧图标区域 -->
+      <div class="login-card-left totp-card-left">
+        <div class="totp-shield-icon">
+          <!-- 盾牌 + 锁图标 -->
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12 2L3 7V12C3 16.55 6.84 20.74 12 22C17.16 20.74 21 16.55 21 12V7L12 2Z"
+              fill="rgba(255,255,255,0.15)"
+              stroke="rgba(255,255,255,0.6)"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <rect x="8" y="10" width="8" height="7" rx="1.5"
+              fill="rgba(255,255,255,0.9)"
+            />
+            <path
+              d="M10 10V8.5C10 7.4 10.9 6.5 12 6.5C13.1 6.5 14 7.4 14 8.5V10"
+              stroke="rgba(255,255,255,0.9)"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+            <circle cx="12" cy="13.5" r="1" fill="rgba(59,130,246,1)" />
+          </svg>
+          <!-- 六格 OTP 动画点 -->
+          <div class="totp-dots">
+            <span class="totp-dot"></span>
+            <span class="totp-dot"></span>
+            <span class="totp-dot"></span>
+            <span class="totp-dot"></span>
+            <span class="totp-dot"></span>
+            <span class="totp-dot"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧表单区域 -->
+      <div class="login-card-right">
+        <!-- Logo/站点标题 -->
+        <div class="login-logo">
+          <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:src="${theme.config.style.login_logo}" alt="Logo" />
+          <div class="login-logo-text"
+            th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:text="${site.title}">站点标题</div>
+        </div>
+
+        <!-- 标题 -->
+        <div class="login-title" data-i18n="totp.title">两步验证</div>
+        <p class="totp-hint" data-i18n="totp.hint">请输入验证器 App 中显示的 6 位验证码</p>
+
+        <!-- 错误提示：仅当服务端返回 error 参数时显示（与 Halo 官方源码一致） -->
+        <div th:if="${param.error != null and param.error.size() > 0}" class="error-message">
+          <span data-i18n="totp.error.invalid">验证码错误或已过期，请重试</span>
+        </div>
+
+        <!-- TOTP 表单 -->
+        <form class="login-form totp-form" id="totp-form" th:action="@{/challenges/two-factor/totp}" method="post">
+          <!-- CSRF Token -->
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <!-- 验证码输入框 -->
+          <div class="form-group totp-input-group">
+            <input
+              type="text"
+              id="code"
+              name="code"
+              class="form-input totp-input"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              pattern="\d{6}"
+              maxlength="6"
+              placeholder="000000"
+              required
+              autofocus
+              spellcheck="false"
+              autocorrect="off"
+              autocapitalize="off"
+            />
+          </div>
+
+          <!-- 提交按钮 -->
+          <button type="submit" class="login-btn" data-i18n="totp.verify">验证</button>
+        </form>
+
+        <!-- 取消链接 -->
+        <div class="login-reset-row totp-cancel-row">
+          <a th:href="@{/logout}" class="login-reset-link cancel-link" data-i18n="totp.cancel">取消，返回登录</a>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="login-lang-switcher">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+          </svg>
+          <select id="lang-select">
+            <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+            <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+            <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+            <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+          </select>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="login-footer">
+          <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTP 点动画 + 自动格式化 + 国际化 -->
+    <script>
+      (function () {
+        'use strict';
+
+        // ========== 国际化配置 ==========
+        const i18n = {
+          'zh-CN': {
+            'totp.title': '两步验证',
+            'totp.hint': '请输入验证器 App 中显示的 6 位验证码',
+            'totp.error.invalid': '验证码错误或已过期，请重试',
+            'totp.verify': '验证',
+            'totp.cancel': '取消，返回登录',
+            'home': '返回首页'
+          },
+          'en': {
+            'totp.title': 'Two-Factor Authentication',
+            'totp.hint': 'Enter the 6-digit code from your authenticator app',
+            'totp.error.invalid': 'Invalid or expired code, please try again',
+            'totp.verify': 'Verify',
+            'totp.cancel': 'Cancel, back to login',
+            'home': 'Back to home'
+          },
+          'zh-TW': {
+            'totp.title': '兩步驗證',
+            'totp.hint': '請輸入驗證器 App 中顯示的 6 位驗證碼',
+            'totp.error.invalid': '驗證碼錯誤或已過期，請重試',
+            'totp.verify': '驗證',
+            'totp.cancel': '取消，返回登入',
+            'home': '返回首頁'
+          },
+          'ja': {
+            'totp.title': '二段階認証',
+            'totp.hint': '認証アプリに表示された6桁のコードを入力してください',
+            'totp.error.invalid': 'コードが無効または期限切れです。再試行してください',
+            'totp.verify': '確認',
+            'totp.cancel': 'キャンセル、ログインに戻る',
+            'home': 'ホームに戻る'
+          }
+        };
+
+        function getCurrentLang() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const langParam = urlParams.get('lang');
+          if (langParam && i18n[langParam]) return langParam;
+          const savedLang = localStorage.getItem('login-lang');
+          if (savedLang && i18n[savedLang]) return savedLang;
+          return 'zh-CN';
+        }
+
+        function t(key) {
+          const lang = getCurrentLang();
+          return (i18n[lang] && i18n[lang][key]) || (i18n['zh-CN'] && i18n['zh-CN'][key]) || key;
+        }
+
+        function updateTranslations() {
+          const lang = getCurrentLang();
+          localStorage.setItem('login-lang', lang);
+          const langSelect = document.getElementById('lang-select');
+          if (langSelect) langSelect.value = lang;
+          document.querySelectorAll('[data-i18n]').forEach(function (el) {
+            el.textContent = t(el.getAttribute('data-i18n'));
+          });
+        }
+
+        // 语言切换
+        function switchLang(lang) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          window.location.href = url.toString();
+        }
+        const langSelect = document.getElementById('lang-select');
+        if (langSelect) {
+          langSelect.addEventListener('change', function () {
+            switchLang(this.value);
+          });
+        }
+
+        // ========== OTP 输入框：只允许数字，自动提交 ==========
+        const codeInput = document.getElementById('code');
+        const totpForm = document.getElementById('totp-form');
+
+        // 输入框抖动动效（前端拦截空/不完整提交时触发）
+        function shakeInput() {
+          if (!codeInput) return;
+          codeInput.classList.remove('totp-input-shake');
+          // 强制重绘以重新触发动画
+          void codeInput.offsetWidth;
+          codeInput.classList.add('totp-input-shake');
+        }
+
+        if (codeInput) {
+          // 只允许输入数字
+          codeInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+            // 输满 6 位自动提交
+            if (this.value.length === 6 && totpForm) {
+              totpForm.submit();
+            }
+          });
+
+          // 粘贴时清除非数字
+          codeInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = text.replace(/\D/g, '').slice(0, 6);
+            this.value = digits;
+            if (digits.length === 6 && totpForm) {
+              totpForm.submit();
+            }
+          });
+        }
+
+        // 表单提交前校验：未输满 6 位则阻止提交并抖动提示
+        if (totpForm) {
+          totpForm.addEventListener('submit', function (e) {
+            const val = codeInput ? codeInput.value.replace(/\D/g, '') : '';
+            if (val.length < 6) {
+              e.preventDefault();
+              shakeInput();
+              if (codeInput) codeInput.focus();
+            }
+          });
+        }
+
+        // ========== OTP 圆点动画（根据输入长度点亮） ==========
+        const dots = document.querySelectorAll('.totp-dot');
+
+        function updateDots(count) {
+          dots.forEach(function (dot, i) {
+            dot.classList.toggle('active', i < count);
+          });
+        }
+
+        if (codeInput && dots.length > 0) {
+          codeInput.addEventListener('input', function () {
+            updateDots(this.value.length);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateTranslations);
+      })();
+    </script>
+  </th:block>
+
+</body>
+
+</html>

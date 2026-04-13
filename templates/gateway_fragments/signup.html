@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+  <!-- 注册表单片段 -->
+  <th:block th:fragment="form">
+
+    <!-- 未开启注册提示 -->
+    <th:block th:if="${globalInfo == null or not globalInfo.allowRegistration}">
+      <div class="login-card">
+        <!-- 左侧眼睛区域 -->
+        <div class="login-card-left">
+          <div class="eye-container">
+            <div class="eye">
+              <div class="pupil"></div>
+            </div>
+            <div class="eye">
+              <div class="pupil"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧提示内容 -->
+        <div class="login-card-right">
+          <!-- Logo -->
+          <div class="login-logo">
+            <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+              th:src="${theme.config.style.login_logo}" alt="Logo" />
+            <div class="login-logo-text"
+              th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+              th:text="${site.title}">站点标题</div>
+          </div>
+
+          <!-- 标题 -->
+          <div class="login-title" data-i18n="signup.closed_title">注册已关闭</div>
+
+          <!-- 提示内容 -->
+          <div class="signup-closed-message">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="signup-closed-icon">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <p data-i18n="signup.closed_desc">站点当前未开放注册功能，如有需要请联系管理员。</p>
+          </div>
+
+          <!-- 返回登录 -->
+          <div class="login-reset-row">
+            <a th:href="@{/login}" class="login-reset-link" data-i18n="signup.back_login">返回登录</a>
+          </div>
+
+          <!-- 语言切换 -->
+          <div class="login-lang-switcher">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+            </svg>
+            <select id="lang-select">
+              <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+              <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+              <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+              <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+            </select>
+          </div>
+
+          <!-- 底部链接 -->
+          <div class="login-footer">
+            <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+          </div>
+        </div>
+      </div>
+    </th:block>
+
+    <!-- 正常注册表单 -->
+    <th:block th:if="${globalInfo != null and globalInfo.allowRegistration}">
+    <div class="login-card" data-border-beam data-beam-duration="10" data-beam-size="300">
+      <!-- 左侧眼睛区域 -->
+      <div class="login-card-left">
+        <div class="eye-container">
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+          <div class="eye">
+            <div class="pupil"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧注册表单 -->
+      <div class="login-card-right">
+        <!-- Logo -->
+        <div class="login-logo">
+          <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:src="${theme.config.style.login_logo}" alt="Logo" />
+          <div class="login-logo-text"
+            th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+            th:text="${site.title}">站点标题</div>
+        </div>
+
+        <!-- 标题 -->
+        <div class="login-title" data-i18n="signup.title">注册账号</div>
+
+        <!-- 错误提示 -->
+        <div th:if="${param.error != null and param.error.size() > 0}" class="error-message">
+          <span th:if="${param.error[0] == 'username-exists'}" data-i18n="signup.error.username_exists">用户名已存在</span>
+          <span th:if="${param.error[0] == 'email-exists'}" data-i18n="signup.error.email_exists">邮箱已被注册</span>
+          <span th:if="${param.error[0] == 'invalid-email'}" data-i18n="signup.error.invalid_email">邮箱格式无效</span>
+          <span th:if="${param.error[0] == 'password-too-weak'}" data-i18n="signup.error.weak_password">密码强度不足</span>
+          <span
+            th:unless="${param.error[0] == 'username-exists' or param.error[0] == 'email-exists' or param.error[0] == 'invalid-email' or param.error[0] == 'password-too-weak'}"
+            data-i18n="signup.error.general">注册失败，请重试</span>
+        </div>
+
+        <!-- 注册表单 -->
+        <form class="login-form" id="signup-form" th:action="@{/signup}" method="post">
+          <!-- CSRF Token -->
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <!-- 用户名 -->
+          <div class="form-group">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="form-input"
+              data-i18n-attr="placeholder:placeholder.username"
+              placeholder="请输入用户名"
+              required
+              autofocus
+              autocomplete="username"
+              spellcheck="false"
+              autocorrect="off"
+              autocapitalize="off"
+            />
+          </div>
+
+          <!-- 邮箱 -->
+          <div class="form-group">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              data-i18n-attr="placeholder:placeholder.email"
+              placeholder="请输入邮箱"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <!-- 密码 -->
+          <div class="form-group">
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input"
+                data-i18n-attr="placeholder:placeholder.password"
+                placeholder="请输入密码"
+                required
+                autocomplete="new-password"
+                maxlength="257"
+              />
+              <button type="button" class="password-toggle" id="password-toggle" aria-label="显示/隐藏密码">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+              </button>
+            </div>
+            <!-- 密码强度提示 -->
+            <div class="password-strength" id="password-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+              <span class="strength-text" id="strength-text" data-i18n="signup.strength_hint"></span>
+            </div>
+          </div>
+
+          <!-- 确认密码 -->
+          <div class="form-group">
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                class="form-input"
+                data-i18n-attr="placeholder:placeholder.confirm_password"
+                placeholder="请再次输入密码"
+                required
+                autocomplete="new-password"
+                maxlength="257"
+              />
+              <button type="button" class="password-toggle" id="confirm-toggle" aria-label="显示/隐藏密码">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+              </button>
+            </div>
+            <div class="input-hint" id="confirm-password-hint" style="display: none;"></div>
+          </div>
+
+          <!-- 注册按钮 -->
+          <button type="submit" class="login-btn" data-i18n="signup.btn">注册</button>
+        </form>
+
+        <!-- 返回登录 -->
+        <div class="login-reset-row">
+          <a th:href="@{/login}" class="login-reset-link" data-i18n="signup.back_login">已有账号？返回登录</a>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="login-lang-switcher">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+          </svg>
+          <select id="lang-select">
+            <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+            <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+            <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+            <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+          </select>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="login-footer">
+          <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+        </div>
+      </div>
+    </div>
+    </th:block>
+
+    <!-- 国际化 + 密码强度 + 眼睛动画脚本 -->
+    <script th:inline="javascript">
+      (function () {
+        'use strict';
+
+        // ========== 国际化配置 ==========
+        var i18n = {
+          'zh-CN': {
+            'placeholder.username': '请输入用户名',
+            'placeholder.email': '请输入邮箱',
+            'placeholder.password': '请输入密码',
+            'placeholder.confirm_password': '请再次输入密码',
+            'signup.title': '注册账号',
+            'signup.btn': '注册',
+            'signup.back_login': '已有账号？返回登录',
+            'home': '返回首页',
+            'signup.strength_weak': '密码强度：弱',
+            'signup.strength_medium': '密码强度：中等',
+            'signup.strength_strong': '密码强度：强',
+            'signup.password_mismatch': '两次输入的密码不一致',
+            'signup.error.username_exists': '用户名已存在',
+            'signup.error.email_exists': '邮箱已被注册',
+            'signup.error.invalid_email': '邮箱格式无效',
+            'signup.error.weak_password': '密码强度不足',
+            'signup.error.general': '注册失败，请重试',
+            'signup.closed_title': '注册已关闭',
+            'signup.closed_desc': '站点当前未开放注册功能，如有需要请联系管理员。'
+          },
+          'en': {
+            'placeholder.username': 'Username',
+            'placeholder.email': 'Email',
+            'placeholder.password': 'Password',
+            'placeholder.confirm_password': 'Confirm password',
+            'signup.title': 'Create Account',
+            'signup.btn': 'Sign up',
+            'signup.back_login': 'Already have an account? Sign in',
+            'home': 'Back to home',
+            'signup.strength_weak': 'Strength: Weak',
+            'signup.strength_medium': 'Strength: Medium',
+            'signup.strength_strong': 'Strength: Strong',
+            'signup.password_mismatch': 'Passwords do not match',
+            'signup.error.username_exists': 'Username already exists',
+            'signup.error.email_exists': 'Email already in use',
+            'signup.error.invalid_email': 'Invalid email format',
+            'signup.error.weak_password': 'Password is too weak',
+            'signup.error.general': 'Registration failed, please try again',
+            'signup.closed_title': 'Registration Closed',
+            'signup.closed_desc': 'This site is not open for registration. Please contact the administrator if needed.'
+          },
+          'zh-TW': {
+            'placeholder.username': '請輸入用戶名',
+            'placeholder.email': '請輸入郵箱',
+            'placeholder.password': '請輸入密碼',
+            'placeholder.confirm_password': '請再次輸入密碼',
+            'signup.title': '註冊帳號',
+            'signup.btn': '註冊',
+            'signup.back_login': '已有帳號？返回登入',
+            'home': '返回首頁',
+            'signup.strength_weak': '密碼強度：弱',
+            'signup.strength_medium': '密碼強度：中等',
+            'signup.strength_strong': '密碼強度：強',
+            'signup.password_mismatch': '兩次輸入的密碼不一致',
+            'signup.error.username_exists': '用戶名已存在',
+            'signup.error.email_exists': '郵箱已被註冊',
+            'signup.error.invalid_email': '郵箱格式無效',
+            'signup.error.weak_password': '密碼強度不足',
+            'signup.error.general': '註冊失敗，請重試',
+            'signup.closed_title': '註冊已關閉',
+            'signup.closed_desc': '站點當前未開放註冊功能，如有需要請聯繫管理員。'
+          },
+          'ja': {
+            'placeholder.username': 'ユーザー名',
+            'placeholder.email': 'メールアドレス',
+            'placeholder.password': 'パスワード',
+            'placeholder.confirm_password': 'パスワード確認',
+            'signup.title': 'アカウント登録',
+            'signup.btn': '登録',
+            'signup.back_login': 'アカウントをお持ちですか？ログイン',
+            'home': 'ホームに戻る',
+            'signup.strength_weak': '強度：弱い',
+            'signup.strength_medium': '強度：普通',
+            'signup.strength_strong': '強度：強い',
+            'signup.password_mismatch': 'パスワードが一致しません',
+            'signup.error.username_exists': 'ユーザー名は既に使用されています',
+            'signup.error.email_exists': 'メールアドレスは既に使用されています',
+            'signup.error.invalid_email': 'メールアドレスの形式が無効です',
+            'signup.error.weak_password': 'パスワードの強度が弱いです',
+            'signup.error.general': '登録に失敗しました。もう一度お試しください',
+            'signup.closed_title': '登録は閉じています',
+            'signup.closed_desc': 'このサイトでは現在登録機能が開放下ではありません。必要がある場合は管理者にお問い合わせください。'
+          }
+        };
+
+        function getCurrentLang() {
+          var urlParams = new URLSearchParams(window.location.search);
+          var langParam = urlParams.get('lang');
+          if (langParam && i18n[langParam]) return langParam;
+          var savedLang = localStorage.getItem('login-lang');
+          if (savedLang && i18n[savedLang]) return savedLang;
+          return 'zh-CN';
+        }
+
+        function t(key) {
+          var lang = getCurrentLang();
+          return (i18n[lang] && i18n[lang][key]) || (i18n['zh-CN'] && i18n['zh-CN'][key]) || key;
+        }
+
+        function updateTranslations() {
+          var lang = getCurrentLang();
+          localStorage.setItem('login-lang', lang);
+          var langSelect = document.getElementById('lang-select');
+          if (langSelect) langSelect.value = lang;
+          document.querySelectorAll('[data-i18n]').forEach(function (el) {
+            var key = el.getAttribute('data-i18n');
+            el.textContent = t(key);
+          });
+          document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+            var attrConfig = el.getAttribute('data-i18n-attr');
+            var parts = attrConfig.split(':');
+            if (parts.length === 2) {
+              el.setAttribute(parts[0], t(parts[1]));
+            }
+          });
+        }
+
+        function switchLang(lang) {
+          var url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          window.location.href = url.toString();
+        }
+
+        // ========== 密码显示/隐藏切换 ==========
+        function initPasswordToggles() {
+          var toggles = document.querySelectorAll('.password-toggle');
+          toggles.forEach(function (toggle) {
+            toggle.addEventListener('click', function () {
+              var input = this.closest('.password-wrapper').querySelector('input');
+              if (!input) return;
+              var type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+              input.setAttribute('type', type);
+              var svg = this.querySelector('svg');
+              if (type === 'text') {
+                svg.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+              } else {
+                svg.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+              }
+            });
+          });
+        }
+
+        // ========== 密码强度检测 ==========
+        function checkPasswordStrength(password) {
+          var score = 0;
+          if (!password) return 0;
+          if (password.length >= 8) score++;
+          if (password.length >= 12) score++;
+          if (/[A-Z]/.test(password)) score++;
+          if (/[a-z]/.test(password)) score++;
+          if (/[0-9]/.test(password)) score++;
+          if (/[^A-Za-z0-9]/.test(password)) score++;
+          return Math.min(score, 4);
+        }
+
+        function updateStrengthUI(score) {
+          var fill = document.getElementById('strength-fill');
+          var text = document.getElementById('strength-text');
+          if (!fill || !text) return;
+
+          var colors = ['', '#ef4444', '#f59e0b', '#22c55e', '#16a34a'];
+          var labels = ['', t('signup.strength_weak'), t('signup.strength_medium'), t('signup.strength_strong'), t('signup.strength_strong')];
+          var widths = ['0%', '33%', '66%', '85%', '100%'];
+
+          fill.style.width = widths[score] || '0%';
+          fill.style.background = colors[score] || '';
+          text.textContent = labels[score] || '';
+        }
+
+        // ========== 确认密码一致性检查 ==========
+        function checkConfirmPassword() {
+          var pw = document.getElementById('password');
+          var cpw = document.getElementById('confirmPassword');
+          var hint = document.getElementById('confirm-password-hint');
+          if (!pw || !cpw || !hint) return;
+
+          if (cpw.value && pw.value !== cpw.value) {
+            hint.textContent = t('signup.password_mismatch');
+            hint.style.display = 'block';
+            hint.className = 'input-hint error';
+          } else if (cpw.value && pw.value === cpw.value) {
+            hint.textContent = '';
+            hint.style.display = 'none';
+            hint.className = 'input-hint';
+          }
+        }
+
+        // ========== 眼睛跟随鼠标 ==========
+        function initEyeTracking() {
+          var eyeContainer = document.querySelector('.eye-container');
+          var pupils = document.querySelectorAll('.pupil');
+          if (!eyeContainer || pupils.length === 0) return;
+
+          var maxMove = 8;
+          document.addEventListener('mousemove', function (e) {
+            pupils.forEach(function (pupil) {
+              var rect = pupil.parentElement.getBoundingClientRect();
+              var eyeCenterX = rect.left + rect.width / 2;
+              var eyeCenterY = rect.top + rect.height / 2;
+              var dx = e.clientX - eyeCenterX;
+              var dy = e.clientY - eyeCenterY;
+              var angle = Math.atan2(dy, dx);
+              var distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxMove);
+              var moveX = Math.cos(angle) * distance;
+              var moveY = Math.sin(angle) * distance;
+              pupil.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+            });
+          });
+        }
+
+        // ========== 表单提交校验 ==========
+        function initFormValidation() {
+          var form = document.getElementById('signup-form');
+          if (!form) return;
+          form.addEventListener('submit', function (e) {
+            var pw = document.getElementById('password');
+            var cpw = document.getElementById('confirmPassword');
+            if (pw && cpw && pw.value !== cpw.value) {
+              e.preventDefault();
+              var hint = document.getElementById('confirm-password-hint');
+              if (hint) {
+                hint.textContent = t('signup.password_mismatch');
+                hint.style.display = 'block';
+                hint.className = 'input-hint error';
+              }
+              cpw.focus();
+            }
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          updateTranslations();
+          initPasswordToggles();
+          initEyeTracking();
+          initFormValidation();
+
+          // 密码强度实时检测
+          var pwInput = document.getElementById('password');
+          if (pwInput) {
+            pwInput.addEventListener('input', function () {
+              updateStrengthUI(checkPasswordStrength(this.value));
+            });
+          }
+
+          // 确认密码实时检查
+          var cpwInput = document.getElementById('confirmPassword');
+          if (cpwInput) {
+            cpwInput.addEventListener('input', checkConfirmPassword);
+          }
+
+          // 语言切换
+          var langSelect = document.getElementById('lang-select');
+          if (langSelect) {
+            langSelect.addEventListener('change', function () {
+              switchLang(this.value);
+            });
+          }
+        });
+      })();
+    </script>
+  </th:block>
+
+</body>
+</html>
