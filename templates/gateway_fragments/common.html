@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+  <!-- ========== 通用 Logo 片段 ========== -->
+  <th:block th:fragment="logo">
+    <div class="login-logo">
+      <img th:if="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+        th:src="${theme.config.style.login_logo}" alt="Logo" />
+      <div class="login-logo-text"
+        th:unless="${theme.config.style.login_logo != null and theme.config.style.login_logo != ''}"
+        th:text="${site.title}">站点标题</div>
+    </div>
+  </th:block>
+
+  <!-- ========== 眼睛动画片段（左侧装饰） ========== -->
+  <th:block th:fragment="eye-decor">
+    <div class="login-card-left">
+      <div class="eye-container">
+        <div class="eye">
+          <div class="pupil"></div>
+        </div>
+        <div class="eye">
+          <div class="pupil"></div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- ========== 语言切换器片段 ========== -->
+  <th:block th:fragment="lang-switcher">
+    <div class="login-lang-switcher">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path
+          d="M12.87 15.07l-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35C8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7l1.62-4.33L19.12 17z" />
+      </svg>
+      <select id="lang-select">
+        <option value="en" th:selected="${#locale.toLanguageTag() == 'en'}">English</option>
+        <option value="zh-CN" th:selected="${#locale.toLanguageTag() == 'zh-CN'}">简体中文</option>
+        <option value="zh-TW" th:selected="${#locale.toLanguageTag() == 'zh-TW'}">繁体中文</option>
+        <option value="ja" th:selected="${#locale.toLanguageTag() == 'ja'}">日本語</option>
+      </select>
+    </div>
+  </th:block>
+
+  <!-- ========== 底部链接片段 ========== -->
+  <th:block th:fragment="footer">
+    <div class="login-footer">
+      <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
+    </div>
+  </th:block>
+
+  <!-- ========== 错误提示片段 ========== -->
+  <th:block th:fragment="error-message(key)">
+    <div th:if="${param.error != null and param.error.size() > 0}" class="error-message">
+      <span data-i18n="${key}">发生错误，请重试</span>
+    </div>
+  </th:block>
+
+  <!-- ========== 成功提示片段 ========== -->
+  <th:block th:fragment="success-message(msg, key)">
+    <div th:if="${msg}" class="success-message">
+      <span th:text="${msg}" data-i18n="${key}">操作成功</span>
+    </div>
+  </th:block>
+
+  <!-- ========== 眼睛跟随鼠标效果 + 语言切换（公共 JS 脚本） ========== -->
+  <script th:fragment="common-script" th:inline="javascript">
+    (function () {
+      'use strict';
+
+      // ========== 国际化配置（4 语言） ==========
+      var i18n = {
+        'zh-CN': {
+          'home': '返回首页'
+        },
+        'en': {
+          'home': 'Back to home'
+        },
+        'zh-TW': {
+          'home': '返回首頁'
+        },
+        'ja': {
+          'home': 'ホームに戻る'
+        }
+      };
+
+      // 获取当前语言
+      function getCurrentLang() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var langParam = urlParams.get('lang');
+        if (langParam && i18n[langParam]) return langParam;
+        var savedLang = localStorage.getItem('login-lang');
+        if (savedLang && i18n[savedLang]) return savedLang;
+        return 'zh-CN';
+      }
+
+      // 翻译函数
+      function t(key) {
+        var lang = getCurrentLang();
+        return (i18n[lang] && i18n[lang][key]) || (i18n['zh-CN'] && i18n['zh-CN'][key]) || key;
+      }
+
+      // 更新页面翻译
+      function updateTranslations() {
+        var lang = getCurrentLang();
+        localStorage.setItem('login-lang', lang);
+
+        var langSelect = document.getElementById('lang-select');
+        if (langSelect) langSelect.value = lang;
+
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          var key = el.getAttribute('data-i18n');
+          el.textContent = t(key);
+        });
+      }
+
+      // 语言切换
+      function switchLang(lang) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        localStorage.setItem('login-lang', lang);
+        window.location.href = url.toString();
+      }
+
+      // 绑定语言选择器事件
+      var langSelect = document.getElementById('lang-select');
+      if (langSelect) {
+        langSelect.addEventListener('change', function () {
+          switchLang(this.value);
+        });
+      }
+
+      // ========== 眼睛跟随鼠标效果 ==========
+      var eyeContainer = document.querySelector('.eye-container');
+      var pupils = document.querySelectorAll('.pupil');
+
+      if (eyeContainer && pupils.length > 0) {
+        var maxMove = 8;
+
+        function updatePupils(e) {
+          pupils.forEach(function (pupil) {
+            var rect = pupil.parentElement.getBoundingClientRect();
+            var eyeCenterX = rect.left + rect.width / 2;
+            var eyeCenterY = rect.top + rect.height / 2;
+
+            var dx = e.clientX - eyeCenterX;
+            var dy = e.clientY - eyeCenterY;
+
+            var angle = Math.atan2(dy, dx);
+            var distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxMove);
+
+            var moveX = Math.cos(angle) * distance;
+            var moveY = Math.sin(angle) * distance;
+
+            pupil.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+          });
+        }
+
+        document.addEventListener('mousemove', updatePupils);
+      }
+
+      // 页面加载完成后应用翻译
+      document.addEventListener('DOMContentLoaded', updateTranslations);
+    })();
+  </script>
+
+</body>
+</html>

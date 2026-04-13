@@ -76,20 +76,32 @@
             </div>
           </div>
 
-          <!-- 记住我选项 -->
+          <!-- 记住我 + 忘记密码 -->
           <div class="remember-row">
-            <input type="checkbox" id="remember-me" name="remember-me" value="true" class="remember-checkbox" />
-            <label for="remember-me" class="remember-label" data-i18n="remember">保持登录</label>
+            <div class="remember-left">
+              <input type="checkbox" id="remember-me" name="remember-me" value="true" class="remember-checkbox" />
+              <label for="remember-me" class="remember-label" data-i18n="remember">保持登录</label>
+            </div>
+            <a th:href="@{/password-reset/email}" class="forgot-link" data-i18n="forgot">忘记密码？</a>
           </div>
 
           <!-- 登录按钮 -->
           <button type="submit" class="login-btn" data-i18n="login">登录</button>
         </form>
 
-        <!-- 找回密码 -->
-        <div class="login-reset-row">
-          <a th:href="@{/password-reset/email}" class="login-reset-link" data-i18n="forgot">忘记密码？</a>
+        <!-- 通行密钥登录（直接调用 WebAuthn API） -->
+        <div class="passkey-divider">
+          <span data-i18n="or">或</span>
         </div>
+        <button type="button" class="passkey-btn" id="passkey-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span data-i18n="passkey.login">使用通行密钥登录</span>
+        </button>
+
+        <!-- 通行密钥错误提示 -->
+        <div id="passkey-error" class="passkey-error" style="display:none"></div>
 
         <!-- 语言切换 -->
         <div class="login-lang-switcher">
@@ -107,7 +119,7 @@
 
         <!-- 底部链接 -->
         <div class="login-footer">
-          <a th:href="@{/signup}" class="login-link" th:if="${registrationEnabled}" data-i18n="register">注册账号</a>
+          <a th:href="@{/signup}" class="login-link" th:if="${globalInfo != null and globalInfo.allowRegistration}" data-i18n="register">注册账号</a>
           <a th:href="@{/}" class="login-link" data-i18n="home">返回首页</a>
         </div>
       </div>
@@ -132,7 +144,12 @@
             'error.invalid': '用户名或密码错误，请重试',
             'error.rate_limit': '登录尝试次数过多，请稍后再试',
             'error.disabled': '账户已被禁用',
-            'error.general': '登录失败，请重试'
+            'error.general': '登录失败，请重试',
+            'passkey.login': '使用通行密钥登录',
+            'or': '或',
+            'passkey.authenticating': '验证中',
+            'passkey.canceled': '用户已取消验证',
+            'passkey.timeout': '验证超时，请重试'
           },
           'en': {
             'placeholder.username': 'Username or Email',
@@ -146,7 +163,12 @@
             'error.invalid': 'Invalid username or password',
             'error.rate_limit': 'Too many login attempts, please try again later',
             'error.disabled': 'Account has been disabled',
-            'error.general': 'Login failed, please try again'
+            'error.general': 'Login failed, please try again',
+            'passkey.login': 'Sign in with Passkey',
+            'or': 'or',
+            'passkey.authenticating': 'Authenticating',
+            'passkey.canceled': 'Verification cancelled',
+            'passkey.timeout': 'Verification timed out, please try again'
           },
           'zh-TW': {
             'placeholder.username': '請輸入用戶名/郵箱',
@@ -160,7 +182,12 @@
             'error.invalid': '用戶名或密碼錯誤，請重試',
             'error.rate_limit': '登入嘗試次數過多，請稍後再試',
             'error.disabled': '帳戶已被禁用',
-            'error.general': '登入失敗，請重試'
+            'error.general': '登入失敗，請重試',
+            'passkey.login': '使用通行密鑰登入',
+            'or': '或',
+            'passkey.authenticating': '驗證中',
+            'passkey.canceled': '用戶已取消驗證',
+            'passkey.timeout': '驗證逾時，請重試'
           },
           'ja': {
             'placeholder.username': 'ユーザー名またはメール',
@@ -174,7 +201,12 @@
             'error.invalid': 'ユーザー名またはパスワードが正しくありません',
             'error.rate_limit': 'ログイン試行回数が多すぎます。後でもう一度お試しください',
             'error.disabled': 'アカウントは無効になっています',
-            'error.general': 'ログインに失敗しました。もう一度お試しください'
+            'error.general': 'ログインに失敗しました。もう一度お試しください',
+            'passkey.login': 'パスキーでログイン',
+            'or': 'または',
+            'passkey.authenticating': '認証中',
+            'passkey.canceled': 'ユーザーが認証をキャンセルしました',
+            'passkey.timeout': '認証がタイムアウトしました。再試行してください'
           }
         };
 
@@ -319,6 +351,141 @@
 
           document.addEventListener('mousemove', updatePupils);
         }
+
+        // ========== Passkey 通行密钥登录 ==========
+        (function() {
+          'use strict';
+
+          var passkeyBtn = document.getElementById('passkey-btn');
+          var passkeyError = document.getElementById('passkey-error');
+          var API = '/apis/api.passkey.halo.run/v1alpha1';
+
+          function showPasskeyError(msg) {
+            if (passkeyError) {
+              passkeyError.textContent = msg;
+              passkeyError.style.display = 'block';
+            }
+          }
+
+          function hidePasskeyError() {
+            if (passkeyError) {
+              passkeyError.style.display = 'none';
+            }
+          }
+
+          // Base64URL 解码
+          function b64d(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            var binary = atob(str);
+            var bytes = new Uint8Array(binary.length);
+            for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes.buffer;
+          }
+
+          // Base64URL 编码
+          function b64e(buf) {
+            var b = '';
+            var bytes = new Uint8Array(buf);
+            for (var i = 0; i < bytes.length; i++) b += String.fromCharCode(bytes[i]);
+            return btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+          }
+
+          async function authenticateWithPasskey() {
+            hidePasskeyError();
+            passkeyBtn.disabled = true;
+
+            try {
+              // 1. 获取认证选项
+              var res1 = await fetch(API + '/authentication/options', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ origin: window.location.origin }),
+                credentials: 'include'
+              });
+
+              if (!res1.ok) {
+                var e1 = await res1.json().catch(function() { return {}; });
+                throw new Error(e1.message || '获取认证选项失败');
+              }
+
+              var opts = await res1.json();
+
+              // 2. 调用 WebAuthn API
+              var cred = await navigator.credentials.get({
+                publicKey: {
+                  challenge: b64d(opts.challenge),
+                  rpId: opts.rpId || window.location.hostname,
+                  allowCredentials: (opts.allowCredentials || []).map(function(c) {
+                    return {
+                      id: b64d(c.id),
+                      type: c.type,
+                      transports: c.transports || ['internal', 'hybrid']
+                    };
+                  }),
+                  timeout: opts.timeout || 60000,
+                  userVerification: opts.userVerification || 'preferred'
+                }
+              });
+
+              if (!cred) throw new Error('未获取到凭证');
+
+              // 3. 验证凭证
+              var verifyUrl = API + '/authentication/verify';
+              var rememberMe = document.getElementById('remember-me');
+              if (rememberMe && rememberMe.checked) verifyUrl += '?remember-me=true';
+
+              var res2 = await fetch(verifyUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  origin: window.location.origin,
+                  sessionId: opts.sessionId,
+                  credentialId: b64e(cred.rawId),
+                  authenticatorData: b64e(cred.response.authenticatorData),
+                  clientDataJSON: b64e(cred.response.clientDataJSON),
+                  signature: b64e(cred.response.signature),
+                  userHandle: cred.response.userHandle ? b64e(cred.response.userHandle) : null
+                }),
+                credentials: 'include'
+              });
+
+              if (!res2.ok) {
+                var e2 = await res2.json().catch(function() { return {}; });
+                throw new Error(e2.message || '认证失败');
+              }
+
+              // 4. 成功，跳转
+              window.location.href = '/console';
+
+            } catch (err) {
+              if (err.name === 'NotAllowedError') {
+                showPasskeyError('认证已取消或被拒绝');
+              } else if (err.name === 'AbortError') {
+                showPasskeyError('操作已取消');
+              } else if (err.name === 'TimeoutError') {
+                showPasskeyError('操作超时，请重试');
+              } else {
+                showPasskeyError(err.message || '认证失败');
+              }
+              passkeyBtn.disabled = false;
+            }
+          }
+
+          // 绑定 Passkey 按钮事件
+          if (passkeyBtn) {
+            // 检查浏览器支持
+            if (!window.PublicKeyCredential) {
+              passkeyBtn.disabled = true;
+              showPasskeyError('您的浏览器不支持通行密钥');
+            } else {
+              passkeyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                authenticateWithPasskey();
+              });
+            }
+          }
+        })();
 
         // 页面加载完成后应用翻译
         document.addEventListener('DOMContentLoaded', updateTranslations);

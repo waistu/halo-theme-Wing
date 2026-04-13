@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{gateway_fragments/layout :: layout (title=${'两步验证 - ' + site.title}, head=~{::head}, body=~{::body})}">
+
+<head>
+  <!-- 无额外资源 -->
+</head>
+
+<body>
+  <th:block th:replace="~{gateway_fragments/totp :: form}" />
+</body>
+
+</html>

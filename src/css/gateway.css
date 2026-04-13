@@ -433,12 +433,18 @@ html.dark .login-card-right .login-lang-switcher svg path {
   fill: rgba(255, 255, 255, 0.55);
 }
 
-/* ========== 记住我选项 ========== */
+/* ========== 记住我选项 + 忘记密码 ========== */
 .remember-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   margin-top: 4px;
+  gap: 8px;
+}
+
+.remember-left {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -462,6 +468,57 @@ html.dark .login-card-right .login-lang-switcher svg path {
 
 html.dark .login-card-right .remember-label {
   color: rgba(255, 255, 255, 0.85);
+}
+
+/* 忘记密码链接 */
+.forgot-link {
+  font-size: 14px;
+  color: var(--color-primary-500, #f43f5e);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.forgot-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.login-card-right .forgot-link {
+  color: var(--color-primary-500, #f43f5e);
+}
+
+html.dark .login-card-right .forgot-link {
+  color: var(--color-primary-400, #fb7185);
+}
+
+/* ========== 注册关闭提示 ========== */
+.signup-closed-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.signup-closed-icon {
+  color: var(--color-primary-500, #f43f5e);
+  opacity: 0.8;
+}
+
+html.dark .signup-closed-icon {
+  color: var(--color-primary-400, #fb7185);
+}
+
+.signup-closed-message p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+html.dark .signup-closed-message p {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ========== 底部链接 ========== */
@@ -722,4 +779,296 @@ html.dark .logout-user-card {
   width: auto;
   padding: 14px 32px;
   margin: 0 auto;
+}
+
+/* ========== 两步验证（TOTP）页面 ========== */
+
+/* 左侧图标区域：用紫蓝渐变替代纯色，强调"安全"感 */
+.totp-card .login-card-left {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600, #2563eb) 0%,
+    #7c3aed 100%
+  );
+  align-items: center;
+  justify-content: center;
+}
+
+.totp-shield-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.totp-shield-icon svg {
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+  animation: totp-float 3s ease-in-out infinite;
+}
+
+@keyframes totp-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* OTP 六格圆点 */
+.totp-dots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.totp-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.totp-dot.active {
+  background: #fff;
+  border-color: #fff;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* 提示文字 */
+.totp-hint {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+html.dark .totp-hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* TOTP 验证码输入框：大字体居中，突出感强 */
+.totp-input-group {
+  display: flex;
+  justify-content: center;
+}
+
+.totp-input {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  max-width: 240px;
+  font-variant-numeric: tabular-nums;
+  /* 隐藏浏览器自带数字箭头 */
+  -moz-appearance: textfield;
+}
+
+.totp-input::-webkit-outer-spin-button,
+.totp-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 取消链接行 */
+.totp-cancel-row {
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.cancel-link {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.cancel-link:hover {
+  color: #374151;
+}
+
+html.dark .cancel-link {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+html.dark .cancel-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* TOTP 输入框抖动动画（前端拦截空提交时触发） */
+@keyframes totp-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-4px); }
+  60%       { transform: translateX(4px); }
+  75%       { transform: translateX(-2px); }
+  90%       { transform: translateX(2px); }
+}
+
+.totp-input-shake {
+  animation: totp-shake 0.4s ease-in-out;
+  border-color: #ef4444 !important;
+}
+
+/* ========== 通行密钥登录按钮 ========== */
+
+/* 分隔线：账号登录 与 通行密钥 之间 */
+.passkey-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: #d1d5db;
+}
+
+.passkey-divider::before,
+.passkey-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.3;
+}
+
+html.dark .passkey-divider {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.passkey-divider-text {
+  font-size: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* 通行密钥按钮 */
+.passkey-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 旋转加载动画 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.7s linear infinite;
+}
+
+.passkey-btn:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.passkey-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+html.dark .passkey-btn {
+  border-color: rgba(167, 139, 250, 0.4);
+  background: rgba(167, 139, 250, 0.1);
+  color: #c4b5fd;
+}
+
+html.dark .passkey-btn:hover {
+  border-color: rgba(167, 139, 250, 0.7);
+  background: rgba(167, 139, 250, 0.18);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.25);
+}
+
+/* 移动端：隐藏左侧装饰区（与登录页相同策略） */
+@media (max-width: 768px) {
+  .totp-card .login-card-left {
+    display: none;
+  }
+}
+
+/* ========== 注册/密码重置页面样式 ========== */
+
+/* 密码强度条 */
+.password-strength {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+html.dark .strength-bar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-text {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  min-width: 52px;
+}
+
+html.dark .strength-text {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 输入框下方提示文字 */
+.input-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+.input-hint.error {
+  color: #ef4444;
+}
+
+html.dark .input-hint {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+html.dark .input-hint.error {
+  color: #fca5a5;
+}
+
+/* 注册表单底部链接 */
+.signup-footer-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .password-strength {
+    flex-wrap: wrap;
+  }
 }

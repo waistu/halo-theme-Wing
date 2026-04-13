@@ -1138,6 +1138,7 @@ to {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -1151,6 +1152,15 @@ to {
       --tw-drop-shadow-color: initial;
       --tw-drop-shadow-alpha: 100%;
       --tw-drop-shadow-size: initial;
+      --tw-backdrop-blur: initial;
+      --tw-backdrop-brightness: initial;
+      --tw-backdrop-contrast: initial;
+      --tw-backdrop-grayscale: initial;
+      --tw-backdrop-hue-rotate: initial;
+      --tw-backdrop-invert: initial;
+      --tw-backdrop-opacity: initial;
+      --tw-backdrop-saturate: initial;
+      --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
       --tw-animation-delay: 0s;
@@ -1187,6 +1197,8 @@ to {
     --color-rose-800: oklch(45.5% .188 13.697);
     --color-rose-900: oklch(41% .159 10.272);
     --color-rose-950: oklch(27.1% .105 12.094);
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
     --color-gray-200: #e5e7eb;
     --color-gray-300: #d1d5db;
     --color-gray-400: #9ca3af;
@@ -1783,10 +1795,18 @@ to {
     --halo-cw-avatar-size: 2.5rem;
     --halo-cw-base-font-size: var(--text-sm);
     --halo-cw-base-font-family: inherit;
-    --halo-cw-emoji-picker-rgb-color: 31, 41, 55;
-    --halo-cw-emoji-picker-rgb-accent: 244, 63, 94;
-    --halo-cw-emoji-picker-rgb-background: 255, 255, 255;
-    --halo-cw-emoji-picker-rgb-input: 249, 250, 251;
+    --halo-cw-emoji-picker-rgb-color: 31,
+    41,
+    55;
+    --halo-cw-emoji-picker-rgb-accent: 244,
+    63,
+    94;
+    --halo-cw-emoji-picker-rgb-background: 255,
+    255,
+    255;
+    --halo-cw-emoji-picker-rgb-input: 249,
+    250,
+    251;
     --halo-cw-emoji-picker-color-border: var(--border-color);
     --halo-cw-emoji-picker-color-border-over: var(--color-primary-400);
   }
@@ -2096,6 +2116,10 @@ to {
     min-height: 100vh;
   }
 
+  .flex-shrink {
+    flex-shrink: 1;
+  }
+
   .flex-grow {
     flex-grow: 1;
   }
@@ -2204,6 +2228,11 @@ to {
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
 
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+
   .blur {
     --tw-blur: blur(8px);
     filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
@@ -2211,6 +2240,11 @@ to {
 
   .filter {
     filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+  }
+
+  .backdrop-filter {
+    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
   }
 
   .transition {
@@ -10517,6 +10551,201 @@ html.dark .accordion-body blockquote {
   }
 }
 
+.tabbar-search-wrapper {
+  background: var(--color-gray-50, #f9fafb);
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+  padding: 12px 16px;
+}
+
+.dark .tabbar-search-wrapper {
+  background: var(--color-gray-800, #1f2937);
+  border-bottom-color: var(--color-gray-700, #374151);
+}
+
+.tabbar-search-box {
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: #fff;
+  border-radius: 8px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex;
+}
+
+.dark .tabbar-search-box {
+  background: var(--color-gray-700, #374151);
+  border-color: var(--color-gray-600, #4b5563);
+}
+
+.tabbar-search-box:focus-within {
+  border-color: var(--color-primary-500, #f43f5e);
+  box-shadow: 0 0 0 3px #f43f5e1a;
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-gray-400, #9ca3af);
+  flex-shrink: 0;
+}
+
+.tabbar-search-input {
+  color: var(--color-gray-900, #111827);
+  background: none;
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+}
+
+.dark .tabbar-search-input {
+  color: var(--color-gray-100, #f3f4f6);
+}
+
+.tabbar-search-input::placeholder {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+@media (max-width: 767px) {
+  .tabbar-search-wrapper {
+    padding: 10px 12px;
+  }
+}
+
+.moment-publisher {
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: #fff;
+  border-radius: 12px;
+  margin: 15px 16px 12px;
+  overflow: hidden;
+}
+
+.dark .moment-publisher {
+  background: var(--color-gray-800, #1f2937);
+  border-color: var(--color-gray-700, #374151);
+}
+
+.publisher-input-wrapper {
+  padding: 12px 14px;
+}
+
+.publisher-textarea {
+  resize: none;
+  width: 100%;
+  color: var(--color-gray-900, #111827);
+  background: none;
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.dark .publisher-textarea {
+  color: var(--color-gray-100, #f3f4f6);
+}
+
+.publisher-textarea::placeholder {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.publisher-toolbar {
+  border-top: 1px solid var(--color-gray-100, #f3f4f6);
+  background: var(--color-gray-50, #f9fafb);
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  display: flex;
+}
+
+.dark .publisher-toolbar {
+  border-top-color: var(--color-gray-700, #374151);
+  background: var(--color-gray-700, #374151);
+}
+
+.toolbar-left {
+  gap: 4px;
+  display: flex;
+}
+
+.toolbar-btn {
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  color: var(--color-gray-500, #6b7280);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  transition: background .15s, color .15s;
+  display: flex;
+}
+
+.toolbar-btn:hover {
+  background: var(--color-gray-200, #e5e7eb);
+  color: var(--color-gray-700, #374151);
+}
+
+.dark .toolbar-btn {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.dark .toolbar-btn:hover {
+  background: var(--color-gray-600, #4b5563);
+  color: var(--color-gray-100, #f3f4f6);
+}
+
+.toolbar-right {
+  align-items: center;
+  gap: 10px;
+  display: flex;
+}
+
+.publisher-visibility {
+  color: var(--color-gray-500, #6b7280);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.dark .publisher-visibility {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.publisher-submit {
+  background: var(--color-primary-500, #f43f5e);
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .15s;
+}
+
+.publisher-submit:before {
+  content: "";
+  margin-right: 4px;
+  font-family: StrawberryIcon-Free !important;
+}
+
+.publisher-submit:hover {
+  background: var(--color-primary-600, #e11d48);
+}
+
+@media (max-width: 767px) {
+  .moment-publisher {
+    margin: 0 12px 10px;
+  }
+
+  .publisher-textarea {
+    font-size: 15px;
+  }
+}
+
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false
@@ -10632,6 +10861,12 @@ html.dark .accordion-body blockquote {
   initial-value: 0 0 #0000;
 }
 
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+
 @property --tw-blur {
   syntax: "*";
   inherits: false
@@ -10694,6 +10929,51 @@ html.dark .accordion-body blockquote {
 }
 
 @property --tw-drop-shadow-size {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-blur {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-brightness {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-contrast {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-grayscale {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-hue-rotate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-invert {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-opacity {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-saturate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-backdrop-sepia {
   syntax: "*";
   inherits: false
 }
@@ -11142,12 +11422,18 @@ html.dark .login-card-right .login-lang-switcher svg path {
   fill: rgba(255, 255, 255, 0.55);
 }
 
-/* ========== 记住我选项 ========== */
+/* ========== 记住我选项 + 忘记密码 ========== */
 .remember-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   margin-top: 4px;
+  gap: 8px;
+}
+
+.remember-left {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -11171,6 +11457,57 @@ html.dark .login-card-right .login-lang-switcher svg path {
 
 html.dark .login-card-right .remember-label {
   color: rgba(255, 255, 255, 0.85);
+}
+
+/* 忘记密码链接 */
+.forgot-link {
+  font-size: 14px;
+  color: var(--color-primary-500, #f43f5e);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.forgot-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.login-card-right .forgot-link {
+  color: var(--color-primary-500, #f43f5e);
+}
+
+html.dark .login-card-right .forgot-link {
+  color: var(--color-primary-400, #fb7185);
+}
+
+/* ========== 注册关闭提示 ========== */
+.signup-closed-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.signup-closed-icon {
+  color: var(--color-primary-500, #f43f5e);
+  opacity: 0.8;
+}
+
+html.dark .signup-closed-icon {
+  color: var(--color-primary-400, #fb7185);
+}
+
+.signup-closed-message p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+html.dark .signup-closed-message p {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ========== 底部链接 ========== */
@@ -11431,5 +11768,297 @@ html.dark .logout-user-card {
   width: auto;
   padding: 14px 32px;
   margin: 0 auto;
+}
+
+/* ========== 两步验证（TOTP）页面 ========== */
+
+/* 左侧图标区域：用紫蓝渐变替代纯色，强调"安全"感 */
+.totp-card .login-card-left {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-600, #2563eb) 0%,
+    #7c3aed 100%
+  );
+  align-items: center;
+  justify-content: center;
+}
+
+.totp-shield-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.totp-shield-icon svg {
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+  animation: totp-float 3s ease-in-out infinite;
+}
+
+@keyframes totp-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* OTP 六格圆点 */
+.totp-dots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.totp-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.totp-dot.active {
+  background: #fff;
+  border-color: #fff;
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* 提示文字 */
+.totp-hint {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+html.dark .totp-hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* TOTP 验证码输入框：大字体居中，突出感强 */
+.totp-input-group {
+  display: flex;
+  justify-content: center;
+}
+
+.totp-input {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  max-width: 240px;
+  font-variant-numeric: tabular-nums;
+  /* 隐藏浏览器自带数字箭头 */
+  -moz-appearance: textfield;
+}
+
+.totp-input::-webkit-outer-spin-button,
+.totp-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 取消链接行 */
+.totp-cancel-row {
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.cancel-link {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.cancel-link:hover {
+  color: #374151;
+}
+
+html.dark .cancel-link {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+html.dark .cancel-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* TOTP 输入框抖动动画（前端拦截空提交时触发） */
+@keyframes totp-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-4px); }
+  60%       { transform: translateX(4px); }
+  75%       { transform: translateX(-2px); }
+  90%       { transform: translateX(2px); }
+}
+
+.totp-input-shake {
+  animation: totp-shake 0.4s ease-in-out;
+  border-color: #ef4444 !important;
+}
+
+/* ========== 通行密钥登录按钮 ========== */
+
+/* 分隔线：账号登录 与 通行密钥 之间 */
+.passkey-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: #d1d5db;
+}
+
+.passkey-divider::before,
+.passkey-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.3;
+}
+
+html.dark .passkey-divider {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.passkey-divider-text {
+  font-size: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* 通行密钥按钮 */
+.passkey-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 旋转加载动画 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.7s linear infinite;
+}
+
+.passkey-btn:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.passkey-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+html.dark .passkey-btn {
+  border-color: rgba(167, 139, 250, 0.4);
+  background: rgba(167, 139, 250, 0.1);
+  color: #c4b5fd;
+}
+
+html.dark .passkey-btn:hover {
+  border-color: rgba(167, 139, 250, 0.7);
+  background: rgba(167, 139, 250, 0.18);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.25);
+}
+
+/* 移动端：隐藏左侧装饰区（与登录页相同策略） */
+@media (max-width: 768px) {
+  .totp-card .login-card-left {
+    display: none;
+  }
+}
+
+/* ========== 注册/密码重置页面样式 ========== */
+
+/* 密码强度条 */
+.password-strength {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+html.dark .strength-bar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-text {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  min-width: 52px;
+}
+
+html.dark .strength-text {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 输入框下方提示文字 */
+.input-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+.input-hint.error {
+  color: #ef4444;
+}
+
+html.dark .input-hint {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+html.dark .input-hint.error {
+  color: #fca5a5;
+}
+
+/* 注册表单底部链接 */
+.signup-footer-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .password-strength {
+    flex-wrap: wrap;
+  }
 }
 /*$vite$:1*/
