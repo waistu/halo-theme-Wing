@@ -89,19 +89,20 @@
           <button type="submit" class="login-btn" data-i18n="login">登录</button>
         </form>
 
-        <!-- 通行密钥登录（直接调用 WebAuthn API） -->
-        <div class="passkey-divider">
-          <span data-i18n="or">或</span>
+        <!-- 通行密钥登录区域（由 JS 检测插件状态后决定是否显示） -->
+        <div id="passkey-section" style="display:none">
+          <div class="passkey-divider">
+            <span data-i18n="or">或</span>
+          </div>
+          <button type="button" class="passkey-btn" id="passkey-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span data-i18n="passkey.login">使用通行密钥登录</span>
+          </button>
+          <!-- 通行密钥错误提示 -->
+          <div id="passkey-error" class="passkey-error" style="display:none"></div>
         </div>
-        <button type="button" class="passkey-btn" id="passkey-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          <span data-i18n="passkey.login">使用通行密钥登录</span>
-        </button>
-
-        <!-- 通行密钥错误提示 -->
-        <div id="passkey-error" class="passkey-error" style="display:none"></div>
 
         <!-- 语言切换 -->
         <div class="login-lang-switcher">
@@ -356,9 +357,47 @@
         (function() {
           'use strict';
 
+          var passkeySection = document.getElementById('passkey-section');
           var passkeyBtn = document.getElementById('passkey-btn');
           var passkeyError = document.getElementById('passkey-error');
           var API = '/apis/api.passkey.halo.run/v1alpha1';
+
+          // 检测 Passkey 插件是否安装/配置
+          async function checkPasskeyAvailable() {
+            // 1. 检查浏览器是否支持 WebAuthn
+            if (!window.PublicKeyCredential) {
+              return false;
+            }
+
+            // 2. 调用 API 检测插件是否安装
+            try {
+              var res = await fetch(API + '/authentication/options', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ origin: window.location.origin }),
+                credentials: 'include'
+              });
+
+              // 404 = 插件未安装，隐藏按钮
+              if (res.status === 404) {
+                return false;
+              }
+
+              // 其他错误也隐藏
+              if (!res.ok) {
+                return false;
+              }
+
+              var opts = await res.json();
+
+              // 3. 检查插件是否启用（API 返回 200 即表示插件可用）
+              // 注意：allowCredentials 可能为空（用户未登录时），但不影响显示按钮
+              return true;
+            } catch (e) {
+              // 网络错误或插件未安装
+              return false;
+            }
+          }
 
           function showPasskeyError(msg) {
             if (passkeyError) {
@@ -474,16 +513,22 @@
 
           // 绑定 Passkey 按钮事件
           if (passkeyBtn) {
-            // 检查浏览器支持
-            if (!window.PublicKeyCredential) {
-              passkeyBtn.disabled = true;
-              showPasskeyError('您的浏览器不支持通行密钥');
-            } else {
-              passkeyBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                authenticateWithPasskey();
-              });
-            }
+            // 页面加载后检测插件状态
+            checkPasskeyAvailable().then(function(available) {
+              if (available) {
+                // 插件可用，显示通行密钥区域并绑定事件
+                passkeySection.style.display = 'block';
+                passkeyBtn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  authenticateWithPasskey();
+                });
+              } else {
+                // 插件未安装或未配置，隐藏通行密钥区域
+                if (passkeySection) {
+                  passkeySection.style.display = 'none';
+                }
+              }
+            });
           }
         })();
 
