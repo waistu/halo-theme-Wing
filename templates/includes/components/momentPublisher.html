@@ -1,0 +1,781 @@
+<!-- ===== 发布框 ===== -->
+<th:block th:fragment="momentPublisher">
+<div class="moment-publisher" id="momentPublisherWrapper">
+    <div class="publisher-input-wrapper">
+      <div id="momentEditor" class="moment-editor" contenteditable="true" data-placeholder="你在想什么，写下来吧？"></div>
+      <textarea id="momentTextarea" style="display:none;" name="content"></textarea>
+      <div id="tagSuggestPanel" class="tag-suggest-panel" style="display:none;"></div>
+    </div>
+    <div class="publisher-toolbar">
+      <div class="toolbar-main" id="toolbarMain">
+        <button class="toolbar-btn toolbar-format" title="话题" data-action="tag" data-markdown="#">#</button>
+        <div class="emoji-btn-wrapper">
+          <button class="toolbar-btn" title="表情" id="emojiBtn">☺</button>
+          <div id="emojiMartPanel" class="emojis-mart-container" style="display:none;"></div>
+        </div>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-btn toolbar-format" title="粗体（Ctrl+B）" data-action="bold" data-tag="b"><b>B</b></button>
+        <button class="toolbar-btn toolbar-format" title="斜体（Ctrl+I）" data-action="italic" data-tag="i"><i>I</i></button>
+        <div class="toolbar-more-wrapper">
+          <button class="toolbar-btn toolbar-more" title="更多" id="moreBtn">⋯</button>
+          <div class="toolbar-more-menu" id="moreMenu" style="display:none;">
+            <button class="toolbar-more-item" data-action="underline" data-tag="u">下划线</button>
+            <button class="toolbar-more-item" data-action="strike" data-tag="s">删除线</button>
+            <div class="toolbar-more-divider"></div>
+            <button class="toolbar-more-item" data-action="blockquote" data-tag="blockquote">❝ 引用</button>
+            <button class="toolbar-more-item" data-action="code" data-tag="code">&lt;/&gt; 行内代码</button>
+            <button class="toolbar-more-item" data-action="codeblock">{ } 代码块</button>
+            <div class="toolbar-more-divider"></div>
+            <button class="toolbar-more-item" data-action="ul" data-markdown="- ">☰ 无序列表</button>
+            <button class="toolbar-more-item" data-action="ol" data-markdown="1. ">1. 有序列表</button>
+            <div class="toolbar-more-divider"></div>
+            <button class="toolbar-more-item" data-action="sync">☁ 同步</button>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <span class="publisher-visibility">公开</span>
+        <button class="publisher-submit">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var editor = document.getElementById('momentEditor');
+      var hiddenTextarea = document.getElementById('momentTextarea');
+      var submitBtn = document.querySelector('.publisher-submit');
+      var isPublishing = false;
+
+      if (!editor || !submitBtn) { return; }
+
+      async function publishMoment() {
+        if (isPublishing) return;
+        var content = editor.dataset.markdown || '';
+        if (!content.trim()) { showToast('请输入内容', 'warning'); return; }
+
+        isPublishing = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = '发送中...';
+
+        try {
+          var htmlContent = editor.innerHTML;
+          var tags = extractTags();
+          var momentData = {
+            spec: {
+              content: {
+                raw: content,
+                html: htmlContent
+              },
+              releaseTime: new Date().toISOString(),
+              visible: 'PUBLIC',
+              approved: true,
+              tags: tags
+            },
+            apiVersion: 'moment.halo.run/v1alpha1',
+            kind: 'Moment',
+            metadata: {
+              generateName: 'moment-'
+            }
+          };
+
+          // Halo console API 路径（瞬间插件自定义 API group）
+          var response = await fetch('/apis/console.api.moment.halo.run/v1alpha1/moments', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(momentData)
+          });
+
+          if (!response.ok) {
+            var errorText = await response.text();
+            console.error('发布失败:', response.status, errorText);
+            throw new Error('发布失败: ' + response.status);
+          }
+
+          showToast('发布成功', 'success');
+          editor.innerHTML = '';
+          editor.dataset.markdown = '';
+          hiddenTextarea.value = '';
+
+          if (window.refreshMoments) {
+            window.refreshMoments();
+          } else {
+            setTimeout(function() { location.reload(); }, 500);
+          }
+        } catch (e) {
+          console.error('发布失败:', e);
+          showToast('发布失败，请重试', 'error');
+        } finally {
+          isPublishing = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = '发送';
+        }
+      }
+
+      // ===== 标签建议功能 =====
+      var tagSuggestPanel = document.getElementById('tagSuggestPanel');
+      var tagSearchText = '';
+      var tagSelectedIndex = -1;
+      var tagList = [];
+      var tagDebounceTimer = null;
+
+      async function fetchTags(keyword) {
+        try {
+          var url = '/apis/console.api.moment.halo.run/v1alpha1/tags';
+          if (keyword) url += '?name=' + encodeURIComponent(keyword);
+          console.log('获取标签:', url);
+          var res = await fetch(url, { credentials: 'include' });
+          console.log('标签响应:', res.status, res.ok);
+          if (res.ok) return await res.json();
+        } catch (e) { console.error('获取标签失败', e); }
+        return [];
+      }
+
+      function showTagSuggest(text, x, y) {
+        tagSuggestPanel.innerHTML = '';
+        if (tagList.length === 0) {
+          tagSuggestPanel.style.display = 'none';
+          return;
+        }
+        tagList.forEach(function(tag, i) {
+          var item = document.createElement('div');
+          item.className = 'tag-suggest-item' + (i === tagSelectedIndex ? ' selected' : '');
+          item.textContent = '#' + tag;
+          item.dataset.tag = tag;
+          item.addEventListener('click', function() { selectTag(tag); });
+          tagSuggestPanel.appendChild(item);
+        });
+        tagSuggestPanel.style.display = 'block';
+        tagSuggestPanel.style.left = x + 'px';
+        tagSuggestPanel.style.top = y + 'px';
+      }
+
+      function hideTagSuggest() {
+        tagSuggestPanel.style.display = 'none';
+        tagSearchText = '';
+        tagSelectedIndex = -1;
+        tagList = [];
+      }
+
+      function selectTag(tag) {
+        editor.focus();
+        var sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        
+        var range = sel.getRangeAt(0);
+        var node = range.startContainer;
+        var offset = range.startOffset;
+        var text = node.textContent || '';
+        
+        // 找到光标前最近的 #
+        var beforeText = text.substring(0, offset);
+        var hashIdx = beforeText.lastIndexOf('#');
+        
+        if (hashIdx === -1) {
+          hideTagSuggest();
+          return;
+        }
+        
+        // 创建文档片段
+        var fragment = document.createDocumentFragment();
+        
+        // 保留 # 之前的内容
+        var beforePart = text.substring(0, hashIdx);
+        if (beforePart) {
+          fragment.appendChild(document.createTextNode(beforePart));
+        }
+        
+        // 插入标签
+        var tagSpan = document.createElement('span');
+        tagSpan.className = 'moment-tag';
+        tagSpan.textContent = '#' + tag;
+        fragment.appendChild(tagSpan);
+        
+        // 插入空格分隔
+        fragment.appendChild(document.createTextNode(' '));
+        
+        // 保留 # 之后的内容（搜索词部分）
+        var afterPart = text.substring(offset);
+        if (afterPart) {
+          fragment.appendChild(document.createTextNode(afterPart));
+        }
+        
+        // 替换当前文本节点
+        node.textContent = '';
+        node.appendChild(fragment);
+        
+        // 设置光标到标签后面
+        var newRange = document.createRange();
+        newRange.setStart(node, hashIdx + tag.length + 2); // # + tag + 空格
+        newRange.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        
+        hideTagSuggest();
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      function handleTagInput() {
+        var sel = window.getSelection();
+        if (!sel.rangeCount) { hideTagSuggest(); return; }
+        var range = sel.getRangeAt(0);
+        var node = range.startContainer;
+        if (node.nodeType !== Node.TEXT_NODE) { hideTagSuggest(); return; }
+
+        var text = node.textContent || '';
+        var offset = range.startOffset;
+        var beforeCursor = text.substring(0, offset);
+
+        // 检测 # 开头
+        var hashMatch = beforeCursor.match(/#([\u4e00-\u9fff\w]*)$/);
+        if (hashMatch) {
+          tagSearchText = hashMatch[1];
+          clearTimeout(tagDebounceTimer);
+          tagDebounceTimer = setTimeout(async function() {
+            // 重新获取当前光标位置
+            var currentSel = window.getSelection();
+            if (!currentSel || !currentSel.rangeCount) return;
+            var currentRange = currentSel.getRangeAt(0);
+            
+            tagList = await fetchTags(tagSearchText);
+            tagSelectedIndex = tagList.length > 0 ? 0 : -1;
+            // 计算面板位置
+            var rect = currentRange.getBoundingClientRect();
+            var editorRect = editor.getBoundingClientRect();
+            showTagSuggest(tagSearchText, rect.left - editorRect.left, rect.bottom - editorRect.top + 4);
+          }, 150);
+        } else {
+          hideTagSuggest();
+        }
+      }
+
+      // 检测 # 开头并触发建议
+      editor.addEventListener('input', function() {
+        handleTagInput();
+      });
+
+      // 键盘导航
+      editor.addEventListener('keydown', function(e) {
+        if (tagSuggestPanel.style.display !== 'none' && tagList.length > 0) {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            tagSelectedIndex = (tagSelectedIndex + 1) % tagList.length;
+            updateTagSuggestUI();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            tagSelectedIndex = tagSelectedIndex === 0 ? tagList.length - 1 : tagSelectedIndex - 1;
+            updateTagSuggestUI();
+          } else if (e.key === 'Enter' || e.key === 'Tab') {
+            if (tagSelectedIndex >= 0) {
+              e.preventDefault();
+              selectTag(tagList[tagSelectedIndex]);
+            }
+          } else if (e.key === 'Escape') {
+            hideTagSuggest();
+          }
+        }
+      });
+
+      function updateTagSuggestUI() {
+        var items = tagSuggestPanel.querySelectorAll('.tag-suggest-item');
+        items.forEach(function(item, i) {
+          item.classList.toggle('selected', i === tagSelectedIndex);
+        });
+      }
+
+      // 点击其他地方关闭
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#tagSuggestPanel') && e.target !== editor) {
+          hideTagSuggest();
+        }
+      });
+
+      // 提取 HTML 中的标签
+      function extractTags() {
+        var tags = [];
+        var tagElements = editor.querySelectorAll('span.moment-tag');
+        tagElements.forEach(function(el) {
+          var tag = el.textContent.replace(/^#/, '').trim();
+          if (tag && tags.indexOf(tag) === -1) {
+            tags.push(tag);
+          }
+        });
+        // 同时从纯文本中提取 #标签（未被 span 包裹的）
+        var text = editor.innerText || '';
+        var tagMatches = text.match(/#([\u4e00-\u9fff\w]+)/g) || [];
+        tagMatches.forEach(function(t) {
+          var tag = t.replace(/^#/, '').trim();
+          if (tag && tags.indexOf(tag) === -1) {
+            tags.push(tag);
+          }
+        });
+        return tags;
+      }
+
+      // ===== Toast =====
+      function showToast(message, type) {
+        var existing = document.querySelector('.moment-toast');
+        if (existing) existing.remove();
+        var toast = document.createElement('div');
+        toast.className = 'moment-toast moment-toast-' + (type || 'info');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.classList.add('show'); }, 10);
+        setTimeout(function() {
+          toast.classList.remove('show');
+          setTimeout(function() { toast.remove(); }, 300);
+        }, 2000);
+      }
+
+      var isProcessing = false;
+
+      function insertAtCursor(text) {
+        editor.focus();
+        document.execCommand('insertText', false, text);
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      function wrapWithTag(tagName) {
+        editor.focus();
+        var sel = window.getSelection();
+        if (sel.rangeCount > 0 && sel.toString().length > 0) {
+          var range = sel.getRangeAt(0);
+          var selectedText = sel.toString();
+          var wrapper = document.createElement(tagName);
+          wrapper.innerText = selectedText;
+          range.deleteContents();
+          range.insertNode(wrapper);
+          range.setStartAfter(wrapper);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      function insertCodeBlock() {
+        editor.focus();
+        insertAtCursor('\n```\n代码\n```\n');
+      }
+
+      function updateToolbarState() {
+        var sel = window.getSelection();
+        var hasSelection = sel.rangeCount > 0 && sel.toString().length > 0;
+        document.querySelectorAll('.toolbar-format[data-action]').forEach(function(btn) {
+          btn.classList.remove('active');
+          if (hasSelection) {
+            var range = sel.getRangeAt(0);
+            var parent = range.commonAncestorContainer;
+            while (parent && parent !== editor) {
+              var tagName = parent.tagName ? parent.tagName.toLowerCase() : '';
+              if (btn.dataset.action === 'bold' && (tagName === 'b' || tagName === 'strong')) { btn.classList.add('active'); break; }
+              if (btn.dataset.action === 'italic' && tagName === 'i') { btn.classList.add('active'); break; }
+              if (btn.dataset.action === 'underline' && tagName === 'u') { btn.classList.add('active'); break; }
+              if (btn.dataset.action === 'strike' && (tagName === 's' || tagName === 'del')) { btn.classList.add('active'); break; }
+              if (btn.dataset.action === 'code' && tagName === 'code') { btn.classList.add('active'); break; }
+              if (btn.dataset.action === 'blockquote' && tagName === 'blockquote') { btn.classList.add('active'); break; }
+              parent = parent.parentNode;
+            }
+          }
+        });
+      }
+
+      editor.addEventListener('input', function() {
+        if (isProcessing) return;
+        isProcessing = true;
+        var html = editor.innerHTML;
+        var markdown = html
+          .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+          .replace(/<b>(.*?)<\/b>/g, '**$1**')
+          .replace(/<em>(.*?)<\/em>/g, '*$1*')
+          .replace(/<i>(.*?)<\/i>/g, '*$1*')
+          .replace(/<u>(.*?)<\/u>/g, '__$1__')
+          .replace(/<del>(.*?)<\/del>/g, '~~$1~~')
+          .replace(/<s>(.*?)<\/s>/g, '~~$1~~')
+          .replace(/<code>(.*?)<\/code>/g, '`$1`')
+          .replace(/<br\s*\/?>/g, '\n')
+          .replace(/<div>(.*?)<\/div>/g, '$1\n')
+          .replace(/<blockquote>(.*?)<\/blockquote>/gi, '> $1\n')
+          .replace(/<\/?p>/g, '\n')
+          // 保留 moment-tag span 为 #标签
+          .replace(/<span class="moment-tag">(.*?)<\/span>/g, '#$1')
+          // 移除其他标签
+          .replace(/<(?:[^>'"]|"[^"]*"|'[^']*')*>/g, '')
+          .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+          .trim();
+        hiddenTextarea.value = markdown;
+        editor.dataset.markdown = markdown;
+        isProcessing = false;
+      });
+
+      editor.addEventListener('keyup', updateToolbarState);
+      editor.addEventListener('mouseup', updateToolbarState);
+
+      // Emoji Mart
+      (function() {
+        var panel = document.getElementById('emojiMartPanel');
+        var picker = null;
+
+        function initPicker() {
+          if (picker) return;
+          if (window.EmojiMart) {
+            picker = new EmojiMart.Picker({
+              onEmojiSelect: function(item) {
+                insertAtCursor(item.native);
+                panel.style.display = 'none';
+              },
+              autoFocus: false,
+              locale: 'zh'
+            });
+            panel.appendChild(picker);
+          } else {
+            console.error('EmojiMart 未加载');
+          }
+        }
+
+        // 预加载 browser.js（CDN）
+        if (!document.getElementById('emojiMartScript')) {
+          var script = document.createElement('script');
+          script.id = 'emojiMartScript';
+          script.src = 'https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/dist/browser.js';
+          script.crossOrigin = 'anonymous';
+          script.onload = function() { initPicker(); };
+          script.onerror = function() { console.error('表情加载失败'); };
+          document.head.appendChild(script);
+        }
+
+        var emojiBtn = document.getElementById('emojiBtn');
+        if (emojiBtn) {
+          emojiBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (panel.style.display === 'none') {
+              panel.style.display = 'block';
+              if (!picker && window.EmojiMart) initPicker();
+            } else {
+              panel.style.display = 'none';
+            }
+          });
+        }
+
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('#emojiMartPanel') && !e.target.closest('.emoji-btn-wrapper')) {
+            panel.style.display = 'none';
+          }
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') panel.style.display = 'none';
+        });
+      })();
+
+      // 更多菜单
+      (function() {
+        var moreBtn = document.getElementById('moreBtn');
+        var moreMenu = document.getElementById('moreMenu');
+        if (!moreBtn || !moreMenu) return;
+
+        moreBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('.toolbar-more-wrapper')) moreMenu.style.display = 'none';
+        });
+
+        moreMenu.querySelectorAll('.toolbar-more-item').forEach(function(item) {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var action = this.dataset.action;
+            var tag = this.dataset.tag;
+            editor.focus();
+            if (action === 'codeblock') { insertCodeBlock(); }
+            else if (action === 'tag') { insertAtCursor('#'); }
+            else if (action === 'ul' || action === 'ol') { insertAtCursor((action === 'ul' ? '- ' : '1. ')); }
+            else if (action === 'sync') { console.log('同步功能'); }
+            else if (tag) { wrapWithTag(tag); }
+            updateToolbarState();
+            moreMenu.style.display = 'none';
+          });
+        });
+      })();
+
+      // 工具栏按钮
+      document.querySelectorAll('.publisher-toolbar .toolbar-btn[data-action]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var action = btn.dataset.action;
+          var tag = btn.dataset.tag;
+          if (action === 'codeblock') { insertCodeBlock(); }
+          else if (action === 'tag') { insertAtCursor('#'); }
+          else if (tag) { wrapWithTag(tag); }
+          else if (action === 'ul') { insertAtCursor('- '); }
+          else if (action === 'ol') { insertAtCursor('1. '); }
+          updateToolbarState();
+        });
+      });
+
+      // 快捷键
+      document.addEventListener('keydown', function(e) {
+        if (document.activeElement !== editor) return;
+        if (e.ctrlKey || e.metaKey) {
+          if (e.key.toLowerCase() === 'b') { e.preventDefault(); wrapWithTag('b'); }
+          if (e.key.toLowerCase() === 'i') { e.preventDefault(); wrapWithTag('i'); }
+          if (e.key.toLowerCase() === 'u') { e.preventDefault(); wrapWithTag('u'); }
+        }
+      });
+
+      // 发送按钮
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          publishMoment();
+        });
+      }
+    })();
+  </script>
+
+  <style>
+    .moment-toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .moment-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .moment-toast-success { background: #10b981; color: #fff; }
+    .moment-toast-error { background: #ef4444; color: #fff; }
+    .moment-toast-warning { background: #f59e0b; color: #fff; }
+    .moment-toast-info { background: #3b82f6; color: #fff; }
+    .publisher-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .publisher-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-top: 1px solid var(--color-gray-100, #f3f4f6);
+      background: var(--color-gray-50, #f9fafb);
+      gap: 4px;
+    }
+    .dark .publisher-toolbar {
+      border-top-color: var(--color-gray-700, #374151);
+      background: var(--color-gray-700, #374151);
+    }
+    .toolbar-main {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+      overflow: visible;
+    }
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .publisher-toolbar .toolbar-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-gray-600, #4b5563);
+      transition: background-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .dark .publisher-toolbar .toolbar-btn { color: var(--color-gray-300, #d1d5db); }
+    .publisher-toolbar .toolbar-btn:hover {
+      background: var(--color-gray-100, #f3f4f6);
+      color: var(--color-gray-900, #111827);
+    }
+    .dark .publisher-toolbar .toolbar-btn:hover {
+      background: var(--color-gray-600, #4b5563);
+      color: var(--color-gray-100, #f3f4f6);
+    }
+    .publisher-toolbar .toolbar-btn.active {
+      background: var(--color-primary-100, #dbeafe);
+      color: var(--color-primary-600, #2563eb);
+    }
+    .dark .publisher-toolbar .toolbar-btn.active {
+      background: var(--color-primary-900, #1e3a8a);
+      color: var(--color-primary-300, #93c5fd);
+    }
+    .toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background: var(--color-gray-200, #e5e7eb);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .dark .toolbar-separator { background: var(--color-gray-600, #4b5563); }
+    .toolbar-more-wrapper { position: relative; }
+    .toolbar-more-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      background: #fff;
+      border: 1px solid var(--color-gray-200, #e5e7eb);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+      min-width: 150px;
+      overflow: hidden;
+      padding: 4px 0;
+    }
+    .dark .toolbar-more-menu {
+      background: var(--color-gray-800, #1f2937);
+      border-color: var(--color-gray-700, #374151);
+    }
+    .toolbar-more-item {
+      width: 100%;
+      padding: 8px 14px;
+      text-align: left;
+      border: none;
+      background: none;
+      color: var(--color-gray-700, #374151);
+      font-size: 13px;
+      cursor: pointer;
+      display: block;
+    }
+    .dark .toolbar-more-item { color: var(--color-gray-200, #e5e5eb); }
+    .toolbar-more-item:hover { background: var(--color-gray-100, #f3f4f6); }
+    .dark .toolbar-more-item:hover { background: var(--color-gray-700, #374151); }
+    .toolbar-more-divider {
+      height: 1px;
+      background: var(--color-gray-100, #f3f4f6);
+      margin: 4px 0;
+    }
+    .dark .toolbar-more-divider { background: var(--color-gray-700, #374151); }
+    .emoji-btn-wrapper { position: relative; }
+    .emojis-mart-container {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 8px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      z-index: 9999;
+    }
+    @media (prefers-color-scheme: dark) {
+      .emojis-mart-container { background: #1f2937; }
+    }
+    .moment-editor {
+      width: 100%;
+      min-height: 72px;
+      padding: 12px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--color-gray-900, #111827);
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    .dark .moment-editor { color: var(--color-gray-100, #f3f4f6); }
+    .moment-editor:empty:before {
+      content: attr(data-placeholder);
+      color: var(--color-gray-400, #9ca3af);
+      pointer-events: none;
+    }
+    .moment-editor b, .moment-editor strong { font-weight: 700; }
+    .moment-editor i { font-style: italic; }
+    .moment-editor u { text-decoration: underline; }
+    .moment-editor s, .moment-editor del { text-decoration: line-through; }
+    .moment-editor code {
+      background: var(--color-gray-100, #f3f4f6);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13px;
+    }
+    .dark .moment-editor code { background: var(--color-gray-700, #374151); }
+    .moment-editor blockquote {
+      border-left: 3px solid var(--color-primary-500, #3b82f6);
+      padding-left: 12px;
+      margin: 8px 0;
+      color: var(--color-gray-600, #4b5563);
+    }
+    .dark .moment-editor blockquote {
+      border-color: var(--color-primary-400, #60a5fa);
+      color: var(--color-gray-400, #9ca3af);
+    }
+    .moment-editor pre {
+      background: var(--color-gray-100, #f3f4f6);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13px;
+      margin: 8px 0;
+    }
+    .dark .moment-editor pre { background: var(--color-gray-800, #1f2937); }
+    .toolbar-main::-webkit-scrollbar { height: 0; }
+    .moment-editor .moment-tag {
+      color: var(--color-primary-600, #3b82f6);
+      font-weight: 500;
+      cursor: default;
+      display: inline;
+      background: var(--color-primary-50, #eff6ff);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin: 0 2px;
+    }
+    .dark .moment-editor .moment-tag {
+      color: var(--color-primary-400, #60a5fa);
+    }
+    .tag-suggest-panel {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--color-gray-200, #e5e7eb);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 9999;
+      max-height: 200px;
+      overflow-y: auto;
+      min-width: 160px;
+    }
+    .dark .tag-suggest-panel {
+      background: var(--color-gray-800, #1f2937);
+      border-color: var(--color-gray-700, #374151);
+    }
+    .tag-suggest-item {
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--color-gray-700, #374151);
+    }
+    .dark .tag-suggest-item { color: var(--color-gray-200, #e5e5eb); }
+    .tag-suggest-item:hover, .tag-suggest-item.selected {
+      background: var(--color-gray-100, #f3f4f6);
+    }
+    .dark .tag-suggest-item:hover, .dark .tag-suggest-item.selected {
+      background: var(--color-gray-700, #374151);
+    }
+    .tag-suggest-item.selected { font-weight: 500; }
+    .publisher-input-wrapper { position: relative; }
+  </style>
+</th:block>

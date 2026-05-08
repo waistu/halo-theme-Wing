@@ -43,18 +43,18 @@
 
     <!-- ② 统计卡片 -->
     <th:block th:with="posts = ${postFinder.list(1, 1)}">
-        <div class="stats-card" th:data-site-start="${theme.config.basic.site_start_date}">
-            <div class="stats-item">
-                <h5 class="stats-days">0</h5>
+        <div class="heatmap-stats-card" th:data-site-start="${theme.config.basic.site_start_date}">
+            <div class="heatmap-stats-item">
+                <h5 class="heatmap-stats-days">0</h5>
                 <span>DAYS</span>
             </div>
-            <div class="stats-divider"></div>
-            <div class="stats-item">
+            <div class="heatmap-stats-divider"></div>
+            <div class="heatmap-stats-item">
                 <h5 th:text="${momentsForHeatmap != null ? momentsForHeatmap.total : 0}">0</h5>
                 <span>NOTES</span>
             </div>
-            <div class="stats-divider"></div>
-            <div class="stats-item">
+            <div class="heatmap-stats-divider"></div>
+            <div class="heatmap-stats-item">
                 <h5 th:text="${posts.total}">0</h5>
                 <span>POSTS</span>
             </div>
@@ -202,13 +202,13 @@
         }
 
         // --- 3. 计算建站天数 ---
-        var statsCard = document.querySelector('.stats-card');
+        var statsCard = document.querySelector('.heatmap-stats-card');
         if (statsCard) {
             var siteStart = statsCard.dataset.siteStart || new Date().toISOString().slice(0, 10);
             var startDate = new Date(siteStart);
             var nowDate = new Date();
             var diffDays = Math.floor((nowDate - startDate) / 86400000) + 1;
-            var daysEl = statsCard.querySelector('.stats-days');
+            var daysEl = statsCard.querySelector('.heatmap-stats-days');
             if (daysEl) daysEl.textContent = diffDays > 0 ? diffDays : 1;
         }
 

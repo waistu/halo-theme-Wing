@@ -25,9 +25,6 @@
       }, 100);
     }
   </script>
-  <!-- Header 滚动隐藏脚本 -->
-  <script>
-  </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 
@@ -609,6 +606,8 @@
           currentOpenBtn = this;
         });
       });
+      // 结束评论展开/收起功能 IIFE
+      })();
 
       // 点击页面其他位置收起评论
       document.addEventListener('click', function (e) {
@@ -622,7 +621,7 @@
         }
       });
       // ==================== 标签无刷新切换功能 ====================
-      (function() {
+      (function () {
         var currentTag = null;
         var isLoading = false;
 
@@ -741,6 +740,24 @@
           initCommentToggles();
           // 重新绑定视频事件
           initVideoPlayer();
+          // 将 #标签 转换为可点击链接
+          document.querySelectorAll('.moment-content').forEach(function(el) {
+            el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5-]+)/g, function(match, prefix, tag) {
+              var tagName = tag.substring(1);
+              return prefix + '<a class="tag" href="?moments?tag=' + encodeURIComponent(tagName) + '">' + tag + '</a>';
+            });
+          });
+          // 绑定标签点击事件
+          document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+              e.preventDefault();
+              var href = this.getAttribute('href');
+              var match = href.match(/moments\?tag=(.+)/);
+              if (match) {
+                loadMomentsByTag(decodeURIComponent(match[1]), 1);
+              }
+            });
+          });
         }
 
         // 更新筛选栏
@@ -904,6 +921,14 @@
             } else if (href === '/moments' || href === 'moments') {
               loadMomentsByTag(null, 1);
             }
+          });
+        });
+
+        // 将 #标签 转换为可点击链接
+        document.querySelectorAll('.moment-content').forEach(function (el) {
+          el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5-]+)/g, function(match, prefix, tag) {
+            var tagName = tag.substring(1);
+            return prefix + '<a class="tag" href="?moments?tag=' + encodeURIComponent(tagName) + '">' + tag + '</a>';
           });
         });
 

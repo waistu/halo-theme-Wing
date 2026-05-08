@@ -45,14 +45,13 @@
     <!-- 右侧：主内容大盒子 -->
     <div class="content"
       th:with="pageParam=${#strings.isEmpty(#strings.toString(param.page)) ? 1 : #strings.toString(param.page)}, typeParam=${#strings.isEmpty(#strings.toString(param.type)) ? null : #strings.toString(param.type)}, doubanPluginInstalled=${doubanFinder != null}">
-      <!-- 插件未安装提示 -->
       <div id="notes" class="notes-layout">
         <main class="notes-core full-width">
           <th:block th:if="${doubanPluginInstalled}">
             <th:block th:replace="~{plugin:plugin-douban:modules/style}"></th:block>
             <div id="notes" class="notes-layout">
               <main class="notes-core">
-                <h1 class="page-title text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">豆瓣</h1>
+                <h1 class="page-title">豆瓣</h1>
                 <th:block th:replace="~{plugin:plugin-douban:modules/douban}"></th:block>
               </main>
             </div>
