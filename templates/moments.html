@@ -6,6 +6,27 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>笔记丨[[${site.title}]]</title>
+  <!--
+    canonical：
+    - 笔记首页模式下，无筛选的第一页与首页内容重复 → 指向 /
+    - 带 ?tag= 或翻页时，声明自身（各自是独立页面，不该被首页吞掉）
+  -->
+  <th:block
+    th:with="canonicalMode=${theme.config.layout.homepage_content ?: 'moments'},
+             canonicalTag=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)},
+             canonicalPage=${moments != null ? moments.page : 1}">
+    <link rel="canonical" th:if="${canonicalTag == null and canonicalPage > 1}"
+      th:href="@{/moments/page/{p}(p=${canonicalPage})}" />
+    <link rel="canonical" th:if="${canonicalTag != null and canonicalPage > 1}"
+      th:href="@{/moments/page/{p}(p=${canonicalPage}, tag=${canonicalTag})}" />
+    <link rel="canonical" th:if="${canonicalTag != null and canonicalPage <= 1}"
+      th:href="@{/moments(tag=${canonicalTag})}" />
+    <link rel="canonical" th:if="${canonicalTag == null and canonicalPage <= 1 and canonicalMode == 'moments'}"
+      th:href="@{/}" />
+    <link rel="canonical" th:if="${canonicalTag == null and canonicalPage <= 1 and canonicalMode != 'moments'}"
+      th:href="@{/moments}" />
+  </th:block>
+
   <meta name="description" th:attr="content=${'记录生活中的碎片与灵感 丨 ' + site.title}">
   <!-- 瞬间插件 RSS（/moments/rss.xml） -->
   <link rel="alternate" type="application/rss+xml" th:href="@{/moments/rss.xml}" th:title="${'笔记丨' + site.title}" />
@@ -77,14 +98,8 @@
           <th:block th:if="${pluginInstalled and moments != null}">
 
             <div class="notes-tabbar sticky">
-              <ul class="tab global-list">
-                <li class="tab-item" data-type="all">
-                  <a th:href="@{/}">文章</a>
-                </li>
-                <li class="tab-item active" data-type="note">
-                  <a th:href="@{/moments}">笔记</a>
-                </li>
-              </ul>
+              <!-- Tab 链接与高亮统一由公共片段生成（current=moments） -->
+              <th:block th:replace="~{includes/components/contentTabs :: content-tabs(mode=${theme.config.layout.homepage_content ?: 'moments'}, current='moments')}"></th:block>
               <!-- 标签筛选提示 -->
               <div class="moment-filter-bar" th:if="${tagVal != null}">
                 <span class="moment-filter-tag" th:text="'#' + ${tagVal}"></span>
@@ -195,6 +210,9 @@
 
   <!-- 页脚部分 -->
   <div th:replace="includes/components/footer :: footer"></div>
+
+  <!-- Tab 栏配套弹窗（瞬间插件未安装提示） -->
+  <div th:replace="~{includes/components/contentTabs :: content-tabs-notices}"></div>
 
   <!-- 全局弹窗（灯箱 / 视频 / 确认框，公共片段） -->
   <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>

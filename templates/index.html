@@ -6,6 +6,23 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${site.title}"></title>
+  <!--
+    canonical：首页是这几类列表里唯一权威的地址
+    - 带 ?tag= 的筛选页声明自身，避免被当成首页副本
+    - 文章首页模式的第 2 页起，与 /page/{n} 一一对应
+    - 其余（笔记首页模式、文章首页第 1 页）都归一到 /
+  -->
+  <th:block
+    th:with="canonicalMode=${theme.config.layout.homepage_content ?: 'moments'},
+             canonicalTag=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)},
+             canonicalPage=${posts != null ? posts.page : 1}">
+    <link rel="canonical" th:if="${canonicalTag != null}" th:href="@{/(tag=${canonicalTag})}" />
+    <link rel="canonical" th:if="${canonicalTag == null and canonicalMode != 'moments' and canonicalPage > 1}"
+      th:href="@{/page/{p}(p=${canonicalPage})}" />
+    <link rel="canonical"
+      th:if="${canonicalTag == null and (canonicalMode == 'moments' or canonicalPage <= 1)}" th:href="@{/}" />
+  </th:block>
+
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
@@ -42,7 +59,6 @@
              stats=${siteStatsFinder.getStats()},
              hasPosts=${posts != null and !posts.items.isEmpty()},
              defaultCover=${theme.config.style?.default_cover},
-             allSinglePages=${singlePageFinder.list(1, 100)},
              tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)},
              momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null},
              momentTags=${momentFinder != null ? momentFinder.listAllTags() : null},
@@ -65,35 +81,9 @@
           <div th:replace="~{includes/components/momentPublisher :: momentPublisher}"></div>
           </th:block>
 
-          <!-- ===== Tab 栏：根据 homepageMode 切换顺序和链接 ===== -->
+          <!-- ===== Tab 栏：链接与高亮统一由公共片段生成 ===== -->
           <div class="notes-tabbar sticky">
-            <ul class="tab global-list">
-              <!-- 笔记首页模式：笔记(/) 在前高亮，文章（用户配置路径）在后 -->
-              <th:block th:if="${homepageMode == 'moments'}"
-                th:with="postsPageExists=${not #lists.isEmpty(allSinglePages.items) and allSinglePages.items.![spec.slug].contains(postsSlug)}">
-                <li class="tab-item active" data-type="note">
-                  <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
-                </li>
-                <li class="tab-item" data-type="all">
-                  <!-- 文章页面存在：正常跳转；不存在：提示创建 -->
-                  <a th:if="${postsPageExists}" th:href="'/' + ${postsSlug}"
-                    class="text-gray-700 dark:text-gray-300">文章</a>
-                  <a th:unless="${postsPageExists}" href="javascript:;" th:data-slug="${postsSlug}"
-                    onclick="showPostsPageNotice(this)" class="text-gray-700 dark:text-gray-300">文章</a>
-                </li>
-              </th:block>
-              <!-- 文章首页模式（默认）：文章(/) 在前，笔记(/moments) 在后 -->
-              <th:block th:unless="${homepageMode == 'moments'}">
-                <li class="tab-item active" data-type="all">
-                  <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
-                </li>
-                <li class="tab-item" data-type="note" th:with="pluginInstalled=${momentFinder != null}">
-                  <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
-                  <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()"
-                    class="text-gray-700 dark:text-gray-300">笔记</a>
-                </li>
-              </th:block>
-            </ul>
+            <th:block th:replace="~{includes/components/contentTabs :: content-tabs(mode=${homepageMode}, current='home')}"></th:block>
             <!-- 标签筛选提示（笔记首页模式下） -->
             <div class="moment-filter-bar" th:if="${homepageMode == 'moments' and tagParam != null}">
               <span class="moment-filter-tag" th:text="${tagParam}"></span>
@@ -184,53 +174,8 @@
   </div>
   <!-- 页脚部分 -->
   <div th:replace="includes/components/footer :: footer"></div>
-  <!-- 文章首页模式：插件未安装提示弹窗（始终输出，笔记模式下不会被触发） -->
-  <div id="pluginNoticeModal" class="plugin-notice-modal" style="display: none;">
-    <div class="plugin-notice-backdrop" onclick="closePluginNotice()"></div>
-    <div class="plugin-notice-dialog">
-      <button class="plugin-notice-close" onclick="closePluginNotice()">&times;</button>
-      <div class="plugin-notice-icon">📦</div>
-      <h3>请安装瞬间插件</h3>
-      <p>笔记功能需要安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 才能正常使用</p>
-      <p class="plugin-notice-hint">安装插件后，点击导航栏"笔记"即可查看瞬间</p>
-    </div>
-  </div>
-  <!-- 笔记首页模式：文章页面未创建提示弹窗 -->
-  <div id="postsPageNoticeModal" class="plugin-notice-modal" style="display: none;">
-    <div class="plugin-notice-backdrop" onclick="closePostsPageNotice()"></div>
-    <div class="plugin-notice-dialog">
-      <button class="plugin-notice-close" onclick="closePostsPageNotice()">&times;</button>
-      <div class="plugin-notice-icon">📄</div>
-      <h3>文章页面未创建</h3>
-      <p>请前往 <strong>Halo 后台 → 页面 → 独立页面</strong>，创建一个自定义页面</p>
-      <p>将页面 Slug 设置为 <code id="postsPageSlugHint">posts</code>，并选择模板 <strong>文章列表</strong></p>
-      <p class="plugin-notice-hint">也可在主题设置中修改「文章页路径」来匹配已有页面</p>
-    </div>
-  </div>
-  <script>
-    function showPluginNotice() {
-      document.getElementById('pluginNoticeModal').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-    function closePluginNotice() {
-      document.getElementById('pluginNoticeModal').style.display = 'none';
-      document.body.style.overflow = '';
-    }
-    function showPostsPageNotice(el) {
-      var slug = el ? el.dataset.slug : 'posts';
-      var hint = document.getElementById('postsPageSlugHint');
-      if (hint) hint.textContent = slug;
-      document.getElementById('postsPageNoticeModal').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-    function closePostsPageNotice() {
-      document.getElementById('postsPageNoticeModal').style.display = 'none';
-      document.body.style.overflow = '';
-    }
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { closePluginNotice(); closePostsPageNotice(); }
-    });
-  </script>
+  <!-- Tab 栏配套弹窗（瞬间插件未安装提示），改由公共片段统一输出 -->
+  <div th:replace="~{includes/components/contentTabs :: content-tabs-notices}"></div>
 
   <!-- 全局弹窗（灯箱 / 视频 / 确认框，公共片段） -->
   <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>

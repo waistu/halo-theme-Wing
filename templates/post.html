@@ -6,6 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${post.spec.title} + ' - ' + ${site.title}"></title>
+  <!-- canonical：文章详情以自身 permalink 为准 -->
+  <link rel="canonical" th:if="${post != null and post.status != null}" th:href="${post.status.permalink}" />
+
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />

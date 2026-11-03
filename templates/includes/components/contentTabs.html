@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+  <!--
+  ============================================================
+  内容 Tab 栏（首页 / 笔记列表页 / 自定义文章页共用）
+  ============================================================
+  为什么要有这个片段：tab 链接以前由每个模板各写一遍，
+  导致「笔记首页模式下点文章跳回首页」这类死链。
+  现在链接与高亮只在这里生成一次。
+
+  参数：
+    mode    : 首页模式，取 theme.config.layout.homepage_content，'moments' | 'posts'
+    current : 当前所在页，'home' | 'moments' | 'posts'
+
+  规则：
+    mode=moments → 笔记在前（首页 /），文章在后（/{slug}）
+                   文章页未创建时降级到 /archives，不再弹配置提示
+    mode=posts   → 文章在前（首页 /），笔记在后（/moments）
+    高亮：当前页对应哪一项就高亮哪一项；首页按 mode 决定
+
+  注意：`@{...}` 不能出现在 SpEL 三元表达式里（EL1059E），
+        所以链接按分支写成多个 <a th:if>，而不是先算好字符串。
+  ============================================================
+  -->
+  <th:block th:fragment="content-tabs(mode, current)">
+    <th:block th:with="
+        modeIsMoments=${mode == 'moments'},
+        isHome=${current == 'home'},
+        isMomentsPage=${current == 'moments'},
+        isPostsPage=${current == 'posts'},
+        postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'},
+        allPages=${singlePageFinder.list(1, 100)},
+        postsPageExists=${allPages != null and allPages.items != null and not allPages.items.isEmpty()
+                          and allPages.items.![spec.slug].contains(postsSlug)},
+        pluginInstalled=${momentFinder != null},
+        onMomentsTab=${isMomentsPage or (modeIsMoments and isHome)},
+        onPostsTab=${isPostsPage or (not modeIsMoments and isHome)}">
+
+      <ul class="tab global-list">
+        <!-- ===== 笔记首页模式：笔记在前 ===== -->
+        <th:block th:if="${modeIsMoments}">
+          <li class="tab-item" th:classappend="${onMomentsTab} ? 'active'" data-type="note">
+            <a th:if="${isHome}" th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
+            <a th:unless="${isHome}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
+          </li>
+          <li class="tab-item" th:classappend="${onPostsTab} ? 'active'" data-type="all">
+            <!-- 文章页存在则跳转；未创建时降级到归档页，避免弹窗打断阅读 -->
+            <a th:if="${postsPageExists}" th:href="@{/{slug}(slug=${postsSlug})}"
+              class="text-gray-700 dark:text-gray-300">文章</a>
+            <a th:unless="${postsPageExists}" th:href="@{/archives}" title="文章页尚未创建，已跳转到归档页"
+              class="text-gray-700 dark:text-gray-300">文章</a>
+          </li>
+        </th:block>
+
+        <!-- ===== 文章首页模式：文章在前 ===== -->
+        <th:block th:unless="${modeIsMoments}">
+          <li class="tab-item" th:classappend="${onPostsTab} ? 'active'" data-type="all">
+            <a th:if="${isHome}" th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
+            <a th:unless="${isHome}" th:href="@{/{slug}(slug=${postsSlug})}"
+              class="text-gray-700 dark:text-gray-300">文章</a>
+          </li>
+          <li class="tab-item" th:classappend="${onMomentsTab} ? 'active'" data-type="note">
+            <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
+            <a th:unless="${pluginInstalled}" href="javascript:;" onclick="showPluginNotice()"
+              class="text-gray-700 dark:text-gray-300">笔记</a>
+          </li>
+        </th:block>
+      </ul>
+    </th:block>
+  </th:block>
+
+  <!--
+  ============================================================
+  Tab 栏配套弹窗：瞬间插件未安装时点击「笔记」
+  ------------------------------------------------------------
+  使用页面需引入一次，且必须在 body 内（位置不限）。
+  ============================================================
+  -->
+  <th:block th:fragment="content-tabs-notices">
+    <div id="pluginNoticeModal" class="plugin-notice-modal" style="display: none;">
+      <div class="plugin-notice-backdrop" onclick="closePluginNotice()"></div>
+      <div class="plugin-notice-dialog">
+        <button class="plugin-notice-close" onclick="closePluginNotice()">&times;</button>
+        <div class="plugin-notice-icon">📦</div>
+        <h3>请安装瞬间插件</h3>
+        <p>笔记功能需要安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank" rel="noopener">瞬间插件</a>
+          才能正常使用</p>
+        <p class="plugin-notice-hint">安装插件后，点击导航栏「笔记」即可查看瞬间</p>
+      </div>
+    </div>
+    <script>
+      function showPluginNotice() {
+        document.getElementById('pluginNoticeModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+      function closePluginNotice() {
+        document.getElementById('pluginNoticeModal').style.display = 'none';
+        document.body.style.overflow = '';
+      }
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closePluginNotice(); }
+      });
+    </script>
+  </th:block>
+
+</body>
+
+</html>

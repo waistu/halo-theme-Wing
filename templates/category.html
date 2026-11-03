@@ -6,6 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${category.spec.displayName} + ' - ' + ${site.title}"></title>
+  <!-- canonical：只在第 1 页声明，避免把分页内容归并到首页 -->
+  <link rel="canonical" th:if="${posts == null or posts.page <= 1}" th:href="${category.status.permalink}" />
+
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />

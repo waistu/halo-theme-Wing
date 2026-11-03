@@ -6,6 +6,24 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>文章丨[[${site.title}]]</title>
+  <!--
+    canonical：
+    - 文章首页模式下，本页与首页（或首页分页）是同一份内容 → 指向首页对应页
+    - 笔记首页模式下，本页是全量列表，首页只显示笔记 → 声明自身
+  -->
+  <th:block
+    th:with="canonicalMode=${theme.config.layout.homepage_content ?: 'moments'},
+             canonicalSlug=${theme.config.layout.posts_page_slug ?: 'posts'},
+             canonicalPage=${T(java.lang.Integer).parseInt(#strings.isEmpty(#strings.toString(param.page)) ? '1' : #strings.toString(param.page))}">
+    <link rel="canonical" th:if="${canonicalMode != 'moments' and canonicalPage <= 1}" th:href="@{/}" />
+    <link rel="canonical" th:if="${canonicalMode != 'moments' and canonicalPage > 1}"
+      th:href="@{/page/{p}(p=${canonicalPage})}" />
+    <link rel="canonical" th:if="${canonicalMode == 'moments' and canonicalPage <= 1}"
+      th:href="@{/{slug}(slug=${canonicalSlug})}" />
+    <link rel="canonical" th:if="${canonicalMode == 'moments' and canonicalPage > 1}"
+      th:href="@{/{slug}(slug=${canonicalSlug}, page=${canonicalPage})}" />
+  </th:block>
+
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
@@ -59,16 +77,19 @@
       <div id="notes" class="notes-layout">
         <main class="notes-core">
 
-          <!-- Tab 栏：笔记(/) 在前不高亮，文章（当前页）高亮 -->
+          <!-- Tab 栏：链接与高亮统一由公共片段生成（current=posts） -->
           <div class="notes-tabbar sticky">
-            <ul class="tab global-list">
-              <li class="tab-item" data-type="note">
-                <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
-              </li>
-              <li class="tab-item active" data-type="all">
-                <a th:href="'/' + ${postsSlug}" class="text-gray-700 dark:text-gray-300">文章</a>
-              </li>
-            </ul>
+            <th:block th:replace="~{includes/components/contentTabs :: content-tabs(mode=${theme.config.layout.homepage_content ?: 'moments'}, current='posts')}"></th:block>
+          </div>
+
+          <!--
+            文章首页模式下本页与首页重复，给出定位说明。
+            不跳转、不藏内容：外部链接和书签仍然要能用。
+          -->
+          <div class="content-merge-hint"
+            th:if="${theme.config.layout.homepage_content != 'moments' and postsPage <= 1}">
+            <span>首页已展示最新文章，这里是全部文章的分页索引。</span>
+            <a th:href="@{/}">回到首页</a>
           </div>
 
           <!-- 文章列表 -->
@@ -177,6 +198,9 @@
 
   <!-- 页脚部分 -->
   <div th:replace="includes/components/footer :: footer"></div>
+
+  <!-- Tab 栏配套弹窗（瞬间插件未安装提示） -->
+  <div th:replace="~{includes/components/contentTabs :: content-tabs-notices}"></div>
 </body>
 
 </html>
