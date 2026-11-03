@@ -33,7 +33,7 @@
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
   <div class="container"
-    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, pageParam=${#strings.isEmpty(#strings.toString(param.page)) ? 1 : #strings.toString(param.page)}, friends=${friendFinder != null ? friendFinder.list({page: pageParam, size: 20}) : null}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
+    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
