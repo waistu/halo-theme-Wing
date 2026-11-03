@@ -16,7 +16,7 @@ spec:
   issues: "https://github.com/waistu/halo-theme-Wing/issues"
   settingName: "theme-wing-setting"
   configMapName: "theme-wing-configMap"
-  version: "1.0.9"
+  version: "1.1.0"
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
@@ -26,7 +26,7 @@ spec:
   customTemplates:
     page:
       - name: 朋友圈页面模板
-        description: 适配 Halo 朋友圈插件
+        description: 适配 Halo  链接管理订阅功能
         file: friends.html
       - name: 友链页面模板
         description: 适配 Halo 链接管理插件
