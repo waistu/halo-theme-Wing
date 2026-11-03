@@ -61,14 +61,13 @@
                         <div class="flex items-center justify-between">
                             <h1 class="page-title">友链</h1>
                             <!-- HeroUI 风格按钮：申请友链 -->
-                            <th:block th:if="${pluginFinder.available('link-submit')}">
-                                <a href="javascript:LinkSubmitWidget.open()" class="link-apply-btn-solid">
+                            <th:block th:with="linkApplyEnabled=${linkApplicationEnabled != null ? linkApplicationEnabled : (linkFinder != null)}">
+                                <a href="javascript:void(0)" class="link-apply-btn-solid" id="link-apply-btn" th:if="${linkApplyEnabled}">
                                     <span>申请友链</span>
                                     <i class="czs czs-add"></i>
                                 </a>
-                            </th:block>
-                            <th:block th:unless="${pluginFinder.available('link-submit')}">
-                                <a href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请"
+                                <a th:unless="${linkApplyEnabled}"
+                                    href="mailto:[[${site.owner?.email ?: ''}]]?subject=友链申请"
                                     class="link-apply-btn-solid">
                                     <span>申请友链</span>
                                     <i class="czs czs-add"></i>
@@ -172,11 +171,62 @@
     </div>
     <!-- 页脚部分 -->
     <div th:replace="includes/components/footer :: footer"></div>
-    <!-- LinkSubmitWidget 插件资源 -->
-    <th:block th:if="${pluginFinder.available('link-submit')}">
-        <script src="/plugins/link-submit/assets/static/link-submit-widget.iife.js?version=1.0.6" defer></script>
-        <link rel="stylesheet" href="/plugins/link-submit/assets/static/var.css?version=1.0.6" />
-    </th:block>
+    <!-- 友链申请弹窗 -->
+    <div class="link-apply-modal" id="link-apply-modal" style="display:none">
+        <div class="link-apply-backdrop" data-close></div>
+        <div class="link-apply-dialog">
+            <button class="link-apply-close" data-close aria-label="关闭">
+                <i class="czs czs-close-l"></i>
+            </button>
+            <div class="link-apply-header">
+                <h2 class="link-apply-title">申请友链</h2>
+                <p class="link-apply-desc">填写下方信息，提交后等待博主审核</p>
+            </div>
+            <form class="link-apply-form" id="link-apply-form">
+                <div class="form-group">
+                    <label class="form-label" for="la-url">网站地址 <span class="required">*</span></label>
+                    <input class="form-input" type="url" id="la-url" name="url" required
+                        placeholder="https://example.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="la-name">网站名称 <span class="required">*</span></label>
+                    <input class="form-input" type="text" id="la-name" name="displayName" required
+                        placeholder="网站名称" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="la-logo">Logo 地址</label>
+                    <input class="form-input" type="url" id="la-logo" name="logo"
+                        placeholder="https://example.com/logo.png" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="la-desc">网站描述</label>
+                    <textarea class="form-textarea" id="la-desc" name="description" rows="2"
+                        placeholder="一句话描述你的网站"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="la-email">联系邮箱</label>
+                    <input class="form-input" type="email" id="la-email" name="email"
+                        placeholder="your@email.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="la-captcha">验证码 <span class="required">*</span></label>
+                    <div class="captcha-row">
+                        <input class="form-input" type="text" id="la-captcha" name="captchaCode" required
+                            placeholder="输入验证码" autocomplete="off" />
+                        <img class="captcha-img" id="la-captcha-img" alt="点击刷新验证码"
+                            title="点击刷新验证码" />
+                    </div>
+                </div>
+                <div class="form-message" id="la-message" style="display:none"></div>
+                <button class="link-apply-submit" type="submit" id="la-submit">
+                    <span class="submit-text">提交申请</span>
+                    <span class="submit-loading" style="display:none">
+                        <span class="spinner"></span> 提交中...
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
     <script>
         (function () {
             var path = window.location.pathname;
@@ -235,11 +285,158 @@
             });
         })();
     </script>
-    <!-- Link Submit 插件资源加载 -->
-    <th:block th:if="${pluginFinder.available('link-submit')}">
-        <link rel="stylesheet" th:href="@{/plugins/link-submit/assets/static/var.css}">
-        <script th:src="@{/plugins/link-submit/assets/static/link-submit-widget.iife.js}"></script>
-    </th:block>
+    <!-- 友链申请弹窗 JS -->
+    <script th:inline="javascript">
+        (function () {
+            var modal = document.getElementById('link-apply-modal');
+            var btn = document.getElementById('link-apply-btn');
+            var form = document.getElementById('link-apply-form');
+            var captchaImg = document.getElementById('la-captcha-img');
+            var messageEl = document.getElementById('la-message');
+            var submitBtn = document.getElementById('la-submit');
+            var challengeId = null;
+
+            var API_CAPTCHA = '/apis/api.link.halo.run/v1alpha1/link-applications/captcha';
+            var API_SUBMIT = '/apis/api.link.halo.run/v1alpha1/link-applications';
+
+            if (!btn || !modal) return;
+
+            // 打开弹窗
+            function openModal() {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                fetchCaptcha();
+            }
+
+            // 关闭弹窗
+            function closeModal() {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+                hideMessage();
+                form.reset();
+            }
+
+            // 获取验证码
+            function fetchCaptcha() {
+                captchaImg.style.opacity = '0.3';
+                fetch(API_CAPTCHA, { method: 'POST' })
+                    .then(function (res) {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.json();
+                    })
+                    .then(function (data) {
+                        challengeId = data.challengeId;
+                        captchaImg.src = data.image;
+                        captchaImg.style.opacity = '1';
+                    })
+                    .catch(function () {
+                        captchaImg.src = '';
+                        captchaImg.alt = '验证码获取失败，点击重试';
+                        captchaImg.style.opacity = '1';
+                    });
+            }
+
+            // 显示消息
+            function showMessage(type, text) {
+                messageEl.style.display = 'block';
+                messageEl.className = 'form-message ' + type;
+                messageEl.textContent = text;
+            }
+
+            function hideMessage() {
+                messageEl.style.display = 'none';
+                messageEl.textContent = '';
+            }
+
+            // 提交申请
+            function submitApplication(payload) {
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.submit-text').style.display = 'none';
+                submitBtn.querySelector('.submit-loading').style.display = 'inline-flex';
+
+                fetch(API_SUBMIT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                    .then(function (res) {
+                        if (res.status === 201) {
+                            return res.json().then(function () {
+                                showMessage('success', '申请提交成功！请等待博主审核。');
+                                form.reset();
+                                setTimeout(closeModal, 2000);
+                            });
+                        }
+                        return res.json().then(function (err) {
+                            var type = err.type || '';
+                            var msg = err.detail || err.title || '提交失败';
+                            if (type.includes('captcha')) {
+                                showMessage('error', '验证码错误或已过期，请重新输入');
+                                fetchCaptcha();
+                            } else if (type.includes('duplicate')) {
+                                showMessage('error', '该网站已经申请过友链了');
+                            } else if (type.includes('disabled')) {
+                                showMessage('error', '友链申请暂未开放');
+                            } else if (type.includes('capacity')) {
+                                showMessage('error', '待审核申请已满，请稍后再试');
+                            } else if (type.includes('not-permitted') || res.status === 429) {
+                                showMessage('error', '提交过于频繁，请稍后再试');
+                            } else if (type.includes('unavailable')) {
+                                showMessage('error', '服务暂时不可用，请稍后再试');
+                            } else {
+                                showMessage('error', msg);
+                            }
+                        });
+                    })
+                    .catch(function () {
+                        showMessage('error', '网络错误，请稍后重试');
+                    })
+                    .finally(function () {
+                        submitBtn.disabled = false;
+                        submitBtn.querySelector('.submit-text').style.display = 'inline';
+                        submitBtn.querySelector('.submit-loading').style.display = 'none';
+                    });
+            }
+
+            // 事件绑定
+            btn.addEventListener('click', openModal);
+
+            modal.querySelectorAll('[data-close]').forEach(function (el) {
+                el.addEventListener('click', closeModal);
+            });
+
+            captchaImg.addEventListener('click', fetchCaptcha);
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                hideMessage();
+
+                if (!challengeId) {
+                    showMessage('error', '请先获取验证码');
+                    fetchCaptcha();
+                    return;
+                }
+
+                var payload = {
+                    url: form.url.value.trim(),
+                    displayName: form.displayName.value.trim(),
+                    captchaCode: form.captchaCode.value.trim(),
+                    challengeId: challengeId
+                };
+
+                if (form.logo.value.trim()) payload.logo = form.logo.value.trim();
+                if (form.description.value.trim()) payload.description = form.description.value.trim();
+                if (form.email.value.trim()) payload.email = form.email.value.trim();
+
+                submitApplication(payload);
+            });
+
+            // ESC 关闭
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+            });
+        })();
+    </script>
     <!-- 匿名评论功能 -->
     <script th:inline="javascript">
         (function () {
