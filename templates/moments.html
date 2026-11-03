@@ -6,11 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>笔记丨[[${site.title}]]</title>
+  <meta name="description" th:attr="content=${'记录生活中的碎片与灵感 丨 ' + site.title}">
+  <!-- 瞬间插件 RSS（/moments/rss.xml） -->
+  <link rel="alternate" type="application/rss+xml" th:href="@{/moments/rss.xml}" th:title="${'笔记丨' + site.title}" />
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
-  <!-- Meteor 流星背景 CSS -->
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
@@ -28,13 +30,26 @@
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 
-<body>
-  <!-- Meteor 流星背景（仅深色模式生效） -->
+<body th:attr="data-authenticated=${#authentication.name != 'anonymousUser'}">
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
-  <!-- 页面主体容器 -->
+
+  <!--
+    页面主体容器
+    说明：moments / tags 由瞬间插件路由直接注入（/moments、/moments/page/{page}），
+         此处不再用 th:with 覆盖，才能拿到正确的 page / totalPages / prevUrl / nextUrl。
+         moments  → UrlContextListResult<MomentVo>（插件已按 spec.releaseTime 倒序、按插件设置 pageSize 分页）
+         tags     → List<MomentTagVo>（name / permalink / momentCount）
+         tagVal   → 当前筛选的标签（来自 ?tag=xxx）
+  -->
   <div class="container"
-    th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)}, momentTags=${tags}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, pluginInstalled=${momentFinder != null}, momentsUrl='/moments'">
+    th:with="allPosts=${postFinder.listAll()},
+             stats=${siteStatsFinder.getStats()},
+             pluginInstalled=${momentFinder != null},
+             momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null},
+             momentTags=${tags},
+             tagVal=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}">
+
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
       <!-- nav -->
@@ -42,161 +57,127 @@
       <!-- author card -->
       <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
     </aside>
+
     <!-- 右侧：主内容大盒子 -->
     <div class="content">
       <div id="notes" class="notes-layout">
         <main class="notes-core">
+
           <!-- 插件未安装提示 -->
           <div class="plugin-notice" th:if="${!pluginInstalled}">
             <div class="plugin-notice-icon">📦</div>
             <div class="plugin-notice-content">
               <h3>瞬间插件未安装</h3>
-              <p>请安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 来展示您的瞬间内容</p>
+              <p>请安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank" rel="noopener">瞬间插件</a>
+                来展示您的瞬间内容</p>
             </div>
           </div>
+
           <!-- 插件已安装时显示内容 -->
-          <th:block th:if="${pluginInstalled}">
+          <th:block th:if="${pluginInstalled and moments != null}">
+
             <div class="notes-tabbar sticky">
               <ul class="tab global-list">
                 <li class="tab-item" data-type="all">
                   <a th:href="@{/}">文章</a>
                 </li>
-                <li class="tab-item" data-type="note">
-                  <a th:href="${momentsUrl}">笔记</a>
+                <li class="tab-item active" data-type="note">
+                  <a th:href="@{/moments}">笔记</a>
                 </li>
               </ul>
               <!-- 标签筛选提示 -->
-              <div class="moment-filter-bar" th:if="${tagParam != null}">
-                <span class="moment-filter-tag" th:text="${tagParam}"></span>
-                <a class="moment-filter-clear" th:href="${momentsUrl}"></a>
+              <div class="moment-filter-bar" th:if="${tagVal != null}">
+                <span class="moment-filter-tag" th:text="'#' + ${tagVal}"></span>
+                <a class="moment-filter-clear" th:href="@{/moments}" title="清除筛选"></a>
               </div>
             </div>
-            <!-- 瞬间列表 -->
+
+            <!-- 瞬间列表（服务端渲染，SEO 友好） -->
             <div class="article-list" id="articleList">
-              <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
-                <div class="moment-item">
-                  <!-- 顶部：时间 -->
-                  <div class="moment-header">
-                    <span class="moment-time"
-                      th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
-                  </div>
-                  <!-- 文字内容 -->
-                  <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}" th:utext="${content.html}">
-                  </div>
-                  <!-- 标签（带 #，可点击筛选） -->
-                  <!-- <th:block th:if="${not #lists.isEmpty(moment.spec.tags)}">
-                    <div class="moment-tags">
-                      <th:block th:each="tag : ${moment.spec.tags}">
-                        <a class="moment-tag" th:attr="data-tag=${tag}" href="javascript:void(0)" th:text="'#' + ${tag}"></a>
-                      </th:block>
-                    </div>
-                  </th:block> -->
-                  <!-- 媒体内容 -->
-                  <th:block th:if="${not #lists.isEmpty(content.medium)}">
-                    <div class="moment-media">
-                      <!-- 图片 PHOTO -->
-                      <div class="moment-photos">
-                        <th:block th:each="item : ${content.medium}">
-                          <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
-                            <img th:src="${item.url}" alt="瞬间图片" />
-                          </div>
-                        </th:block>
-                      </div>
-                      <!-- 视频 VIDEO -->
-                      <th:block th:each="item : ${content.medium}">
-                        <th:block th:if="${item.type.name == 'VIDEO'}">
-                          <div class="moment-video-wrapper" th:data-video-src="${item.url}">
-                            <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls muted
-                              onloadedmetadata="handleVideoMetadata(this)"></video>
-                            <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
-                              <div class="moment-video-play-icon">▶</div>
-                            </div>
-                            <div class="moment-media-badge">
-                              <span class="media-icon">🎬</span>
-                              <span class="media-label">视频</span>
-                            </div>
-                          </div>
-                        </th:block>
-                      </th:block>
-                      <!-- 音频 AUDIO -->
-                      <th:block th:each="item : ${content.medium}">
-                        <div class="moment-audio-wrapper" th:if="${item.type.name == 'AUDIO'}">
-                          <audio th:src="${item.url}" controls></audio>
-                          <div class="moment-media-badge">
-                            <span class="media-icon">🎵</span>
-                            <span class="media-label">音频</span>
-                          </div>
-                        </div>
-                      </th:block>
-                      <!-- 文章 POST -->
-                      <th:block th:each="item : ${content.medium}">
-                        <a class="moment-post-link" th:if="${item.type.name == 'POST'}" th:href="${item.url}"
-                          target="_blank">
-                          <div class="moment-post-card">
-                            <div class="moment-post-cover" th:if="${item.cover}">
-                              <img th:src="${item.cover}" alt="封面" />
-                            </div>
-                            <div class="moment-post-info">
-                              <h4 class="moment-post-title" th:text="${item.title}">文章标题</h4>
-                              <p class="moment-post-excerpt" th:if="${item.excerpt}" th:text="${item.excerpt}">文章摘要</p>
-                              <div class="moment-post-meta">
-                                <span class="moment-media-badge">
-                                  <span class="media-icon">📄</span>
-                                  <span class="media-label">文章</span>
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      </th:block>
-                    </div>
-                  </th:block>
-                  <!-- 底部：互动和来源 -->
-                  <div class="moment-footer">
-                    <div class="moment-actions">
-                      <!-- 点赞 -->
-                      <a class="action-item moment-like" href="javascript:;"
-                        th:data-moment-name="${moment.metadata.name}">
-                        <i class="czs-heart-l"></i>
-                        <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
-                      </a>
-                      <!-- 评论 -->
-                      <a class="action-item moment-comments-toggle" href="javascript:;"
-                        th:data-moment-name="${moment.metadata.name}">
-                        <i class="czs-comment-l"></i>
-                        <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
-                          <span class="comment-count">[[${moment.stats.totalComment}]]</span>
-                        </th:block>
-                        <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
-                          <span class="comment-count"></span>
-                        </th:block>
-                      </a>
-                    </div>
-                    <div class="moment-source">
-                      <i class="czs-image"></i>
-                      <span>Write from Webpage</span>
-                    </div>
-                  </div>
-                  <!-- Halo 官方评论组件（默认收起） -->
-                  <div class="moment-comments-wrapper moment-comments-hidden"
-                    th:id="'comments-wrapper-' + ${moment.metadata.name}">
-                    <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
-                  </div>
-                </div>
+              <!-- 卡片片段（与首页笔记流共用 includes/widgets/momentCard） -->
+              <th:block th:each="moment : ${moments.items}">
+                <article th:replace="~{includes/widgets/momentCard :: moment-card(moment=${moment})}"></article>
               </th:block>
+
               <!-- 无瞬间时的提示 -->
               <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
-                <p>暂无瞬间</p>
+                <p th:text="${tagVal != null} ? '该标签下暂无笔记' : '暂无笔记'">暂无笔记</p>
               </div>
-              <!-- 内容加载完毕提示 -->
-              <div class="moments-end-tip" id="momentsEndTip" th:if="${not #lists.isEmpty(moments.items)}">
-                <span class="end-line"></span>
-                <span class="end-text">内容已加载完毕</span>
-                <span class="end-line"></span>
+            </div>
+
+            <!-- 分页：使用插件提供的 totalPages / page，翻页走 /moments/page/{page} -->
+            <nav class="pagination moments-pagination" aria-label="笔记分页" th:if="${moments.totalPages > 1}">
+              <!-- 上一页（prevUrl 由插件生成，已带 tag 参数） -->
+              <a th:if="${moments.hasPrevious()}" th:href="@{${moments.prevUrl}}" class="pagination-previous">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                  style="width:1em;height:1em;flex-shrink:0">
+                  <path fill-rule="evenodd"
+                    d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+                    clip-rule="evenodd" />
+                </svg>
+                上一页
+              </a>
+              <span th:unless="${moments.hasPrevious()}" class="pagination-previous disabled" aria-disabled="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                  style="width:1em;height:1em;flex-shrink:0">
+                  <path fill-rule="evenodd"
+                    d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+                    clip-rule="evenodd" />
+                </svg>
+                上一页
+              </span>
+
+              <div class="pagination-list">
+                <!-- 无标签筛选：/moments 与 /moments/page/{n} -->
+                <th:block th:if="${tagVal == null}">
+                  <th:block th:each="i : ${#numbers.sequence(1, moments.totalPages)}">
+                    <a th:if="${i == 1}" th:href="@{/moments}" th:text="${i}"
+                      th:class="${i == moments.page} ? 'pagination-page current' : 'pagination-page'"></a>
+                    <a th:unless="${i == 1}" th:href="@{/moments/page/{p}(p=${i})}" th:text="${i}"
+                      th:class="${i == moments.page} ? 'pagination-page current' : 'pagination-page'"></a>
+                  </th:block>
+                </th:block>
+                <!-- 有标签筛选：保留 ?tag= 参数 -->
+                <th:block th:if="${tagVal != null}">
+                  <th:block th:each="i : ${#numbers.sequence(1, moments.totalPages)}">
+                    <a th:if="${i == 1}" th:href="@{/moments(tag=${tagVal})}" th:text="${i}"
+                      th:class="${i == moments.page} ? 'pagination-page current' : 'pagination-page'"></a>
+                    <a th:unless="${i == 1}" th:href="@{/moments/page/{p}(p=${i}, tag=${tagVal})}" th:text="${i}"
+                      th:class="${i == moments.page} ? 'pagination-page current' : 'pagination-page'"></a>
+                  </th:block>
+                </th:block>
               </div>
+
+              <!-- 下一页 -->
+              <a th:if="${moments.hasNext()}" th:href="@{${moments.nextUrl}}" class="pagination-next">
+                下一页
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                  style="width:1em;height:1em;flex-shrink:0">
+                  <path fill-rule="evenodd"
+                    d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </a>
+              <span th:unless="${moments.hasNext()}" class="pagination-next disabled" aria-disabled="true">
+                下一页
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                  style="width:1em;height:1em;flex-shrink:0">
+                  <path fill-rule="evenodd"
+                    d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </span>
+            </nav>
+
+            <!-- 单页时保留「加载完毕」提示 -->
+            <div class="moments-end-tip" th:if="${moments.totalPages <= 1 and not #lists.isEmpty(moments.items)}">
+              <span class="end-line"></span>
+              <span class="end-text" th:text="'共 ' + ${moments.total} + ' 条笔记，已全部加载'">已全部加载</span>
+              <span class="end-line"></span>
             </div>
           </th:block>
         </main>
+
         <aside class="notes-aside"
           th:style="${theme.config.layout.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
@@ -211,749 +192,15 @@
       </div>
     </div>
   </div>
+
   <!-- 页脚部分 -->
   <div th:replace="includes/components/footer :: footer"></div>
 
-  <!-- 图片灯箱 -->
-  <div id="imageViewer" class="image-viewer" style="display: none;">
-    <div class="viewer-backdrop"></div>
-    <div class="viewer-content">
-      <img id="viewerImage" src="" alt="查看大图" />
-      <button class="viewer-prev" id="viewerPrev" style="display: none;">&#10094;</button>
-      <button class="viewer-next" id="viewerNext" style="display: none;">&#10095;</button>
-      <button class="viewer-close" id="viewerClose"></button>
-      <div class="viewer-counter" id="viewerCounter" style="display: none;"></div>
-    </div>
-  </div>
+  <!-- 全局弹窗（灯箱 / 视频 / 确认框，公共片段） -->
+  <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>
 
-  <!-- 视频弹窗 -->
-  <div id="videoViewer" class="video-viewer" style="display: none;">
-    <div class="video-viewer-backdrop"></div>
-    <div class="video-viewer-content">
-      <button class="video-viewer-close" id="videoViewerClose">&times;</button>
-      <video id="viewerVideo" controls muted></video>
-    </div>
-  </div>
+<div th:replace="~{includes/scripts/moment-scripts :: moment-scripts}"></div>
 
-  <script>
-    (function () {
-      var path = window.location.pathname;
-      var tabs = document.querySelectorAll('.notes-tabbar .tab-item');
-      tabs.forEach(function (tab) {
-        var link = tab.querySelector('a');
-        if (!link) return;
-        var href = link.getAttribute('href');
-        if (!href) return;
-
-        // 首页
-        if (path === '/' || path === '' || path === '/index' || path === '/index.html') {
-          if (href === '/' || href.endsWith('/')) {
-            tab.classList.add('active');
-          }
-        }
-        // 笔记页面
-        else if (path.startsWith('/moments')) {
-          if (href === '/moments') {
-            tab.classList.add('active');
-          }
-        }
-      });
-    })();
-
-    // ==================== 瞬间图片灯箱 ====================
-    (function () {
-      const viewer = document.getElementById('imageViewer');
-      const viewerImage = document.getElementById('viewerImage');
-      const viewerPrev = document.getElementById('viewerPrev');
-      const viewerNext = document.getElementById('viewerNext');
-      const viewerClose = document.getElementById('viewerClose');
-      const viewerCounter = document.getElementById('viewerCounter');
-      const backdrop = viewer.querySelector('.viewer-backdrop');
-
-      let currentImages = [];
-      let currentIndex = 0;
-
-      // 绑定所有瞬间图片点击事件
-      document.querySelectorAll('.moment-photos .photo-item img').forEach(function (img) {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', function (e) {
-          e.preventDefault();
-          // 找到该瞬间的所有图片
-          const photosContainer = img.closest('.moment-photos');
-          const images = Array.from(photosContainer.querySelectorAll('img')).map(function (i) {
-            return i.src;
-          });
-          currentImages = images;
-          currentIndex = images.indexOf(img.src);
-          openViewer();
-        });
-      });
-
-      function openViewer() {
-        viewer.style.display = 'flex';
-        updateImage();
-        document.body.style.overflow = 'hidden';
-      }
-
-      function closeViewer() {
-        viewer.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-
-      function updateImage() {
-        viewerImage.src = currentImages[currentIndex];
-
-        // 显示/隐藏切换按钮
-        if (currentImages.length > 1) {
-          viewerPrev.style.display = 'block';
-          viewerNext.style.display = 'block';
-          viewerCounter.style.display = 'block';
-          viewerCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length;
-        } else {
-          viewerPrev.style.display = 'none';
-          viewerNext.style.display = 'none';
-          viewerCounter.style.display = 'none';
-        }
-      }
-
-      function prevImage() {
-        currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-        updateImage();
-      }
-
-      function nextImage() {
-        currentIndex = (currentIndex + 1) % currentImages.length;
-        updateImage();
-      }
-
-      // 绑定事件
-      viewerClose.addEventListener('click', closeViewer);
-      backdrop.addEventListener('click', closeViewer);
-      viewerPrev.addEventListener('click', function (e) {
-        e.stopPropagation();
-        prevImage();
-      });
-      viewerNext.addEventListener('click', function (e) {
-        e.stopPropagation();
-        nextImage();
-      });
-
-      // ESC 关闭
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && viewer.style.display !== 'none') {
-          closeViewer();
-        }
-        if (e.key === 'ArrowLeft' && viewer.style.display !== 'none') {
-          prevImage();
-        }
-        if (e.key === 'ArrowRight' && viewer.style.display !== 'none') {
-          nextImage();
-        }
-      });
-    })();
-
-    // ==================== 视频弹窗 ====================
-    (function () {
-      const videoViewer = document.getElementById('videoViewer');
-      const viewerVideo = document.getElementById('viewerVideo');
-      const videoViewerClose = document.getElementById('videoViewerClose');
-      const videoViewerBackdrop = videoViewer.querySelector('.video-viewer-backdrop');
-
-      // 视频比例检测：竖屏(>1)则弹窗播放
-      window.handleVideoMetadata = function (video) {
-        const wrapper = video.closest('.moment-video-wrapper');
-        if (!wrapper) return;
-
-        // 等待视频元数据加载完成
-        if (video.videoWidth && video.videoHeight) {
-          const ratio = video.videoWidth / video.videoHeight;
-          // 如果宽高比 <= 1 (接近正方形或竖屏)，标记为竖屏
-          if (ratio <= 1) {
-            wrapper.classList.add('vertical');
-          }
-        }
-      };
-
-      // 备用方案：视频加载完成后也检测一次
-      document.querySelectorAll('.moment-video').forEach(function (video) {
-        video.addEventListener('loadedmetadata', function () {
-          window.handleVideoMetadata(video);
-        });
-        // 强制静音：确保用户点击播放时也是静音的
-        video.addEventListener('play', function () { video.muted = true; });
-      });
-
-      // 打开视频弹窗
-      window.openVideoPopup = function (overlay) {
-        const wrapper = overlay.closest('.moment-video-wrapper');
-        const videoSrc = wrapper.dataset.videoSrc;
-        if (!videoSrc) return;
-
-        viewerVideo.muted = true;
-        viewerVideo.src = videoSrc;
-        videoViewer.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        viewerVideo.play();
-      };
-
-      // 关闭视频弹窗
-      function closeVideoViewer() {
-        videoViewer.style.display = 'none';
-        viewerVideo.pause();
-        viewerVideo.src = '';
-        document.body.style.overflow = '';
-      }
-
-      videoViewerClose.addEventListener('click', closeVideoViewer);
-      videoViewerBackdrop.addEventListener('click', closeVideoViewer);
-
-      // ESC 关闭
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && videoViewer.style.display !== 'none') {
-          closeVideoViewer();
-        }
-      });
-    })();
-
-    // ==================== 瞬间点赞功能 ====================
-    (function () {
-      var LIKED_KEY = 'halo_moment_liked';
-      var isRequesting = false; // 页面状态：防止连续点击
-
-      // 获取 localStorage 中已点赞的列表
-      function getLikedMoments() {
-        try {
-          var stored = localStorage.getItem(LIKED_KEY);
-          return stored ? JSON.parse(stored) : [];
-        } catch (e) {
-          return [];
-        }
-      }
-
-      // 保存已点赞的列表到 localStorage
-      function saveLikedMoments(list) {
-        try {
-          localStorage.setItem(LIKED_KEY, JSON.stringify(list));
-        } catch (e) {
-          console.error('保存点赞状态失败:', e);
-        }
-      }
-
-      // 检查是否已点赞
-      function isMomentLiked(momentName) {
-        return getLikedMoments().indexOf(momentName) !== -1;
-      }
-
-      // 页面加载时：初始化已点赞状态
-      (function initLikedState() {
-        var likedList = getLikedMoments();
-        document.querySelectorAll('.moment-like').forEach(function (btn) {
-          var momentName = btn.dataset.momentName;
-          if (isMomentLiked(momentName)) {
-            var iconEl = btn.querySelector('i');
-            iconEl.classList.remove('czs-heart-l');
-            iconEl.classList.add('czs-heart', 'liked');
-          }
-        });
-      })();
-
-      // 点赞 API - 点赞
-      function likeMoment(momentName) {
-        return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            group: 'moment.halo.run',
-            plural: 'moments',
-            name: momentName
-          })
-        }).then(function (res) {
-          if (res.status === 204 || res.status === 200) {
-            return res.json().catch(function () { return { upvote: null }; });
-          }
-          return res.json();
-        });
-      }
-
-      // 取消点赞 API
-      function unlikeMoment(momentName) {
-        return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            group: 'moment.halo.run',
-            plural: 'moments',
-            name: momentName
-          })
-        }).then(function (res) {
-          if (res.status === 204 || res.status === 200) {
-            return res.json().catch(function () { return { upvote: null }; });
-          }
-          return res.json();
-        });
-      }
-
-      // 防抖函数
-      function debounce(fn, delay) {
-        var timer = null;
-        return function () {
-          var context = this;
-          var args = arguments;
-          clearTimeout(timer);
-          timer = setTimeout(function () {
-            fn.apply(context, args);
-          }, delay);
-        };
-      }
-
-      // 绑定点赞按钮点击事件
-      document.querySelectorAll('.moment-like').forEach(function (btn) {
-        btn.addEventListener('click', debounce(function (e) {
-          e.preventDefault();
-
-          // 检查页面状态：防止连续点击
-          if (isRequesting) {
-            return;
-          }
-
-          var momentName = this.dataset.momentName;
-          var iconEl = this.querySelector('i');
-          var countEl = this.querySelector('.like-count');
-          var isLiked = isMomentLiked(momentName); // 使用 localStorage 检查状态
-          var currentCount = parseInt(countEl.textContent) || 0;
-
-          // 状态：已点赞 -> 取消点赞，未点赞 -> 点赞
-          var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
-
-          // 设置请求状态
-          isRequesting = true;
-
-          promise.then(function (result) {
-            // 更新 localStorage
-            var likedList = getLikedMoments();
-            if (isLiked) {
-              // 取消点赞：从列表中移除
-              var idx = likedList.indexOf(momentName);
-              if (idx !== -1) likedList.splice(idx, 1);
-            } else {
-              // 点赞成功：添加到列表
-              if (likedList.indexOf(momentName) === -1) {
-                likedList.push(momentName);
-              }
-            }
-            saveLikedMoments(likedList);
-
-            // 更新 UI
-            var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
-            countEl.textContent = newCount;
-
-            if (isLiked) {
-              // 取消点赞成功
-              iconEl.classList.remove('czs-heart', 'liked');
-              iconEl.classList.add('czs-heart-l');
-            } else {
-              // 点赞成功
-              iconEl.classList.remove('czs-heart-l');
-              iconEl.classList.add('czs-heart', 'liked');
-            }
-          }).catch(function (err) {
-            console.error('操作失败:', err);
-          }).finally(function () {
-            isRequesting = false; // 重置请求状态
-          });
-        }, 300));
-      });
-    })();
-
-    // ==================== 瞬间评论展开/收起（互斥 + 动画） ====================
-    (function () {
-      var currentOpenWrapper = null;
-      var currentOpenBtn = null;
-      var hiddenClass = 'moment-comments-hidden';
-
-      document.querySelectorAll('.moment-comments-toggle').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          var momentName = this.dataset.momentName;
-          var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
-          var iconEl = this.querySelector('i');
-
-          // 如果点击的是已经打开的评论，则收起
-          if (currentOpenWrapper === wrapperEl && !wrapperEl.classList.contains(hiddenClass)) {
-            wrapperEl.classList.add(hiddenClass);
-            iconEl.classList.remove('active');
-            currentOpenWrapper = null;
-            currentOpenBtn = null;
-            return;
-          }
-
-          // 如果有其他评论打开，先收起
-          if (currentOpenWrapper && currentOpenWrapper !== wrapperEl) {
-            currentOpenWrapper.classList.add(hiddenClass);
-            if (currentOpenBtn) {
-              currentOpenBtn.querySelector('i').classList.remove('active');
-            }
-          }
-
-          // 展开当前评论
-          wrapperEl.classList.remove(hiddenClass);
-          iconEl.classList.add('active');
-          currentOpenWrapper = wrapperEl;
-          currentOpenBtn = this;
-        });
-      });
-      // 结束评论展开/收起功能 IIFE
-      })();
-
-      // 点击页面其他位置收起评论
-      document.addEventListener('click', function (e) {
-        if (currentOpenWrapper && !e.target.closest('.moment-item')) {
-          currentOpenWrapper.classList.add(hiddenClass);
-          if (currentOpenBtn) {
-            currentOpenBtn.querySelector('i').classList.remove('active');
-          }
-          currentOpenWrapper = null;
-          currentOpenBtn = null;
-        }
-      });
-      // ==================== 标签无刷新切换功能 ====================
-      (function () {
-        var currentTag = null;
-        var isLoading = false;
-
-        // 发起 AJAX 请求获取瞬间列表
-        function loadMomentsByTag(tag, page) {
-          if (isLoading) return;
-          isLoading = true;
-
-          var url = '/apis/api.moment.halo.run/v1alpha1/moments?size=20&page=' + (page || 1);
-          if (tag) {
-            url += '&tag=' + encodeURIComponent(tag);
-          }
-
-          fetch(url)
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-              renderMoments(data.items);
-              updateFilterBar(tag);
-              // 更新 URL 不刷新
-              if (tag) {
-                history.pushState(null, '', '/moments?tag=' + encodeURIComponent(tag));
-              } else {
-                history.pushState(null, '', '/moments');
-              }
-              currentTag = tag;
-            })
-            .catch(function(err) {
-              console.error('加载瞬间失败:', err);
-            })
-            .finally(function() {
-              isLoading = false;
-            });
-        }
-
-        // 渲染瞬间列表
-        function renderMoments(items) {
-          var container = document.getElementById('articleList');
-          if (!container) return;
-
-          // 保留原有的moments-end-tip
-          var endTip = container.querySelector('.moments-end-tip');
-          var emptyTip = container.querySelector('.empty-moments');
-
-          // 构建新内容（复用原有结构）
-          var html = '';
-          if (!items || items.length === 0) {
-            html = '<div class="empty-moments"><p>暂无瞬间</p></div>';
-          } else {
-            items.forEach(function(moment) {
-              var content = moment.spec.content;
-              html += '<div class="moment-item">';
-              html += '<div class="moment-header">';
-              html += '<span class="moment-time" data-date="' + moment.spec.releaseTime + '">' + moment.spec.releaseTime + '</span>';
-              html += '</div>';
-
-              if (content.html) {
-                html += '<div class="moment-content">' + content.html + '</div>';
-              }
-
-              if (content.medium && content.medium.length > 0) {
-                html += '<div class="moment-media">';
-                content.medium.forEach(function(medium) {
-                  if (medium.type.name === 'PHOTO') {
-                    html += '<div class="moment-photos"><div class="photo-item"><img src="' + medium.url + '" alt="瞬间图片" /></div></div>';
-                  } else if (medium.type.name === 'VIDEO') {
-                    html += '<div class="moment-video-wrapper" data-video-src="' + medium.url + '">';
-                    html += '<video class="moment-video" src="' + medium.url + '" data-src="' + medium.url + '" controls muted onloadedmetadata="handleVideoMetadata(this)"></video>';
-                    html += '<div class="moment-video-overlay" style="display:none" onclick="openVideoPopup(this)"><div class="moment-video-play-icon">▶</div></div>';
-                    html += '<div class="moment-media-badge"><span class="media-icon">🎬</span><span class="media-label">视频</span></div>';
-                    html += '</div>';
-                  } else if (medium.type.name === 'AUDIO') {
-                    html += '<div class="moment-audio-wrapper"><audio src="' + medium.url + '" controls></audio>';
-                    html += '<div class="moment-media-badge"><span class="media-icon">🎵</span><span class="media-label">音频</span></div></div>';
-                  } else if (medium.type.name === 'POST') {
-                    html += '<a class="moment-post-link" href="' + medium.url + '" target="_blank">';
-                    html += '<div class="moment-post-card">';
-                    if (medium.cover) {
-                      html += '<div class="moment-post-cover"><img src="' + medium.cover + '" alt="封面" /></div>';
-                    }
-                    html += '<div class="moment-post-info"><h4 class="moment-post-title">' + (medium.title || '文章标题') + '</h4>';
-                    if (medium.excerpt) {
-                      html += '<p class="moment-post-excerpt">' + medium.excerpt + '</p>';
-                    }
-                    html += '<div class="moment-post-meta"><span class="moment-media-badge"><span class="media-icon">📄</span><span class="media-label">文章</span></span></div>';
-                    html += '</div></div></a>';
-                  }
-                });
-                html += '</div>';
-              }
-
-              html += '<div class="moment-footer"><div class="moment-actions">';
-              html += '<a class="action-item moment-like" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
-              html += '<i class="czs-heart-l"></i><span class="like-count">' + (moment.stats && moment.stats.upvote ? moment.stats.upvote : 0) + '</span></a>';
-              html += '<a class="action-item moment-comments-toggle" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
-              html += '<i class="czs-comment-l"></i>';
-              if (moment.stats && moment.stats.totalComment > 0) {
-                html += '<span class="comment-count">' + moment.stats.totalComment + '</span>';
-              } else {
-                html += '<span class="comment-count"></span>';
-              }
-              html += '</a></div><div class="moment-source"><i class="czs-image"></i><span>Write from Webpage</span></div></div>';
-              html += '<div class="moment-comments-wrapper moment-comments-hidden" id="comments-wrapper-' + moment.metadata.name + '"></div>';
-              html += '</div>';
-            });
-            html += '<div class="moments-end-tip" id="momentsEndTip"><span class="end-line"></span><span class="end-text">内容已加载完毕</span><span class="end-line"></span></div>';
-          }
-
-          // 替换内容
-          container.innerHTML = html;
-
-          // 重新绑定图片灯箱事件
-          initImageViewer();
-          // 重新绑定点赞事件
-          initLikeButtons();
-          // 重新绑定评论展开事件
-          initCommentToggles();
-          // 重新绑定视频事件
-          initVideoPlayer();
-          // 将 #标签 转换为可点击链接
-          document.querySelectorAll('.moment-content').forEach(function(el) {
-            el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5-]+)/g, function(match, prefix, tag) {
-              var tagName = tag.substring(1);
-              return prefix + '<a class="tag" href="?moments?tag=' + encodeURIComponent(tagName) + '">' + tag + '</a>';
-            });
-          });
-          // 绑定标签点击事件
-          document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-            el.addEventListener('click', function(e) {
-              e.preventDefault();
-              var href = this.getAttribute('href');
-              var match = href.match(/moments\?tag=(.+)/);
-              if (match) {
-                loadMomentsByTag(decodeURIComponent(match[1]), 1);
-              }
-            });
-          });
-        }
-
-        // 更新筛选栏
-        function updateFilterBar(tag) {
-          var filterBar = document.querySelector('.moment-filter-bar');
-          if (!filterBar) {
-            var tabbar = document.querySelector('.notes-tabbar');
-            if (tag) {
-              filterBar = document.createElement('div');
-              filterBar.className = 'moment-filter-bar';
-              filterBar.innerHTML = '<span class="moment-filter-tag">' + tag + '</span><a class="moment-filter-clear" href="javascript:void(0)"></a>';
-              tabbar.appendChild(filterBar);
-              filterBar.querySelector('.moment-filter-clear').addEventListener('click', function() {
-                loadMomentsByTag(null, 1);
-              });
-            }
-          } else {
-            if (tag) {
-              filterBar.querySelector('.moment-filter-tag').textContent = tag;
-              filterBar.style.display = '';
-            } else {
-              filterBar.style.display = 'none';
-            }
-          }
-        }
-
-        // 初始化图片灯箱
-        function initImageViewer() {
-          document.querySelectorAll('.moment-photos .photo-item img').forEach(function(img) {
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', function(e) {
-              e.preventDefault();
-              var photosContainer = img.closest('.moment-photos');
-              var images = Array.from(photosContainer.querySelectorAll('img')).map(function(i) { return i.src; });
-              window._tempImages = images;
-              window._tempIndex = images.indexOf(img.src);
-              document.getElementById('imageViewer').style.display = 'flex';
-              document.getElementById('viewerImage').src = img.src;
-              document.body.style.overflow = 'hidden';
-            });
-          });
-        }
-
-        // 初始化点赞按钮
-        function initLikeButtons() {
-          document.querySelectorAll('.moment-like').forEach(function(btn) {
-            btn.addEventListener('click', debounce(function(e) {
-              e.preventDefault();
-              var momentName = this.dataset.momentName;
-              var iconEl = this.querySelector('i');
-              var countEl = this.querySelector('.like-count');
-              var isLiked = iconEl.classList.contains('czs-heart');
-              var currentCount = parseInt(countEl.textContent) || 0;
-
-              var promise = isLiked ? unlikeMoment(momentName) : likeMoment(momentName);
-              promise.then(function(result) {
-                var likedList = getLikedMoments();
-                if (isLiked) {
-                  var idx = likedList.indexOf(momentName);
-                  if (idx !== -1) likedList.splice(idx, 1);
-                } else {
-                  if (likedList.indexOf(momentName) === -1) likedList.push(momentName);
-                }
-                saveLikedMoments(likedList);
-                var newCount = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
-                countEl.textContent = newCount;
-                if (isLiked) {
-                  iconEl.classList.remove('czs-heart', 'liked');
-                  iconEl.classList.add('czs-heart-l');
-                } else {
-                  iconEl.classList.remove('czs-heart-l');
-                  iconEl.classList.add('czs-heart', 'liked');
-                }
-              }).catch(function(err) {
-                console.error('操作失败:', err);
-              });
-            }, 300));
-          });
-        }
-
-        // 初始化评论展开
-        function initCommentToggles() {
-          document.querySelectorAll('.moment-comments-toggle').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-              e.preventDefault();
-              var momentName = this.dataset.momentName;
-              var wrapperEl = document.getElementById('comments-wrapper-' + momentName);
-              var iconEl = this.querySelector('i');
-              if (wrapperEl.classList.contains('moment-comments-hidden')) {
-                wrapperEl.classList.remove('moment-comments-hidden');
-                iconEl.classList.add('active');
-              } else {
-                wrapperEl.classList.add('moment-comments-hidden');
-                iconEl.classList.remove('active');
-              }
-            });
-          });
-        }
-
-        // 初始化视频
-        function initVideoPlayer() {
-          document.querySelectorAll('.moment-video').forEach(function(video) {
-            video.addEventListener('loadedmetadata', function() {
-              window.handleVideoMetadata(video);
-            });
-            video.addEventListener('play', function() { video.muted = true; });
-          });
-        }
-
-        // 获取localStorage中的点赞列表
-        function getLikedMoments() {
-          try {
-            var stored = localStorage.getItem('halo_moment_liked');
-            return stored ? JSON.parse(stored) : [];
-          } catch (e) { return []; }
-        }
-
-        function saveLikedMoments(list) {
-          try { localStorage.setItem('halo_moment_liked', JSON.stringify(list)); } catch (e) {}
-        }
-
-        function likeMoment(momentName) {
-          return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: momentName })
-          }).then(function(res) {
-            if (res.status === 204 || res.status === 200) return res.json().catch(function() { return { upvote: null }; });
-            return res.json();
-          });
-        }
-
-        function unlikeMoment(momentName) {
-          return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: momentName })
-          }).then(function(res) {
-            if (res.status === 204 || res.status === 200) return res.json().catch(function() { return { upvote: null }; });
-            return res.json();
-          });
-        }
-
-        function debounce(fn, delay) {
-          var timer = null;
-          return function() {
-            var context = this, args = arguments;
-            clearTimeout(timer);
-            timer = setTimeout(function() { fn.apply(context, args); }, delay);
-          };
-        }
-
-        // 绑定侧边栏标签点击事件
-        document.querySelectorAll('.topic-item a').forEach(function(link) {
-          link.addEventListener('click', function(e) {
-            e.preventDefault();
-            var href = this.getAttribute('href');
-            var match = href.match(/moments\?tag=(.+)/);
-            if (match) {
-              loadMomentsByTag(decodeURIComponent(match[1]), 1);
-            } else if (href === '/moments' || href === 'moments') {
-              loadMomentsByTag(null, 1);
-            }
-          });
-        });
-
-        // 将 #标签 转换为可点击链接
-        document.querySelectorAll('.moment-content').forEach(function (el) {
-          el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5-]+)/g, function(match, prefix, tag) {
-            var tagName = tag.substring(1);
-            return prefix + '<a class="tag" href="?moments?tag=' + encodeURIComponent(tagName) + '">' + tag + '</a>';
-          });
-        });
-
-        // 绑定内容中标签点击事件
-        document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-          el.addEventListener('click', function(e) {
-            e.preventDefault();
-            var href = this.getAttribute('href');
-            var match = href.match(/moments\?tag=(.+)/);
-            if (match) {
-              loadMomentsByTag(decodeURIComponent(match[1]), 1);
-            }
-          });
-        });
-
-        // 处理筛选栏清除按钮
-        var clearBtn = document.querySelector('.moment-filter-clear');
-        if (clearBtn) {
-          clearBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            loadMomentsByTag(null, 1);
-          });
-        }
-      })();
-  </script>
 </body>
 
 </html>

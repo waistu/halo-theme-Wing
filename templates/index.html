@@ -29,13 +29,24 @@
   <script th:src="@{/assets/vendor/magic-ui/meteors.js}" th:if="${theme.config.style.meteors_enabled != 'disabled'}"></script>
 </head>
 
-<body data-meteors data-meteor-count="40" data-meteor-min-delay="0.1" data-meteor-max-delay="0.8">
+<body data-meteors data-meteor-count="40" data-meteor-min-delay="0.1" data-meteor-max-delay="0.8"
+  th:attr="data-authenticated=${#authentication.name != 'anonymousUser'}">
   <!-- 插入头部组件 -->
   <div th:replace="includes/components/header :: header"></div>
   <!-- 页面主体容器 -->
   <!-- homepageMode: moments=笔记首页（默认），posts=文章首页 -->
   <div class="container"
-    th:with="homepageMode=${theme.config.layout.homepage_content ?: 'moments'}, postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'}, allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, hasPosts=${posts != null and !posts.items.isEmpty()}, defaultCover=${theme.config.style?.default_cover}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}, tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)}, moments=${momentFinder != null ? (tagParam != null ? momentFinder.list({tagName: tagParam, page: 1, size: 20}) : momentFinder.list(1, 20)) : null}, momentTags=${null}, allSinglePages=${singlePageFinder.list(1, 100)}">
+    th:with="homepageMode=${theme.config.layout.homepage_content ?: 'moments'},
+             postsSlug=${theme.config.layout.posts_page_slug ?: 'posts'},
+             allPosts=${postFinder.listAll()},
+             stats=${siteStatsFinder.getStats()},
+             hasPosts=${posts != null and !posts.items.isEmpty()},
+             defaultCover=${theme.config.style?.default_cover},
+             allSinglePages=${singlePageFinder.list(1, 100)},
+             tagParam=${#strings.isEmpty(#strings.toString(param.tag)) ? null : #strings.toString(param.tag)},
+             momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null},
+             momentTags=${momentFinder != null ? momentFinder.listAllTags() : null},
+             moments=${momentFinder != null ? (tagParam != null ? momentFinder.listByTag(1, 20, tagParam) : momentFinder.list(1, 20)) : null}">
     <!-- 左侧：窄栏（菜单 + 小组件） -->
     <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}"
       data-sidebar>
@@ -48,6 +59,11 @@
     <div class="content">
       <div id="notes" class="notes-layout">
         <main class="notes-core">
+
+          <!-- ===== 发布框（仅登录用户显示）===== -->
+          <th:block th:if="${#authentication.name != 'anonymousUser'}">
+          <div th:replace="~{includes/components/momentPublisher :: momentPublisher}"></div>
+          </th:block>
 
           <!-- ===== Tab 栏：根据 homepageMode 切换顺序和链接 ===== -->
           <div class="notes-tabbar sticky">
@@ -92,102 +108,32 @@
               <div class="plugin-notice-icon">📦</div>
               <div class="plugin-notice-content">
                 <h3>瞬间插件未安装</h3>
-                <p>请安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank">瞬间插件</a> 来展示笔记内容</p>
+                <p>请安装 <a href="https://www.halo.run/store/apps/app-SnwWD" target="_blank" rel="noopener">瞬间插件</a>
+                  来展示笔记内容</p>
               </div>
             </div>
-            <!-- 已安装：显示瞬间列表 -->
-            <th:block th:if="${momentFinder != null}">
+
+            <!-- 已安装：服务端渲染首屏笔记（20 条），超出部分引导到 /moments 列表页 -->
+            <th:block th:if="${momentFinder != null and moments != null}">
               <div class="article-list" id="articleList">
-                <th:block th:each="moment : ${moments.items}" th:with="content=${moment.spec.content}">
-                  <div class="moment-item">
-                    <div class="moment-header">
-                      <span class="moment-time"
-                        th:data-date="${moment.spec.releaseTime}">[[${moment.spec.releaseTime}]]</span>
-                    </div>
-                    <div class="moment-content" th:if="${not #strings.isEmpty(content.html)}"
-                      th:utext="${content.html}"></div>
-                    <!-- 标签（仅当 content.html 中没有标签时渲染，避免重复） -->
-                    <th:block th:if="${not #lists.isEmpty(content.medium)}">
-                      <div class="moment-media">
-                        <div class="moment-photos">
-                          <th:block th:each="item : ${content.medium}">
-                            <div class="photo-item" th:if="${item.type.name == 'PHOTO'}">
-                              <img th:src="${item.url}" alt="瞬间图片" />
-                            </div>
-                          </th:block>
-                        </div>
-                        <th:block th:each="item : ${content.medium}">
-                          <th:block th:if="${item.type.name == 'VIDEO'}">
-                            <div class="moment-video-wrapper" th:data-video-src="${item.url}">
-                              <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls muted
-                                onloadedmetadata="handleVideoMetadata(this)"></video>
-                              <div class="moment-video-overlay" style="display: none;" onclick="openVideoPopup(this)">
-                                <div class="moment-video-play-icon">▶</div>
-                              </div>
-                              <div class="moment-media-badge"><span class="media-icon">🎬</span><span
-                                  class="media-label">视频</span></div>
-                            </div>
-                          </th:block>
-                        </th:block>
-                        <th:block th:each="item : ${content.medium}">
-                          <div class="moment-audio-wrapper" th:if="${item.type.name == 'AUDIO'}">
-                            <audio th:src="${item.url}" controls></audio>
-                            <div class="moment-media-badge"><span class="media-icon">🎵</span><span
-                                class="media-label">音频</span></div>
-                          </div>
-                        </th:block>
-                        <th:block th:each="item : ${content.medium}">
-                          <a class="moment-post-link" th:if="${item.type.name == 'POST'}" th:href="${item.url}"
-                            target="_blank">
-                            <div class="moment-post-card">
-                              <div class="moment-post-cover" th:if="${item.cover}"><img th:src="${item.cover}"
-                                  alt="封面" /></div>
-                              <div class="moment-post-info">
-                                <h4 class="moment-post-title" th:text="${item.title}">文章标题</h4>
-                                <p class="moment-post-excerpt" th:if="${item.excerpt}" th:text="${item.excerpt}">文章摘要
-                                </p>
-                                <div class="moment-post-meta"><span class="moment-media-badge"><span
-                                      class="media-icon">📄</span><span class="media-label">文章</span></span></div>
-                              </div>
-                            </div>
-                          </a>
-                        </th:block>
-                      </div>
-                    </th:block>
-                    <div class="moment-footer">
-                      <div class="moment-actions">
-                        <a class="action-item moment-like" href="javascript:;"
-                          th:data-moment-name="${moment.metadata.name}">
-                          <i class="czs-heart-l"></i>
-                          <span class="like-count" th:text="${moment.stats?.upvote ?: 0}">0</span>
-                        </a>
-                        <a class="action-item moment-comments-toggle" href="javascript:;"
-                          th:data-moment-name="${moment.metadata.name}">
-                          <i class="czs-comment-l"></i>
-                          <th:block th:if="${moment.stats != null and moment.stats.totalComment > 0}">
-                            <span class="comment-count">[[${moment.stats.totalComment}]]</span>
-                          </th:block>
-                          <th:block th:unless="${moment.stats != null and moment.stats.totalComment > 0}">
-                            <span class="comment-count"></span>
-                          </th:block>
-                        </a>
-                      </div>
-                      <div class="moment-source"><i class="czs-image"></i><span>Write from Webpage</span></div>
-                    </div>
-                    <div class="moment-comments-wrapper moment-comments-hidden"
-                      th:id="'comments-wrapper-' + ${moment.metadata.name}">
-                      <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
-                    </div>
-                  </div>
+                <th:block th:each="moment : ${moments.items}">
+                  <article th:replace="~{includes/widgets/momentCard :: moment-card(moment=${moment})}"></article>
                 </th:block>
-                <div class="empty-moments" th:if="${moments == null or #lists.isEmpty(moments.items)}">
-                  <p>暂无瞬间</p>
+
+                <div class="empty-moments" th:if="${#lists.isEmpty(moments.items)}">
+                  <p th:text="${tagParam != null} ? '该标签下暂无笔记' : '暂无笔记'">暂无笔记</p>
                 </div>
-                <div class="moments-end-tip" th:if="${moments != null and not #lists.isEmpty(moments.items)}">
-                  <span class="end-line"></span>
-                  <span class="end-text">内容已加载完毕</span>
-                  <span class="end-line"></span>
-                </div>
+              </div>
+
+              <!-- 结尾：还有更多则给出完整列表入口 -->
+              <div class="moments-end-tip" th:if="${not #lists.isEmpty(moments.items)}">
+                <span class="end-line"></span>
+                <a class="end-more" th:if="${moments.total > #lists.size(moments.items)}" th:href="@{/moments}">
+                  <span th:text="'查看全部 ' + ${moments.total} + ' 条笔记'">查看全部</span>
+                  <i class="czs-angle-right-l"></i>
+                </a>
+                <span class="end-text" th:unless="${moments.total > #lists.size(moments.items)}">已全部加载</span>
+                <span class="end-line"></span>
               </div>
             </th:block>
           </th:block>
@@ -224,10 +170,10 @@
         <aside class="notes-aside"
           th:style="${theme.config.layout.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
           <div class="heatmap-box">
-            <div th:replace="includes/widgets/heatmap :: heatmap(${momentTags}, ${momentsForHeatmap})"></div>
+            <div th:replace="includes/widgets/heatmap :: heatmap(momentTags=${momentTags}, momentsForHeatmap=${momentsForHeatmap})"></div>
           </div>
           <div class="topic-box" th:if="${homepageMode == 'moments'}">
-            <div th:replace="includes/widgets/topicList :: moment-tags(${null}, ${moments})"></div>
+            <div th:replace="includes/widgets/topicList :: moment-tags(${momentTags}, ${moments})"></div>
           </div>
           <div class="topic-box" th:unless="${homepageMode == 'moments'}">
             <div th:replace="includes/widgets/topicList :: post-tags"></div>
@@ -286,386 +232,12 @@
     });
   </script>
 
-  <!-- 笔记首页模式：灯箱 / 视频弹窗 / 点赞 / 评论 JS（始终输出，文章模式下空转无害） -->
-  <!-- 图片灯箱 -->
-  <div id="imageViewer" class="image-viewer" style="display: none;">
-    <div class="viewer-backdrop"></div>
-    <div class="viewer-content">
-      <img id="viewerImage" src="" alt="查看大图" />
-      <button class="viewer-prev" id="viewerPrev" style="display: none;">&#10094;</button>
-      <button class="viewer-next" id="viewerNext" style="display: none;">&#10095;</button>
-      <button class="viewer-close" id="viewerClose"></button>
-      <div class="viewer-counter" id="viewerCounter" style="display: none;"></div>
-    </div>
-  </div>
-  <!-- 视频弹窗 -->
-  <div id="videoViewer" class="video-viewer" style="display: none;">
-    <div class="video-viewer-backdrop"></div>
-    <div class="video-viewer-content">
-      <button class="video-viewer-close" id="videoViewerClose">&times;</button>
-      <video id="viewerVideo" controls muted></video>
-    </div>
-  </div>
-  <script>
-    (function () {
-      var viewer = document.getElementById('imageViewer');
-      if (!viewer) return;
-      var viewerImage = document.getElementById('viewerImage');
-      var viewerPrev = document.getElementById('viewerPrev');
-      var viewerNext = document.getElementById('viewerNext');
-      var viewerClose = document.getElementById('viewerClose');
-      var viewerCounter = document.getElementById('viewerCounter');
-      var backdrop = viewer.querySelector('.viewer-backdrop');
-      var currentImages = [], currentIndex = 0;
-      document.querySelectorAll('.moment-photos .photo-item img').forEach(function (img) {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', function (e) {
-          e.preventDefault();
-          var photosContainer = img.closest('.moment-photos');
-          var images = Array.from(photosContainer.querySelectorAll('img')).map(function (i) { return i.src; });
-          currentImages = images; currentIndex = images.indexOf(img.src); openViewer();
-        });
-      });
-      function openViewer() { viewer.style.display = 'flex'; updateImage(); document.body.style.overflow = 'hidden'; }
-      function closeViewer() { viewer.style.display = 'none'; document.body.style.overflow = ''; }
-      function updateImage() {
-        viewerImage.src = currentImages[currentIndex];
-        if (currentImages.length > 1) { viewerPrev.style.display = 'block'; viewerNext.style.display = 'block'; viewerCounter.style.display = 'block'; viewerCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length; }
-        else { viewerPrev.style.display = 'none'; viewerNext.style.display = 'none'; viewerCounter.style.display = 'none'; }
-      }
-      viewerClose.addEventListener('click', closeViewer);
-      backdrop.addEventListener('click', closeViewer);
-      viewerPrev.addEventListener('click', function (e) { e.stopPropagation(); currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length; updateImage(); });
-      viewerNext.addEventListener('click', function (e) { e.stopPropagation(); currentIndex = (currentIndex + 1) % currentImages.length; updateImage(); });
-      document.addEventListener('keydown', function (e) {
-        if (viewer.style.display === 'none') return;
-        if (e.key === 'Escape') closeViewer();
-        if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length; updateImage(); }
-        if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % currentImages.length; updateImage(); }
-      });
-    })();
+  <!-- 全局弹窗（灯箱 / 视频 / 确认框，公共片段） -->
+  <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>
 
-    (function () {
-      var videoViewer = document.getElementById('videoViewer');
-      if (!videoViewer) return;
-      var viewerVideo = document.getElementById('viewerVideo');
-      var videoViewerClose = document.getElementById('videoViewerClose');
-      var videoViewerBackdrop = videoViewer.querySelector('.video-viewer-backdrop');
-      window.handleVideoMetadata = function (video) {
-        var wrapper = video.closest('.moment-video-wrapper');
-        if (!wrapper) return;
-        if (video.videoWidth && video.videoHeight && video.videoWidth / video.videoHeight <= 1) wrapper.classList.add('vertical');
-      };
-      document.querySelectorAll('.moment-video').forEach(function (video) {
-        video.addEventListener('loadedmetadata', function () { window.handleVideoMetadata(video); });
-        // 强制静音：确保用户点击播放时也是静音的
-        video.addEventListener('play', function () { video.muted = true; });
-      });
-      window.openVideoPopup = function (overlay) {
-        var wrapper = overlay.closest('.moment-video-wrapper');
-        var videoSrc = wrapper.dataset.videoSrc;
-        if (!videoSrc) return;
-        viewerVideo.muted = true; viewerVideo.src = videoSrc; videoViewer.style.display = 'flex'; document.body.style.overflow = 'hidden'; viewerVideo.play();
-      };
-      function closeVideoViewer() { videoViewer.style.display = 'none'; viewerVideo.pause(); viewerVideo.src = ''; document.body.style.overflow = ''; }
-      videoViewerClose.addEventListener('click', closeVideoViewer);
-      videoViewerBackdrop.addEventListener('click', closeVideoViewer);
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && videoViewer.style.display !== 'none') closeVideoViewer(); });
-    })();
+  <!-- 瞬间交互脚本（首页笔记流 / 列表页 / 详情页共用片段） -->
+  <div th:replace="~{includes/scripts/moment-scripts :: moment-scripts}"></div>
 
-    (function () {
-      var LIKED_KEY = 'halo_moment_liked', isRequesting = false;
-      function getLikedMoments() { try { var s = localStorage.getItem(LIKED_KEY); return s ? JSON.parse(s) : []; } catch (e) { return []; } }
-      function saveLikedMoments(list) { try { localStorage.setItem(LIKED_KEY, JSON.stringify(list)); } catch (e) { } }
-      function isMomentLiked(n) { return getLikedMoments().indexOf(n) !== -1; }
-      document.querySelectorAll('.moment-like').forEach(function (btn) {
-        var n = btn.dataset.momentName;
-        if (isMomentLiked(n)) { var i = btn.querySelector('i'); i.classList.remove('czs-heart-l'); i.classList.add('czs-heart', 'liked'); }
-      });
-      function likeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: n }) }).then(function (r) { return r.json().catch(function () { return { upvote: null }; }); }); }
-      function unlikeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: n }) }).then(function (r) { return r.json().catch(function () { return { upvote: null }; }); }); }
-      function debounce(fn, d) { var t = null; return function () { var c = this, a = arguments; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, d); }; }
-      document.querySelectorAll('.moment-like').forEach(function (btn) {
-        btn.addEventListener('click', debounce(function (e) {
-          e.preventDefault(); if (isRequesting) return;
-          var n = this.dataset.momentName, iconEl = this.querySelector('i'), countEl = this.querySelector('.like-count'), isLiked = isMomentLiked(n), currentCount = parseInt(countEl.textContent) || 0;
-          isRequesting = true;
-          (isLiked ? unlikeMoment(n) : likeMoment(n)).then(function (result) {
-            var list = getLikedMoments();
-            if (isLiked) { var idx = list.indexOf(n); if (idx !== -1) list.splice(idx, 1); } else { if (list.indexOf(n) === -1) list.push(n); }
-            saveLikedMoments(list);
-            countEl.textContent = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
-            if (isLiked) { iconEl.classList.remove('czs-heart', 'liked'); iconEl.classList.add('czs-heart-l'); }
-            else { iconEl.classList.remove('czs-heart-l'); iconEl.classList.add('czs-heart', 'liked'); }
-          }).catch(function (err) { console.error('操作失败:', err); }).finally(function () { isRequesting = false; });
-        }, 300));
-      });
-    })();
-
-    (function () {
-      var currentOpenWrapper = null, currentOpenBtn = null, hiddenClass = 'moment-comments-hidden';
-      document.querySelectorAll('.moment-comments-toggle').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          var n = this.dataset.momentName, wrapperEl = document.getElementById('comments-wrapper-' + n), iconEl = this.querySelector('i');
-          if (currentOpenWrapper === wrapperEl && !wrapperEl.classList.contains(hiddenClass)) { wrapperEl.classList.add(hiddenClass); iconEl.classList.remove('active'); currentOpenWrapper = null; currentOpenBtn = null; return; }
-          if (currentOpenWrapper && currentOpenWrapper !== wrapperEl) { currentOpenWrapper.classList.add(hiddenClass); if (currentOpenBtn) currentOpenBtn.querySelector('i').classList.remove('active'); }
-          wrapperEl.classList.remove(hiddenClass); iconEl.classList.add('active'); currentOpenWrapper = wrapperEl; currentOpenBtn = this;
-        });
-      });
-      document.addEventListener('click', function (e) {
-        if (currentOpenWrapper && !e.target.closest('.moment-item')) { currentOpenWrapper.classList.add(hiddenClass); if (currentOpenBtn) currentOpenBtn.querySelector('i').classList.remove('active'); currentOpenWrapper = null; currentOpenBtn = null; }
-      });
-    })();
-  </script>
-  <!-- 隐藏正文中的纯文本标签（与底部 moment-tags 重复） -->
-  <script>
-    (function () {
-      document.querySelectorAll('.moment-content').forEach(function (el) {
-        el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5]+)/g, '$1<span class="tag-text">$2</span>');
-      });
-      document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-        var tag = el.getAttribute('href').match(/tag=([^&]+)/);
-        if (tag) {
-          el.setAttribute('href', '?moments?tag=' + tag[1]);
-        }
-      });
-    })();
-  </script>
-  <!-- 首页笔记模式标签无刷新切换 -->
-  <script>
-    (function() {
-      var currentTag = null;
-      var isLoading = false;
-
-      function loadMomentsByTag(tag, page) {
-        if (isLoading) return;
-        isLoading = true;
-
-        var url = '/apis/api.moment.halo.run/v1alpha1/moments?size=20&page=' + (page || 1);
-        if (tag) {
-          url += '&tag=' + encodeURIComponent(tag);
-        }
-
-        fetch(url)
-          .then(function(res) { return res.json(); })
-          .then(function(data) {
-            renderMoments(data.items);
-            updateFilterBar(tag);
-            if (tag) {
-              history.pushState(null, '', '?moments?tag=' + encodeURIComponent(tag));
-            } else {
-              history.pushState(null, '', '/');
-            }
-            currentTag = tag;
-          })
-          .catch(function(err) { console.error('加载瞬间失败:', err); })
-          .finally(function() { isLoading = false; });
-      }
-
-      function renderMoments(items) {
-        var container = document.getElementById('articleList');
-        if (!container) return;
-
-        var html = '';
-        if (!items || items.length === 0) {
-          html = '<div class="empty-moments"><p>暂无瞬间</p></div>';
-        } else {
-          items.forEach(function(moment) {
-            var content = moment.spec.content;
-            html += '<div class="moment-item">';
-            html += '<div class="moment-header">';
-            html += '<span class="moment-time" data-date="' + moment.spec.releaseTime + '">' + moment.spec.releaseTime + '</span>';
-            html += '</div>';
-            if (content.html) {
-              html += '<div class="moment-content">' + content.html + '</div>';
-            }
-            if (content.medium && content.medium.length > 0) {
-              html += '<div class="moment-media">';
-              content.medium.forEach(function(medium) {
-                if (medium.type.name === 'PHOTO') {
-                  html += '<div class="moment-photos"><div class="photo-item"><img src="' + medium.url + '" alt="瞬间图片" /></div></div>';
-                } else if (medium.type.name === 'VIDEO') {
-                  html += '<div class="moment-video-wrapper" data-video-src="' + medium.url + '">';
-                  html += '<video class="moment-video" src="' + medium.url + '" data-src="' + medium.url + '" controls muted onloadedmetadata="handleVideoMetadata(this)"></video>';
-                  html += '<div class="moment-video-overlay" style="display:none" onclick="openVideoPopup(this)"><div class="moment-video-play-icon">▶</div></div>';
-                  html += '<div class="moment-media-badge"><span class="media-icon">🎬</span><span class="media-label">视频</span></div>';
-                  html += '</div>';
-                } else if (medium.type.name === 'AUDIO') {
-                  html += '<div class="moment-audio-wrapper"><audio src="' + medium.url + '" controls></audio>';
-                  html += '<div class="moment-media-badge"><span class="media-icon">🎵</span><span class="media-label">音频</span></div></div>';
-                } else if (medium.type.name === 'POST') {
-                  html += '<a class="moment-post-link" href="' + medium.url + '" target="_blank">';
-                  html += '<div class="moment-post-card">';
-                  if (medium.cover) {
-                    html += '<div class="moment-post-cover"><img src="' + medium.cover + '" alt="封面" /></div>';
-                  }
-                  html += '<div class="moment-post-info"><h4 class="moment-post-title">' + (medium.title || '文章标题') + '</h4>';
-                  if (medium.excerpt) {
-                    html += '<p class="moment-post-excerpt">' + medium.excerpt + '</p>';
-                  }
-                  html += '<div class="moment-post-meta"><span class="moment-media-badge"><span class="media-icon">📄</span><span class="media-label">文章</span></span></div>';
-                  html += '</div></div></a>';
-                }
-              });
-              html += '</div>';
-            }
-            html += '<div class="moment-footer"><div class="moment-actions">';
-            html += '<a class="action-item moment-like" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
-            html += '<i class="czs-heart-l"></i><span class="like-count">' + (moment.stats && moment.stats.upvote ? moment.stats.upvote : 0) + '</span></a>';
-            html += '<a class="action-item moment-comments-toggle" href="javascript:;" data-moment-name="' + moment.metadata.name + '">';
-            html += '<i class="czs-comment-l"></i>';
-            if (moment.stats && moment.stats.totalComment > 0) {
-              html += '<span class="comment-count">' + moment.stats.totalComment + '</span>';
-            } else {
-              html += '<span class="comment-count"></span>';
-            }
-            html += '</a></div><div class="moment-source"><i class="czs-image"></i><span>Write from Webpage</span></div></div>';
-            html += '<div class="moment-comments-wrapper moment-comments-hidden" id="comments-wrapper-' + moment.metadata.name + '"></div>';
-            html += '</div>';
-          });
-          html += '<div class="moments-end-tip" id="momentsEndTip"><span class="end-line"></span><span class="end-text">内容已加载完毕</span><span class="end-line"></span></div>';
-        }
-
-        container.innerHTML = html;
-        initImageViewer();
-        initLikeButtons();
-        initCommentToggles();
-        initVideoPlayer();
-        document.querySelectorAll('.moment-content').forEach(function(el) {
-          el.innerHTML = el.innerHTML.replace(/(^|>|\s)(#[\w\u4e00-\u9fa5]+)/g, '$1<span class="tag-text">$2</span>');
-        });
-        document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-          el.addEventListener('click', function(e) {
-            e.preventDefault();
-            var tag = el.getAttribute('href').match(/moments\?tag=(.+)/);
-            if (tag) { loadMomentsByTag(decodeURIComponent(tag[1]), 1); }
-          });
-        });
-      }
-
-      function updateFilterBar(tag) {
-        var filterBar = document.querySelector('.moment-filter-bar');
-        if (!filterBar) {
-          var tabbar = document.querySelector('.notes-tabbar');
-          if (tag) {
-            filterBar = document.createElement('div');
-            filterBar.className = 'moment-filter-bar';
-            filterBar.innerHTML = '<span class="moment-filter-tag">' + tag + '</span><a class="moment-filter-clear" href="javascript:void(0)"></a>';
-            tabbar.appendChild(filterBar);
-            filterBar.querySelector('.moment-filter-clear').addEventListener('click', function() { loadMomentsByTag(null, 1); });
-          }
-        } else {
-          if (tag) {
-            filterBar.querySelector('.moment-filter-tag').textContent = tag;
-            filterBar.style.display = '';
-          } else { filterBar.style.display = 'none'; }
-        }
-      }
-
-      function getLikedMoments() { try { var s = localStorage.getItem('halo_moment_liked'); return s ? JSON.parse(s) : []; } catch (e) { return []; } }
-      function saveLikedMoments(l) { try { localStorage.setItem('halo_moment_liked', JSON.stringify(l)); } catch (e) {} }
-      function likeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: n }) }).then(function(r) { return r.json().catch(function() { return { upvote: null }; }); }); }
-      function unlikeMoment(n) { return fetch('/apis/api.halo.run/v1alpha1/trackers/upvote', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ group: 'moment.halo.run', plural: 'moments', name: n }) }).then(function(r) { return r.json().catch(function() { return { upvote: null }; }); }); }
-
-      function initImageViewer() {
-        document.querySelectorAll('.moment-photos .photo-item img').forEach(function(img) {
-          img.style.cursor = 'pointer';
-          img.addEventListener('click', function(e) {
-            e.preventDefault();
-            var photosContainer = img.closest('.moment-photos');
-            var images = Array.from(photosContainer.querySelectorAll('img')).map(function(i) { return i.src; });
-            window._tempImages = images;
-            window._tempIndex = images.indexOf(img.src);
-            var viewer = document.getElementById('imageViewer');
-            if (viewer) {
-              viewer.style.display = 'flex';
-              document.getElementById('viewerImage').src = img.src;
-              document.body.style.overflow = 'hidden';
-            }
-          });
-        });
-      }
-
-      function initLikeButtons() {
-        var isRequesting = false;
-        document.querySelectorAll('.moment-like').forEach(function(btn) {
-          var n = btn.dataset.momentName;
-          if (getLikedMoments().indexOf(n) !== -1) {
-            var i = btn.querySelector('i');
-            i.classList.remove('czs-heart-l');
-            i.classList.add('czs-heart', 'liked');
-          }
-          btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (isRequesting) return;
-            isRequesting = true;
-            var iconEl = btn.querySelector('i'), countEl = btn.querySelector('.like-count');
-            var isLiked = iconEl.classList.contains('czs-heart'), currentCount = parseInt(countEl.textContent) || 0;
-            (isLiked ? unlikeMoment(n) : likeMoment(n)).then(function(result) {
-              var list = getLikedMoments();
-              if (isLiked) { var idx = list.indexOf(n); if (idx !== -1) list.splice(idx, 1); } else { if (list.indexOf(n) === -1) list.push(n); }
-              saveLikedMoments(list);
-              countEl.textContent = result.upvote || (isLiked ? currentCount - 1 : currentCount + 1);
-              if (isLiked) { iconEl.classList.remove('czs-heart', 'liked'); iconEl.classList.add('czs-heart-l'); }
-              else { iconEl.classList.remove('czs-heart-l'); iconEl.classList.add('czs-heart', 'liked'); }
-            }).finally(function() { isRequesting = false; });
-          });
-        });
-      }
-
-      function initCommentToggles() {
-        document.querySelectorAll('.moment-comments-toggle').forEach(function(btn) {
-          btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            var n = this.dataset.momentName;
-            var wrapperEl = document.getElementById('comments-wrapper-' + n);
-            var iconEl = this.querySelector('i');
-            if (wrapperEl.classList.contains('moment-comments-hidden')) {
-              wrapperEl.classList.remove('moment-comments-hidden');
-              iconEl.classList.add('active');
-            } else {
-              wrapperEl.classList.add('moment-comments-hidden');
-              iconEl.classList.remove('active');
-            }
-          });
-        });
-      }
-
-      function initVideoPlayer() {
-        document.querySelectorAll('.moment-video').forEach(function(video) {
-          video.addEventListener('loadedmetadata', function() { window.handleVideoMetadata(video); });
-          video.addEventListener('play', function() { video.muted = true; });
-        });
-      }
-
-      // 侧边栏标签点击
-      document.querySelectorAll('.topic-item a').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          var href = this.getAttribute('href');
-          var match = href.match(/moments\?tag=(.+)/);
-          if (match) { loadMomentsByTag(decodeURIComponent(match[1]), 1); }
-          else if (href === '/' || href === '' || href === '/index.html') { loadMomentsByTag(null, 1); }
-        });
-      });
-
-      // 内容中标签点击
-      document.querySelectorAll('.moment-content a.tag').forEach(function(el) {
-        el.addEventListener('click', function(e) {
-          e.preventDefault();
-          var tag = el.getAttribute('href').match(/moments\?tag=(.+)/);
-          if (tag) { loadMomentsByTag(decodeURIComponent(tag[1]), 1); }
-        });
-      });
-
-      // 清除按钮
-      var clearBtn = document.querySelector('.moment-filter-clear');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', function(e) { e.preventDefault(); loadMomentsByTag(null, 1); });
-      }
-    })();
-  </script>
 </body>
 
 </html>
