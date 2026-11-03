@@ -344,6 +344,8 @@
     --color-primary-700: #be123c;
     --color-primary-800: #9f1239;
     --color-primary-900: #881337;
+    /* 主色 RGB 分量（供插件类样式使用，如 Docsme 的 --dm-c-brand-rgb） */
+    --color-primary-rgb: 244, 63, 94;
 
     /* ========== Spacing Scale（@theme 变量编译后不保留，需显式声明供运行时使用） ========== */
     /* Tailwind v4 标准间距刻度 */
@@ -10334,3 +10336,160 @@ a.moment-source:hover {
 }
 .tag-suggest-item.selected { font-weight: 500; }
 .publisher-input-wrapper { position: relative; }
+
+/* ============================================================
+   Docsme 文档插件页面适配（doc.html / docs.html / doc-catalog.html）
+   ------------------------------------------------------------
+   1. 把插件的 --dm-* 变量映射到主题变量，配色、深浅色随主题走
+   2. 用 .wing-docs 外壳对齐主题的宽度与留白，页脚贴底
+   3. 插件头部/侧栏/目录为 sticky，移动端需让开主题固定头部 56px
+   ============================================================ */
+.wing-docs {
+  /* 主色：跟随主题配色方案（color-scheme.html 提供 --color-primary-rgb） */
+  --dm-c-brand-rgb: var(--color-primary-rgb, 244, 63, 94);
+  /* 字体继承主题，避免插件用系统字体 */
+  --dm-font-family-base: inherit;
+  --dm-radius-base: 0.5rem;
+
+  /* 背景 / 文字 / 边框：全部走主题变量 */
+  --dm-c-bg: var(--bg-card);
+  --dm-c-bg-alt: var(--bg-secondary);
+  --dm-c-bg-soft: var(--bg-secondary);
+  --dm-c-bg-elv: var(--bg-card);
+  --dm-c-text-1: var(--text-primary);
+  --dm-c-text-2: var(--text-secondary);
+  --dm-c-text-3: var(--text-tertiary);
+  --dm-c-border: var(--border-color);
+  --dm-c-border-dark: var(--border-color-dark);
+  --dm-c-divider: var(--border-color);
+  --dm-c-gray: var(--text-tertiary);
+
+  /* 宽度由外壳控制，插件内部不再二次限宽 */
+  --dm-layout-max-width: 100%;
+
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: calc(var(--spacing) * 340);
+  margin: 0 auto;
+  padding: 56px var(--spacing-4) 0;
+  box-sizing: border-box;
+
+  @media (width >= 48rem) {
+    padding: 56px var(--spacing-4) 0;
+  }
+
+  @media (width >= 64rem) {
+    padding: var(--spacing-5, 1.25rem) var(--spacing-10, 2.5rem) 0;
+  }
+}
+
+html.dark .wing-docs,
+[data-theme="dark"] .wing-docs {
+  --dm-c-bg: var(--bg-card-dark);
+  --dm-c-bg-alt: var(--bg-secondary-dark);
+  --dm-c-bg-soft: var(--bg-secondary-dark);
+  --dm-c-bg-elv: var(--bg-card-dark);
+  --dm-c-text-1: var(--text-primary-dark);
+  --dm-c-text-2: var(--text-secondary-dark);
+  --dm-c-text-3: var(--text-tertiary-dark);
+  --dm-c-border: var(--border-color-dark);
+  --dm-c-border-dark: var(--border-color-dark);
+  --dm-c-divider: var(--border-color-dark);
+}
+
+/* 文档主体做成一张卡片，贴合主题卡片语言 */
+.wing-docs .dm-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  /* clip 不会创建滚动容器，sticky 侧栏/目录仍可正常工作 */
+  overflow: clip;
+  /* 与页脚留出呼吸空间 */
+  margin-bottom: var(--spacing-5, 1.25rem);
+}
+
+html.dark .wing-docs .dm-container,
+[data-theme="dark"] .wing-docs .dm-container {
+  background-color: var(--bg-card-dark);
+  border-color: var(--border-color-dark);
+}
+
+/* 顶部文档栏：跟随主题头部配色 */
+.wing-docs .dm-header {
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .dm-header,
+[data-theme="dark"] .wing-docs .dm-header {
+  background-color: var(--bg-card-dark);
+  border-bottom-color: var(--border-color-dark);
+}
+
+.wing-docs .dm-header__logo a {
+  color: var(--text-primary);
+}
+
+html.dark .wing-docs .dm-header__logo a,
+[data-theme="dark"] .wing-docs .dm-header__logo a {
+  color: var(--text-primary-dark);
+}
+
+/* 侧边文档树 / 目录：边框对齐主题 */
+.wing-docs .dm-sidebar {
+  border-right: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .dm-sidebar,
+[data-theme="dark"] .wing-docs .dm-sidebar {
+  border-right-color: var(--border-color-dark);
+}
+
+/* 文档树激活项用主题主色 */
+.wing-docs .dm-nav-tree__link--active,
+.wing-docs .dm-nav-tree__link--active:hover {
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+}
+
+html.dark .wing-docs .dm-nav-tree__link--active,
+html.dark .wing-docs .dm-nav-tree__link--active:hover,
+[data-theme="dark"] .wing-docs .dm-nav-tree__link--active,
+[data-theme="dark"] .wing-docs .dm-nav-tree__link--active:hover {
+  color: var(--color-primary-300);
+  background-color: color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+}
+
+/* 正文细节：图片与代码块圆角、边框，和文章页保持一致 */
+.wing-docs .prose-content img {
+  border-radius: var(--radius-lg);
+}
+
+.wing-docs .prose-content pre {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .prose-content pre,
+[data-theme="dark"] .wing-docs .prose-content pre {
+  border-color: var(--border-color-dark);
+}
+
+/* 项目卡片 / 目录卡片：hover 用主题阴影，避免插件硬编码过重 */
+.wing-docs .dm-project-card:hover,
+.wing-docs .dm-directory-card:hover {
+  border-color: var(--color-primary-400);
+}
+
+/* 移动端：主题头部固定 56px，插件 sticky 头部与抽屉整体下移，避免被遮挡 */
+@media (width < 64rem) {
+  .wing-docs .dm-header {
+    top: 56px;
+  }
+
+  .wing-docs .dm-sidebar,
+  .wing-docs .dm-toc {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+}

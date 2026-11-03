@@ -1562,6 +1562,7 @@ to {
     --color-primary-700: #be123c;
     --color-primary-800: #9f1239;
     --color-primary-900: #881337;
+    --color-primary-rgb: 244, 63, 94;
     --spacing: .25rem;
     --spacing-0: 0;
     --spacing-0\.5: .125rem;
@@ -13267,6 +13268,138 @@ a.moment-source:hover {
 
 .publisher-input-wrapper {
   position: relative;
+}
+
+.wing-docs {
+  --dm-c-brand-rgb: var(--color-primary-rgb, 244, 63, 94);
+  --dm-font-family-base: inherit;
+  --dm-radius-base: .5rem;
+  --dm-c-bg: var(--bg-card);
+  --dm-c-bg-alt: var(--bg-secondary);
+  --dm-c-bg-soft: var(--bg-secondary);
+  --dm-c-bg-elv: var(--bg-card);
+  --dm-c-text-1: var(--text-primary);
+  --dm-c-text-2: var(--text-secondary);
+  --dm-c-text-3: var(--text-tertiary);
+  --dm-c-border: var(--border-color);
+  --dm-c-border-dark: var(--border-color-dark);
+  --dm-c-divider: var(--border-color);
+  --dm-c-gray: var(--text-tertiary);
+  --dm-layout-max-width: 100%;
+  width: 100%;
+  max-width: calc(var(--spacing) * 340);
+  padding: 56px var(--spacing-4) 0;
+  box-sizing: border-box;
+  flex: 1 0 auto;
+  margin: 0 auto;
+}
+
+@media (min-width: 48rem) {
+  .wing-docs {
+    padding: 56px var(--spacing-4) 0;
+  }
+}
+
+@media (min-width: 64rem) {
+  .wing-docs {
+    padding: var(--spacing-5, 1.25rem) var(--spacing-10, 2.5rem) 0;
+  }
+}
+
+html.dark .wing-docs, [data-theme="dark"] .wing-docs {
+  --dm-c-bg: var(--bg-card-dark);
+  --dm-c-bg-alt: var(--bg-secondary-dark);
+  --dm-c-bg-soft: var(--bg-secondary-dark);
+  --dm-c-bg-elv: var(--bg-card-dark);
+  --dm-c-text-1: var(--text-primary-dark);
+  --dm-c-text-2: var(--text-secondary-dark);
+  --dm-c-text-3: var(--text-tertiary-dark);
+  --dm-c-border: var(--border-color-dark);
+  --dm-c-border-dark: var(--border-color-dark);
+  --dm-c-divider: var(--border-color-dark);
+}
+
+.wing-docs .dm-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  margin-bottom: var(--spacing-5, 1.25rem);
+  overflow: clip;
+}
+
+html.dark .wing-docs .dm-container, [data-theme="dark"] .wing-docs .dm-container {
+  background-color: var(--bg-card-dark);
+  border-color: var(--border-color-dark);
+}
+
+.wing-docs .dm-header {
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .dm-header, [data-theme="dark"] .wing-docs .dm-header {
+  background-color: var(--bg-card-dark);
+  border-bottom-color: var(--border-color-dark);
+}
+
+.wing-docs .dm-header__logo a {
+  color: var(--text-primary);
+}
+
+html.dark .wing-docs .dm-header__logo a, [data-theme="dark"] .wing-docs .dm-header__logo a {
+  color: var(--text-primary-dark);
+}
+
+.wing-docs .dm-sidebar {
+  border-right: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .dm-sidebar, [data-theme="dark"] .wing-docs .dm-sidebar {
+  border-right-color: var(--border-color-dark);
+}
+
+.wing-docs .dm-nav-tree__link--active, .wing-docs .dm-nav-tree__link--active:hover {
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+}
+
+html.dark .wing-docs .dm-nav-tree__link--active, html.dark .wing-docs .dm-nav-tree__link--active:hover, [data-theme="dark"] .wing-docs .dm-nav-tree__link--active, [data-theme="dark"] .wing-docs .dm-nav-tree__link--active:hover {
+  color: var(--color-primary-300);
+  background-color: #f43f5e2e;
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  html.dark .wing-docs .dm-nav-tree__link--active, html.dark .wing-docs .dm-nav-tree__link--active:hover, [data-theme="dark"] .wing-docs .dm-nav-tree__link--active, [data-theme="dark"] .wing-docs .dm-nav-tree__link--active:hover {
+    background-color: color-mix(in srgb, var(--color-primary-500) 18%, transparent);
+  }
+}
+
+.wing-docs .prose-content img {
+  border-radius: var(--radius-lg);
+}
+
+.wing-docs .prose-content pre {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+html.dark .wing-docs .prose-content pre, [data-theme="dark"] .wing-docs .prose-content pre {
+  border-color: var(--border-color-dark);
+}
+
+.wing-docs .dm-project-card:hover, .wing-docs .dm-directory-card:hover {
+  border-color: var(--color-primary-400);
+}
+
+@media not all and (min-width: 64rem) {
+  .wing-docs .dm-header {
+    top: 56px;
+  }
+
+  .wing-docs .dm-sidebar, .wing-docs .dm-toc {
+    height: calc(100vh - 56px);
+    top: 56px;
+  }
 }
 
 @property --tw-rotate-x {
