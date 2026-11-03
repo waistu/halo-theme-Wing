@@ -1,0 +1,141 @@
+<!--
+  =============================================
+  瞬间卡片 - 公共片段
+  =============================================
+  被 index.html（笔记首页）与 moments.html（/moments 列表）共用：
+
+    <article class="moment-item" th:each="moment : ${moments.items}"
+      th:replace="~{includes/widgets/momentCard :: moment-card(moment=${moment})}"></article>
+
+  依赖 moment-scripts 片段：灯箱、视频弹窗、点赞、评论惰性挂载、更多菜单。
+  字段依据插件 Moment / MomentVo 定义：MomentMedia 仅含 type / url / originType。
+  =============================================
+-->
+<article th:fragment="moment-card(moment)" class="moment-item"
+  th:with="content=${moment.spec.content}"
+  th:attr="data-moment-name=${moment.metadata.name}">
+
+  <!-- 顶部：时间（可点进详情）+ 私密标记 + 标签 + 更多 -->
+  <div class="moment-header">
+    <div class="moment-header-left">
+      <a class="moment-time-link" th:href="@{/moments/{name}(name=${moment.metadata.name})}"
+        th:title="${moment.spec.releaseTime != null ? #temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm') : ''}">
+        <time class="moment-time" th:datetime="${moment.spec.releaseTime}"
+          th:data-date="${moment.spec.releaseTime}" th:text="${moment.spec.releaseTime}">刚刚</time>
+      </a>
+      <span class="moment-visibility-badge"
+        th:if="${#strings.toString(moment.spec.visible) == 'PRIVATE'}">🔒 私密</span>
+      <!-- 标签不在此处渲染：插件约定标签内联在正文中（#话题），
+           由 moment-scripts 的 linkifyTags 转为可点击链接，避免与 spec.tags 双重渲染 -->
+    </div>
+    <div class="moment-more-wrapper">
+      <button class="moment-more-btn" title="更多" type="button"
+        th:data-moment-name="${moment.metadata.name}">⋯</button>
+      <div class="moment-more-menu" style="display:none;">
+        <a class="moment-more-item" th:href="@{/moments/{name}(name=${moment.metadata.name})}">查看详情</a>
+        <button class="moment-more-item" type="button" data-action="edit"
+          th:if="${#authentication.name != 'anonymousUser'}"
+          th:data-moment-name="${moment.metadata.name}">编辑</button>
+        <button class="moment-more-item" type="button" data-action="visibility"
+          th:if="${#authentication.name != 'anonymousUser'}"
+          th:data-moment-name="${moment.metadata.name}" th:data-visible="${moment.spec.visible}"
+          th:text="${#strings.toString(moment.spec.visible) == 'PRIVATE'} ? '设为公开' : '设为私密'">设为私密</button>
+        <button class="moment-more-item moment-more-delete" type="button" data-action="delete"
+          th:if="${#authentication.name != 'anonymousUser'}"
+          th:data-moment-name="${moment.metadata.name}">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 文字内容 -->
+  <div class="moment-content" th:if="${content != null and not #strings.isEmpty(content.html)}"
+    th:utext="${content.html}"></div>
+
+  <!-- 媒体内容 -->
+  <th:block th:if="${content != null and not #lists.isEmpty(content.medium)}">
+    <div class="moment-media">
+      <!-- 图片 PHOTO -->
+      <div class="moment-photos"
+        th:if="${#lists.size(content.medium.?[#strings.toString(type) == 'PHOTO']) > 0}">
+        <th:block th:each="item : ${content.medium}">
+          <div class="photo-item" th:if="${#strings.toString(item.type) == 'PHOTO'}">
+            <img th:src="${item.url}" alt="笔记图片" loading="lazy" />
+          </div>
+        </th:block>
+      </div>
+      <!-- 视频 VIDEO -->
+      <th:block th:each="item : ${content.medium}">
+        <div class="moment-video-wrapper" th:if="${#strings.toString(item.type) == 'VIDEO'}"
+          th:data-video-src="${item.url}">
+          <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls muted playsinline
+            preload="metadata"></video>
+          <div class="moment-video-overlay" style="display: none;">
+            <div class="moment-video-play-icon">▶</div>
+          </div>
+          <div class="moment-media-badge">
+            <span class="media-icon">🎬</span>
+            <span class="media-label">视频</span>
+          </div>
+        </div>
+      </th:block>
+      <!-- 音频 AUDIO -->
+      <th:block th:each="item : ${content.medium}">
+        <div class="moment-audio-wrapper" th:if="${#strings.toString(item.type) == 'AUDIO'}">
+          <audio th:src="${item.url}" controls preload="none"></audio>
+          <div class="moment-media-badge">
+            <span class="media-icon">🎵</span>
+            <span class="media-label">音频</span>
+          </div>
+        </div>
+      </th:block>
+      <!-- 引用链接 POST（插件仅存 url，无 title / cover / excerpt 字段） -->
+      <th:block th:each="item : ${content.medium}">
+        <a class="moment-post-link" th:if="${#strings.toString(item.type) == 'POST'}" th:href="${item.url}"
+          target="_blank" rel="noopener noreferrer">
+          <div class="moment-post-card moment-post-card--url">
+            <div class="moment-post-info">
+              <h4 class="moment-post-title" th:text="${item.url}">链接</h4>
+              <div class="moment-post-meta">
+                <span class="moment-media-badge">
+                  <span class="media-icon">🔗</span>
+                  <span class="media-label">引用链接</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </th:block>
+    </div>
+  </th:block>
+
+  <!-- 底部：互动 + 详情入口 -->
+  <div class="moment-footer">
+    <div class="moment-actions">
+      <a class="action-item moment-like" href="javascript:;" role="button"
+        th:data-moment-name="${moment.metadata.name}"
+        th:attr="aria-label=${'点赞，当前 ' + (moment.stats != null ? moment.stats.upvote : 0) + ' 次'}">
+        <i class="czs-heart-l"></i>
+        <span class="like-count" th:text="${moment.stats != null ? moment.stats.upvote : 0}">0</span>
+      </a>
+      <a class="action-item moment-comments-toggle" href="javascript:;" role="button"
+        th:data-moment-name="${moment.metadata.name}" aria-label="展开评论">
+        <i class="czs-comment-l"></i>
+        <span class="comment-count"
+          th:text="${moment.stats != null and moment.stats.totalComment > 0} ? moment.stats.totalComment : ''"></span>
+      </a>
+    </div>
+    <a class="moment-source" th:href="@{/moments/{name}(name=${moment.metadata.name})}" title="查看详情">
+      <i class="czs-link-l"></i>
+      <span>详情</span>
+    </a>
+  </div>
+
+  <!-- 评论：包在 template 内，展开时才克隆执行，避免首屏几十个评论实例 -->
+  <div class="moment-comments-wrapper moment-comments-hidden"
+    th:id="'comments-wrapper-' + ${moment.metadata.name}"
+    th:data-moment-name="${moment.metadata.name}">
+    <template data-lazy-comment>
+      <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
+    </template>
+  </div>
+</article>

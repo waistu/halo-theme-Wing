@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head th:with="rawText=${moment != null and moment.spec.content != null ? moment.spec.content.raw : null},
+           pageTitle=${#strings.isEmpty(rawText) ? '笔记' : #strings.abbreviate(rawText, 40)}">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle + ' 丨 ' + site.title}">笔记详情</title>
+  <meta name="description"
+    th:attr="content=${#strings.isEmpty(rawText) ? site.title : #strings.abbreviate(rawText, 120)}">
+
+  <!-- 社交卡片 -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" th:attr="content=${pageTitle}">
+  <meta property="og:description"
+    th:attr="content=${#strings.isEmpty(rawText) ? site.title : #strings.abbreviate(rawText, 120)}">
+
+  <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
+  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
+  <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
+  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
+  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
+  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
+  <script>
+    if (window.location.hash === '#open-search') {
+      setTimeout(() => { if (window.SearchWidget) SearchWidget.open(''); }, 100);
+    }
+  </script>
+  <script th:src="@{/assets/dist/js/main.js}"></script>
+</head>
+
+<body th:attr="data-authenticated=${#authentication.name != 'anonymousUser'}">
+  <div th:replace="includes/components/header :: header"></div>
+
+  <!--
+    详情路由 /moments/{name}
+    模板变量仅有两个：moment（MomentVo）与 title（插件设置里的名称），
+    没有 tags —— 侧栏标签因此退化为从最近瞬间统计（见 topicList 的 fallback 分支）。
+  -->
+  <div class="container" th:with="allPosts=${postFinder.listAll()},
+             stats=${siteStatsFinder.getStats()},
+             momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null},
+             content=${moment != null and moment.spec != null ? moment.spec.content : null}">
+
+    <!-- 左侧侧栏 -->
+    <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
+      <div th:replace="includes/components/nav :: nav"></div>
+      <div th:replace="includes/widgets/authorCard :: authorCard(postCount=${allPosts.size()}, stats=${stats})"></div>
+    </aside>
+
+    <!-- 右侧主内容 -->
+    <div class="content">
+      <div id="notes" class="notes-layout">
+        <main class="notes-core">
+
+          <!-- 顶部栏：左返回（仅图标，悬浮出 Tooltip） / 右发布时间 -->
+          <div class="moment-detail-topbar">
+            <a class="moment-back-btn" th:href="@{/moments}" aria-label="返回笔记列表">
+              <i class="czs-angle-left-l" aria-hidden="true"></i>
+              <span class="moment-back-tip" role="tooltip">返回笔记列表</span>
+            </a>
+
+            <div class="moment-detail-topbar-right">
+              <time class="moment-detail-time" th:if="${moment != null and moment.spec.releaseTime != null}"
+                th:datetime="${moment.spec.releaseTime}"
+                th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}">2026-01-01 00:00</time>
+
+              <!-- 管理操作（仅登录用户，普通访客不出现空菜单） -->
+              <div class="moment-more-wrapper"
+                th:if="${moment != null and #authentication.name != 'anonymousUser'}">
+                <button class="moment-more-btn" title="更多" type="button"
+                  th:data-moment-name="${moment.metadata.name}">⋯</button>
+                <div class="moment-more-menu" style="display:none;">
+                  <button class="moment-more-item" type="button" data-action="edit"
+                    th:data-moment-name="${moment.metadata.name}">编辑</button>
+                  <button class="moment-more-item" type="button" data-action="visibility"
+                    th:data-moment-name="${moment.metadata.name}" th:data-visible="${moment.spec.visible}"
+                    th:text="${#strings.toString(moment.spec.visible) == 'PRIVATE'} ? '设为公开' : '设为私密'">设为私密</button>
+                  <button class="moment-more-item moment-more-delete" type="button" data-action="delete"
+                    th:data-moment-name="${moment.metadata.name}">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="article-list" id="articleList">
+            <article class="moment-item moment-detail-item" th:if="${moment != null}"
+              th:attr="data-moment-name=${moment.metadata.name}">
+
+              <!-- 私密徽标（标签内联在正文中，由 linkifyTags 渲染，不在头部重复） -->
+              <div class="moment-header"
+                th:if="${#strings.toString(moment.spec.visible) == 'PRIVATE'}">
+                <div class="moment-header-left">
+                  <span class="moment-visibility-badge">🔒 私密</span>
+                </div>
+              </div>
+
+              <!-- 正文（不展示作者头像/昵称：单作者博客，头部时间已足够定位） -->
+              <div class="moment-content" th:if="${content != null and not #strings.isEmpty(content.html)}"
+                th:utext="${content.html}"></div>
+
+              <!-- 媒体 -->
+              <th:block th:if="${content != null and not #lists.isEmpty(content.medium)}">
+                <div class="moment-media">
+                  <!-- 图片 -->
+                  <div class="moment-photos"
+                    th:if="${#lists.size(content.medium.?[#strings.toString(type) == 'PHOTO']) > 0}">
+                    <div class="photo-item" th:each="item : ${content.medium}"
+                      th:if="${#strings.toString(item.type) == 'PHOTO'}">
+                      <img th:src="${item.url}" alt="笔记图片" loading="lazy" />
+                    </div>
+                  </div>
+                  <!-- 视频 -->
+                  <div class="moment-video-wrapper" th:each="item : ${content.medium}"
+                    th:if="${#strings.toString(item.type) == 'VIDEO'}" th:data-video-src="${item.url}">
+                    <video class="moment-video" th:src="${item.url}" th:data-src="${item.url}" controls muted
+                      playsinline preload="metadata"></video>
+                    <div class="moment-video-overlay" style="display: none;">
+                      <div class="moment-video-play-icon">▶</div>
+                    </div>
+                    <div class="moment-media-badge"><span class="media-icon">🎬</span><span
+                        class="media-label">视频</span></div>
+                  </div>
+                  <!-- 音频 -->
+                  <div class="moment-audio-wrapper" th:each="item : ${content.medium}"
+                    th:if="${#strings.toString(item.type) == 'AUDIO'}">
+                    <audio th:src="${item.url}" controls preload="none"></audio>
+                    <div class="moment-media-badge"><span class="media-icon">🎵</span><span
+                        class="media-label">音频</span></div>
+                  </div>
+                  <!-- 引用链接 -->
+                  <a class="moment-post-link" th:each="item : ${content.medium}"
+                    th:if="${#strings.toString(item.type) == 'POST'}" th:href="${item.url}" target="_blank"
+                    rel="noopener noreferrer">
+                    <div class="moment-post-card moment-post-card--url">
+                      <div class="moment-post-info">
+                        <h4 class="moment-post-title" th:text="${item.url}">链接</h4>
+                        <div class="moment-post-meta">
+                          <span class="moment-media-badge"><span class="media-icon">🔗</span><span
+                              class="media-label">引用链接</span></span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </th:block>
+
+              <!-- 互动 -->
+              <div class="moment-footer">
+                <div class="moment-actions">
+                  <a class="action-item moment-like" href="javascript:;" role="button"
+                    th:data-moment-name="${moment.metadata.name}"
+                    th:attr="aria-label=${'点赞，当前 ' + (moment.stats != null ? moment.stats.upvote : 0) + ' 次'}">
+                    <i class="czs-heart-l"></i>
+                    <span class="like-count" th:text="${moment.stats != null ? moment.stats.upvote : 0}">0</span>
+                  </a>
+                  <a class="action-item" href="#comments-section" aria-label="跳到评论">
+                    <i class="czs-comment-l"></i>
+                    <span th:text="${moment.stats != null ? moment.stats.totalComment : 0}">0</span>
+                  </a>
+                </div>
+                <button class="moment-source moment-copy-link" type="button" id="momentCopyLink" title="复制本页链接">
+                  <i class="czs-link-l"></i>
+                  <span>复制链接</span>
+                </button>
+              </div>
+
+              <!-- 评论区（Halo 官方评论） -->
+              <div class="moment-detail-comments" id="comments-section">
+                <div th:replace="~{includes/comment/moment-comment :: moment-comment(moment=${moment})}"></div>
+              </div>
+            </article>
+
+            <!-- 瞬间不存在 -->
+            <div class="empty-moments" th:if="${moment == null}">
+              <p>这条笔记不存在或已被删除</p>
+              <p style="margin-top:12px"><a th:href="@{/moments}">返回笔记列表</a></p>
+            </div>
+          </div>
+        </main>
+
+        <!-- 右侧栏 -->
+        <aside class="notes-aside"
+          th:style="${theme.config.layout.right_sidebar_toggle == 'hide' ? 'display:none' : ''}">
+          <div class="heatmap-box">
+            <div
+              th:replace="includes/widgets/heatmap :: heatmap(momentTags=${null}, momentsForHeatmap=${momentsForHeatmap})">
+            </div>
+          </div>
+          <div class="topic-box">
+            <div th:replace="includes/widgets/topicList :: moment-tags(${null}, ${momentsForHeatmap})"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="includes/components/footer :: footer"></div>
+
+  <!-- 全局弹窗（灯箱 / 视频 / 确认框，公共片段） -->
+  <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>
+
+  <div th:replace="~{includes/scripts/moment-scripts :: moment-scripts}"></div>
+
+  <script>
+    (function () {
+      /* 详情页删除后应回到列表，而不是留在已删除的地址上 */
+      var remove = window.deleteMoment;
+      if (typeof remove === 'function') {
+        window.deleteMoment = function (name) { return remove(name, true); };
+      }
+
+      /* 复制本页链接 */
+      var btn = document.getElementById('momentCopyLink');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var url = window.location.href;
+        var label = btn.querySelector('span');
+        function done(text) {
+          if (!label) return;
+          var original = '复制链接';
+          label.textContent = text;
+          setTimeout(function () { label.textContent = original; }, 1600);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(url).then(function () { done('已复制'); },
+            function () { done('复制失败'); });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = url;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); done('已复制'); }
+          catch (e) { done('复制失败'); }
+          ta.remove();
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>
