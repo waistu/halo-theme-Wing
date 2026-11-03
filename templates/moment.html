@@ -56,7 +56,7 @@
       <div id="notes" class="notes-layout">
         <main class="notes-core">
 
-          <!-- 顶部栏：左返回（仅图标，悬浮出 Tooltip） / 右发布时间 -->
+          <!-- 顶部栏：左侧返回（仅图标，悬浮出 Tooltip），右侧为管理操作 -->
           <div class="moment-detail-topbar">
             <a class="moment-back-btn" th:href="@{/moments}" aria-label="返回笔记列表">
               <i class="czs-angle-left-l" aria-hidden="true"></i>
@@ -64,10 +64,6 @@
             </a>
 
             <div class="moment-detail-topbar-right">
-              <time class="moment-detail-time" th:if="${moment != null and moment.spec.releaseTime != null}"
-                th:datetime="${moment.spec.releaseTime}"
-                th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}">2026-01-01 00:00</time>
-
               <!-- 管理操作（仅登录用户，普通访客不出现空菜单） -->
               <div class="moment-more-wrapper"
                 th:if="${moment != null and #authentication.name != 'anonymousUser'}">
@@ -90,11 +86,15 @@
             <article class="moment-item moment-detail-item" th:if="${moment != null}"
               th:attr="data-moment-name=${moment.metadata.name}">
 
-              <!-- 私密徽标（标签内联在正文中，由 linkifyTags 渲染，不在头部重复） -->
-              <div class="moment-header"
-                th:if="${#strings.toString(moment.spec.visible) == 'PRIVATE'}">
+              <!-- 头部：时间（与列表卡片同款标记，data-date 由 main.js 格式化为相对时间）+ 私密标记 -->
+              <div class="moment-header">
                 <div class="moment-header-left">
-                  <span class="moment-visibility-badge">🔒 私密</span>
+                  <time class="moment-time" th:if="${moment.spec.releaseTime != null}"
+                    th:datetime="${moment.spec.releaseTime}"
+                    th:data-date="${moment.spec.releaseTime}"
+                    th:text="${moment.spec.releaseTime}">刚刚</time>
+                  <span class="moment-visibility-badge"
+                    th:if="${#strings.toString(moment.spec.visible) == 'PRIVATE'}">🔒 私密</span>
                 </div>
               </div>
 

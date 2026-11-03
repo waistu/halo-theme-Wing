@@ -5146,7 +5146,8 @@ html.dark .moment-post-title,
 .dark .moment-more-item:hover {
   background: var(--color-gray-700);
 }
-/* 详情页顶部栏：左返回 / 右发布时间，浅分隔线与正文主体分开 */
+/* 详情页顶部栏：左返回 / 右管理操作，浅分隔线与正文主体分开
+   （发布时间已下移到卡片头部左侧，与列表卡片共用 .moment-time 样式） */
 .moment-detail-topbar {
   display: flex;
   align-items: center;
@@ -5167,15 +5168,6 @@ html.dark .moment-detail-topbar,
   align-items: center;
   gap: var(--spacing-2);
   min-width: 0;
-}
-
-/* 发布时间：弱化处理，只做定位信息 */
-.moment-detail-time {
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 /* 返回控件：无文字，仅图标；负外边距让图标光学左对齐正文 */
