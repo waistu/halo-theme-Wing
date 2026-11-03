@@ -10493,3 +10493,44 @@ html.dark .wing-docs .prose-content pre,
     height: calc(100vh - 56px);
   }
 }
+
+/* ============================================================
+   文章列表页重复内容提示（文章首页模式下 /{slug} 与首页同源）
+   ------------------------------------------------------------
+   只做定位说明，不隐藏内容：外部链接与书签仍需正常打开。
+   ============================================================ */
+.content-merge-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2, 0.5rem);
+  margin-bottom: var(--spacing-4, 1rem);
+  padding: var(--spacing-2, 0.5rem) var(--spacing-3, 0.75rem);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+}
+
+.content-merge-hint a {
+  color: var(--link-color);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+}
+
+.content-merge-hint a:hover {
+  text-decoration: underline;
+}
+
+html.dark .content-merge-hint,
+[data-theme="dark"] .content-merge-hint {
+  color: var(--text-secondary-dark);
+  background-color: var(--bg-secondary-dark);
+  border-color: var(--border-color-dark);
+}
+
+html.dark .content-merge-hint a,
+[data-theme="dark"] .content-merge-hint a {
+  color: var(--link-color-dark);
+}
