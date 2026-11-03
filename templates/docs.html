@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title th:text="'文档 丨 ' + ${site.title}">文档丨站点</title>
+  <!-- 主题防闪烁初始化（必须在最前面） -->
+  <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
+  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
+  <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
+  <!-- 主题配色方案 -->
+  <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
+  <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
+  <!-- 关闭插件自带的主题切换，交由主题统一控制深浅色 -->
+  <script>
+    window.docsme = { disableThemeFunction: true };
+  </script>
+  <!-- Docsme 文档样式（须在主题样式之后加载） -->
+  <th:block th:replace="~{plugin:plugin-docsme:modules/style}"></th:block>
+  <!-- 主题配置透传给 main.js -->
+  <script th:inline="javascript">
+    window.__WING_THEME__ = {
+      serverMode: /*[[${theme.config.style?.theme_mode ?: 'auto'}]]*/ 'auto',
+      lightStart: /*[[${theme.config.style?.auto_theme_time?.light_start ?: '06:00'}]]*/ '06:00',
+      darkStart: /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00'
+    };
+  </script>
+  <script>
+    if (window.location.hash === '#open-search') {
+      setTimeout(() => {
+        if (window.SearchWidget) SearchWidget.open('');
+      }, 100);
+    }
+  </script>
+  <script th:src="@{/assets/dist/js/main.js}"></script>
+</head>
+
+<body dm-data>
+  <!-- 插入头部组件 -->
+  <div th:replace="includes/components/header :: header"></div>
+  <!-- 文档项目列表：主题头部已提供站点标识，此处不再重复渲染插件头部 -->
+  <div class="wing-docs">
+    <div class="dm-container">
+      <th:block
+        th:replace="~{plugin:plugin-docsme:modules/docs :: docs (footer = null, showHeader = false, showThemeSwitcher = false)}"></th:block>
+    </div>
+  </div>
+  <!-- 页脚部分 -->
+  <div th:replace="includes/components/footer :: footer"></div>
+  <!-- 插件交互脚本，须在 DOM 之后加载 -->
+  <th:block th:replace="~{plugin:plugin-docsme:modules/script}"></th:block>
+</body>
+
+</html>
