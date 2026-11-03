@@ -11542,6 +11542,7 @@ html.dark .accordion-body blockquote {
 .publisher-toolbar {
   border-top: 1px solid var(--color-gray-100, #f3f4f6);
   background: var(--color-gray-50, #f9fafb);
+  border-radius: 0 0 11px 11px;
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;

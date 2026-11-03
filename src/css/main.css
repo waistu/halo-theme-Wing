@@ -8612,6 +8612,9 @@ html.dark .accordion-body blockquote {
   padding: 8px 12px;
   border-top: 1px solid var(--color-gray-100, #f3f4f6);
   background: var(--color-gray-50, #f9fafb);
+  /* 外框 12px 圆角 + 1px 边框 = 11px，补齐底部圆角避免背景从角上溢出
+     （外框必须保持 overflow: visible，表情/话题下拉面板要伸出框外） */
+  border-radius: 0 0 11px 11px;
 }
 
 .dark .publisher-toolbar {
