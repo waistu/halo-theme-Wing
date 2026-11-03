@@ -35,7 +35,7 @@
     <div th:replace="includes/components/header :: header"></div>
     <!-- 页面主体容器 -->
     <div class="container"
-        th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, pageParam=${#strings.isEmpty(#strings.toString(param.page)) ? 1 : #strings.toString(param.page)}, friends=${friendFinder != null ? friendFinder.list({page: pageParam, size: 20}) : null}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
+        th:with="allPosts=${postFinder.listAll()}, stats=${siteStatsFinder.getStats()}, momentsForHeatmap=${momentFinder != null ? momentFinder.list(1, 100) : null}">
         <!-- 左侧：窄栏（菜单 + 小组件） -->
         <aside class="sidebar" th:style="${theme.config.layout.sidebar_toggle == 'hide' ? 'display:none' : ''}">
             <!-- nav -->
@@ -46,49 +46,59 @@
         </aside>
         <!-- 右侧：主内容大盒子 -->
         <div class="content">
-            <main class="friends">
+            <main class="friends"
+                th:with="beforePublishedAt=${#strings.isEmpty(#strings.toString(param.beforePublishedAt)) ? null : #strings.toString(param.beforePublishedAt)}, beforeId=${#strings.isEmpty(#strings.toString(param.beforeId)) ? null : #strings.toString(param.beforeId)}, linkFeeds=${linkFeedFinder != null ? (beforePublishedAt != null and beforeId != null ? linkFeedFinder.list({limit: 20, beforePublishedAt: beforePublishedAt, beforeId: beforeId}) : linkFeedFinder.list({limit: 20})) : null}">
                 <div class="page-header">
                     <h1 class="page-title">朋友圈</h1>
                     <p class="page-description">关注博主的友链更新</p>
                 </div>
+                <!-- 插件未安装提示 -->
+                <div class="plugin-notice" th:if="${linkFeedFinder == null}">
+                    <div class="plugin-notice-icon">🌐</div>
+                    <div class="plugin-notice-content">
+                        <h3>链接管理插件未安装</h3>
+                        <p>请安装 <a href="https://www.halo.run/store/apps/app-hfbQg" target="_blank">官方链接管理插件</a> 并开启 RSS 订阅功能</p>
+                    </div>
+                </div>
                 <!-- 朋友圈列表 -->
-                <th:block th:if="${friends == null}">
+                <th:block th:if="${linkFeedFinder != null and (linkFeeds == null or #lists.isEmpty(linkFeeds.items))}">
                     <div class="empty-state">
                         <p>暂无朋友圈动态</p>
+                        <p class="empty-hint">请确保已在链接管理插件设置中开启「公开 RSS 订阅动态」，并为友链配置 RSS/Atom 地址</p>
                     </div>
                 </th:block>
-                <th:block th:unless="${friends == null}">
-                    <th:block th:if="${#lists.isEmpty(friends.items)}">
-                        <div class="empty-state">
-                            <p>暂无朋友圈动态</p>
-                        </div>
-                    </th:block>
-                    <!-- 朋友圈内容 -->
-                    <th:block th:unless="${#lists.isEmpty(friends.items)}" th:each="friend : ${friends.items}">
-                        <div class="friend-card">
-                            <div class="friend-header">
-                                <img class="friend-avatar" th:src="${friend.spec.logo}" th:alt="${friend.spec.author}"
-                                    onerror="this.src=@{/assets/images/author-avatar.png}" />
-                                <div class="friend-info">
-                                    <a class="friend-author" th:href="${friend.spec.authorUrl}" target="_blank"
-                                        th:text="${friend.spec.author}">作者</a>
-                                    <span class="friend-date"
-                                        th:text="${#dates.format(friend.spec.pubDate, 'yyyy-MM-dd HH:mm')}">发布日期</span>
-                                </div>
+                <!-- 朋友圈内容 -->
+                <th:block th:unless="${linkFeeds == null or #lists.isEmpty(linkFeeds.items)}" th:each="friend : ${linkFeeds.items}">
+                    <div class="friend-card">
+                        <div class="friend-header">
+                            <img class="friend-avatar" th:src="${friend.authorLogo}" th:alt="${friend.author}"
+                                onerror="this.src=@{/assets/images/author-avatar.png}" />
+                            <div class="friend-info">
+                                <a class="friend-author" th:href="${friend.authorUrl}" target="_blank"
+                                    th:text="${friend.author}">作者</a>
+                                <span class="friend-date" th:if="${friend.publishedAt != null}"
+                                    th:data-date="${friend.publishedAt}">[[${friend.publishedAt}]]</span>
                             </div>
-                            <a class="friend-content" th:href="${friend.spec.postLink}" target="_blank">
-                                <h3 class="friend-title" th:text="${friend.spec.title}">文章标题</h3>
-                                <p class="friend-desc" th:text="${friend.spec.description}">文章描述</p>
-                            </a>
                         </div>
-                    </th:block>
-                    <!-- 分页 -->
-                    <div th:replace="includes/components/pagination :: simple-pagination(
-                               page=${friends.page},
-                               totalPages=${friends.totalPages},
-                               baseUrl=@{/friends}
-                             )" style="justify-content: center; display: flex;"></div>
+                        <a class="friend-content" th:href="${friend.url}" target="_blank">
+                            <h3 class="friend-title" th:text="${friend.title}">文章标题</h3>
+                            <p class="friend-desc" th:text="${friend.summary}">文章描述</p>
+                        </a>
+                    </div>
                 </th:block>
+                <!-- 游标分页 -->
+                <div class="pagination" th:if="${linkFeeds != null and linkFeeds.nextBeforePublishedAt != null and linkFeeds.nextBeforeId != null}" style="justify-content: center;">
+                    <a th:href="@{/friends(beforePublishedAt=${linkFeeds.nextBeforePublishedAt}, beforeId=${linkFeeds.nextBeforeId})}"
+                        class="pagination-next">
+                        加载更多
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                            style="width:1em;height:1em;flex-shrink:0">
+                            <path fill-rule="evenodd"
+                                d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
                 <!-- 评论区 -->
                 <div class="post-comment-section" th:if="${singlePage != null}">
                     <div th:replace="~{includes/comment/comment :: comment}"></div>
