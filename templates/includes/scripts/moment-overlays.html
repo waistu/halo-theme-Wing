@@ -1,0 +1,51 @@
+<!--
+  =============================================
+  瞬间插件 - 全局弹窗（公共片段）
+  =============================================
+  index.html（笔记首页）、moments.html（列表）、moment.html（详情）共用：
+
+    <div th:replace="~{includes/scripts/moment-overlays :: moment-overlays}"></div>
+
+  同时最多输出一份，配合 moment-scripts 片段使用（脚本会按 id 查找这些节点）：
+    - #imageViewer       图片灯箱（多图切换）
+    - #videoViewer       视频弹窗（竖屏播放）
+    - #wingConfirmModal  自定义确认框（wingConfirm）
+  =============================================
+-->
+<th:block th:fragment="moment-overlays">
+
+  <!-- 图片灯箱 -->
+  <div id="imageViewer" class="image-viewer" style="display: none;">
+    <div class="viewer-backdrop"></div>
+    <div class="viewer-content">
+      <img id="viewerImage" src="" alt="查看大图" />
+      <button class="viewer-prev" id="viewerPrev" style="display: none;" type="button">&#10094;</button>
+      <button class="viewer-next" id="viewerNext" style="display: none;" type="button">&#10095;</button>
+      <button class="viewer-close" id="viewerClose" type="button" aria-label="关闭"></button>
+      <div class="viewer-counter" id="viewerCounter" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- 视频弹窗 -->
+  <div id="videoViewer" class="video-viewer" style="display: none;">
+    <div class="video-viewer-backdrop"></div>
+    <div class="video-viewer-content">
+      <button class="video-viewer-close" id="videoViewerClose" type="button" aria-label="关闭">&times;</button>
+      <video id="viewerVideo" controls muted playsinline></video>
+    </div>
+  </div>
+
+  <!-- 自定义确认弹窗 -->
+  <div id="wingConfirmModal" class="wing-confirm-modal" style="display:none;">
+    <div class="wing-confirm-backdrop"></div>
+    <div class="wing-confirm-dialog">
+      <div class="wing-confirm-icon"></div>
+      <div class="wing-confirm-message"></div>
+      <div class="wing-confirm-actions">
+        <button class="wing-confirm-cancel" type="button">取消</button>
+        <button class="wing-confirm-ok" type="button">确定</button>
+      </div>
+    </div>
+  </div>
+
+</th:block>
