@@ -8388,14 +8388,6 @@ html.dark .moment-detail-topbar, [data-theme="dark"] .moment-detail-topbar {
   display: flex;
 }
 
-.moment-detail-time {
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  line-height: 1.5;
-}
-
 .moment-back-btn {
   width: calc(var(--spacing) * 8);
   height: calc(var(--spacing) * 8);
