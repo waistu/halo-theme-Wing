@@ -8,7 +8,7 @@
 </th:block>
 
 <!-- ShimmerButton 按钮组件 -->
-<!-- 用法: <div th:replace="~{includes/widgets/headingShadow :: shimmerButton(text='申请友链', icon='czs czs-add', onclick='LinkSubmitWidget.open()')}"></div> -->
+<!-- 用法: <div th:replace="~{includes/widgets/headingShadow :: shimmerButton(text='申请友链', icon='czs czs-add', onclick='document.getElementById(\"link-apply-btn\").click()')}"></div> -->
 <div th:fragment="shimmerButton(text, icon, href, onclick, className)"
      data-shimmer-button
      th:attr="data-text=${text}, data-icon=${icon ?: ''}, data-href=${href ?: ''}, data-onclick=${onclick ?: ''}, data-class=${className ?: ''}">
