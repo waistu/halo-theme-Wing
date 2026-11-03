@@ -16,9 +16,12 @@
     current : 当前所在页，'home' | 'moments' | 'posts'
 
   规则：
-    mode=moments → 笔记在前（首页 /），文章在后（/{slug}）
+    每种内容只有一个权威入口，tab 永远指向它：
+    mode=moments → 笔记入口 = /（首页即笔记），文章入口 = /{slug}
                    文章页未创建时降级到 /archives，不再弹配置提示
-    mode=posts   → 文章在前（首页 /），笔记在后（/moments）
+    mode=posts   → 文章入口 = /（首页即文章），笔记入口 = /moments
+    因此在列表页（/moments 或 /{slug}）点 tab 都是「回到首页」，
+    列表页本身通过首页的「查看全部」入口到达。
     高亮：当前页对应哪一项就高亮哪一项；首页按 mode 决定
 
   注意：`@{...}` 不能出现在 SpEL 三元表达式里（EL1059E），
@@ -42,12 +45,12 @@
       <ul class="tab global-list">
         <!-- ===== 笔记首页模式：笔记在前 ===== -->
         <th:block th:if="${modeIsMoments}">
+          <!-- 笔记的唯一入口就是首页，列表页点笔记 = 回首页 -->
           <li class="tab-item" th:classappend="${onMomentsTab} ? 'active'" data-type="note">
-            <a th:if="${isHome}" th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
-            <a th:unless="${isHome}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
+            <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">笔记</a>
           </li>
+          <!-- 文章页存在则跳转；未创建时降级到归档页，避免弹窗打断阅读 -->
           <li class="tab-item" th:classappend="${onPostsTab} ? 'active'" data-type="all">
-            <!-- 文章页存在则跳转；未创建时降级到归档页，避免弹窗打断阅读 -->
             <a th:if="${postsPageExists}" th:href="@{/{slug}(slug=${postsSlug})}"
               class="text-gray-700 dark:text-gray-300">文章</a>
             <a th:unless="${postsPageExists}" th:href="@{/archives}" title="文章页尚未创建，已跳转到归档页"
@@ -57,10 +60,9 @@
 
         <!-- ===== 文章首页模式：文章在前 ===== -->
         <th:block th:unless="${modeIsMoments}">
+          <!-- 文章的唯一入口就是首页，列表页点文章 = 回首页 -->
           <li class="tab-item" th:classappend="${onPostsTab} ? 'active'" data-type="all">
-            <a th:if="${isHome}" th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
-            <a th:unless="${isHome}" th:href="@{/{slug}(slug=${postsSlug})}"
-              class="text-gray-700 dark:text-gray-300">文章</a>
+            <a th:href="@{/}" class="text-gray-700 dark:text-gray-300">文章</a>
           </li>
           <li class="tab-item" th:classappend="${onMomentsTab} ? 'active'" data-type="note">
             <a th:if="${pluginInstalled}" th:href="@{/moments}" class="text-gray-700 dark:text-gray-300">笔记</a>
