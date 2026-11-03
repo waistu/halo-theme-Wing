@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="toolbar-right">
-        <span class="publisher-visibility">公开</span>
+        <button class="publisher-visibility" id="visibilityBtn" data-visible="PUBLIC" title="点击切换">公开</button>
         <button class="publisher-submit">发送</button>
       </div>
     </div>
@@ -45,9 +45,21 @@
       var editor = document.getElementById('momentEditor');
       var hiddenTextarea = document.getElementById('momentTextarea');
       var submitBtn = document.querySelector('.publisher-submit');
+      var visibilityBtn = document.getElementById('visibilityBtn');
       var isPublishing = false;
+      var momentVisibility = 'PUBLIC';
 
       if (!editor || !submitBtn) { return; }
+
+      // 公开/私密切换
+      if (visibilityBtn) {
+        visibilityBtn.addEventListener('click', function() {
+          momentVisibility = momentVisibility === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+          this.dataset.visible = momentVisibility;
+          this.textContent = momentVisibility === 'PUBLIC' ? '公开' : '私密';
+          this.classList.toggle('is-private', momentVisibility === 'PRIVATE');
+        });
+      }
 
       async function publishMoment() {
         if (isPublishing) return;
@@ -63,23 +75,17 @@
           var tags = extractTags();
           var momentData = {
             spec: {
-              content: {
-                raw: content,
-                html: htmlContent
-              },
+              content: { raw: content, html: htmlContent },
               releaseTime: new Date().toISOString(),
-              visible: 'PUBLIC',
+              visible: momentVisibility,
               approved: true,
               tags: tags
             },
             apiVersion: 'moment.halo.run/v1alpha1',
             kind: 'Moment',
-            metadata: {
-              generateName: 'moment-'
-            }
+            metadata: { generateName: 'moment-' }
           };
 
-          // Halo console API 路径（瞬间插件自定义 API group）
           var response = await fetch('/apis/console.api.moment.halo.run/v1alpha1/moments', {
             method: 'POST',
             credentials: 'include',
@@ -213,8 +219,6 @@
         sel.addRange(newRange);
         
         hideTagSuggest();
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
-      }
         editor.dispatchEvent(new Event('input', { bubbles: true }));
       }
 
@@ -538,244 +542,4 @@
     })();
   </script>
 
-  <style>
-    .moment-toast {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      z-index: 99999;
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    .moment-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .moment-toast-success { background: #10b981; color: #fff; }
-    .moment-toast-error { background: #ef4444; color: #fff; }
-    .moment-toast-warning { background: #f59e0b; color: #fff; }
-    .moment-toast-info { background: #3b82f6; color: #fff; }
-    .publisher-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .publisher-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px;
-      border-top: 1px solid var(--color-gray-100, #f3f4f6);
-      background: var(--color-gray-50, #f9fafb);
-      gap: 4px;
-    }
-    .dark .publisher-toolbar {
-      border-top-color: var(--color-gray-700, #374151);
-      background: var(--color-gray-700, #374151);
-    }
-    .toolbar-main {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      flex: 1;
-      min-width: 0;
-      overflow: visible;
-    }
-    .toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .publisher-toolbar .toolbar-btn {
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-gray-600, #4b5563);
-      transition: background-color 0.15s, color 0.15s;
-      flex-shrink: 0;
-    }
-    .dark .publisher-toolbar .toolbar-btn { color: var(--color-gray-300, #d1d5db); }
-    .publisher-toolbar .toolbar-btn:hover {
-      background: var(--color-gray-100, #f3f4f6);
-      color: var(--color-gray-900, #111827);
-    }
-    .dark .publisher-toolbar .toolbar-btn:hover {
-      background: var(--color-gray-600, #4b5563);
-      color: var(--color-gray-100, #f3f4f6);
-    }
-    .publisher-toolbar .toolbar-btn.active {
-      background: var(--color-primary-100, #dbeafe);
-      color: var(--color-primary-600, #2563eb);
-    }
-    .dark .publisher-toolbar .toolbar-btn.active {
-      background: var(--color-primary-900, #1e3a8a);
-      color: var(--color-primary-300, #93c5fd);
-    }
-    .toolbar-separator {
-      width: 1px;
-      height: 20px;
-      background: var(--color-gray-200, #e5e7eb);
-      margin: 0 4px;
-      flex-shrink: 0;
-    }
-    .dark .toolbar-separator { background: var(--color-gray-600, #4b5563); }
-    .toolbar-more-wrapper { position: relative; }
-    .toolbar-more-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 4px;
-      background: #fff;
-      border: 1px solid var(--color-gray-200, #e5e7eb);
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
-      min-width: 150px;
-      overflow: hidden;
-      padding: 4px 0;
-    }
-    .dark .toolbar-more-menu {
-      background: var(--color-gray-800, #1f2937);
-      border-color: var(--color-gray-700, #374151);
-    }
-    .toolbar-more-item {
-      width: 100%;
-      padding: 8px 14px;
-      text-align: left;
-      border: none;
-      background: none;
-      color: var(--color-gray-700, #374151);
-      font-size: 13px;
-      cursor: pointer;
-      display: block;
-    }
-    .dark .toolbar-more-item { color: var(--color-gray-200, #e5e5eb); }
-    .toolbar-more-item:hover { background: var(--color-gray-100, #f3f4f6); }
-    .dark .toolbar-more-item:hover { background: var(--color-gray-700, #374151); }
-    .toolbar-more-divider {
-      height: 1px;
-      background: var(--color-gray-100, #f3f4f6);
-      margin: 4px 0;
-    }
-    .dark .toolbar-more-divider { background: var(--color-gray-700, #374151); }
-    .emoji-btn-wrapper { position: relative; }
-    .emojis-mart-container {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 8px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      z-index: 9999;
-    }
-    @media (prefers-color-scheme: dark) {
-      .emojis-mart-container { background: #1f2937; }
-    }
-    .moment-editor {
-      width: 100%;
-      min-height: 72px;
-      padding: 12px;
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--color-gray-900, #111827);
-      background: transparent;
-      border: none;
-      outline: none;
-      resize: none;
-      overflow: hidden;
-      word-break: break-word;
-    }
-    .dark .moment-editor { color: var(--color-gray-100, #f3f4f6); }
-    .moment-editor:empty:before {
-      content: attr(data-placeholder);
-      color: var(--color-gray-400, #9ca3af);
-      pointer-events: none;
-    }
-    .moment-editor b, .moment-editor strong { font-weight: 700; }
-    .moment-editor i { font-style: italic; }
-    .moment-editor u { text-decoration: underline; }
-    .moment-editor s, .moment-editor del { text-decoration: line-through; }
-    .moment-editor code {
-      background: var(--color-gray-100, #f3f4f6);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', Consolas, monospace;
-      font-size: 13px;
-    }
-    .dark .moment-editor code { background: var(--color-gray-700, #374151); }
-    .moment-editor blockquote {
-      border-left: 3px solid var(--color-primary-500, #3b82f6);
-      padding-left: 12px;
-      margin: 8px 0;
-      color: var(--color-gray-600, #4b5563);
-    }
-    .dark .moment-editor blockquote {
-      border-color: var(--color-primary-400, #60a5fa);
-      color: var(--color-gray-400, #9ca3af);
-    }
-    .moment-editor pre {
-      background: var(--color-gray-100, #f3f4f6);
-      padding: 12px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: 'JetBrains Mono', Consolas, monospace;
-      font-size: 13px;
-      margin: 8px 0;
-    }
-    .dark .moment-editor pre { background: var(--color-gray-800, #1f2937); }
-    .toolbar-main::-webkit-scrollbar { height: 0; }
-    .moment-editor .moment-tag {
-      color: var(--color-primary-600, #3b82f6);
-      font-weight: 500;
-      cursor: default;
-      display: inline;
-      background: var(--color-primary-50, #eff6ff);
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin: 0 2px;
-    }
-    .dark .moment-editor .moment-tag {
-      color: var(--color-primary-400, #60a5fa);
-    }
-    .tag-suggest-panel {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--color-gray-200, #e5e7eb);
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 9999;
-      max-height: 200px;
-      overflow-y: auto;
-      min-width: 160px;
-    }
-    .dark .tag-suggest-panel {
-      background: var(--color-gray-800, #1f2937);
-      border-color: var(--color-gray-700, #374151);
-    }
-    .tag-suggest-item {
-      padding: 8px 14px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--color-gray-700, #374151);
-    }
-    .dark .tag-suggest-item { color: var(--color-gray-200, #e5e5eb); }
-    .tag-suggest-item:hover, .tag-suggest-item.selected {
-      background: var(--color-gray-100, #f3f4f6);
-    }
-    .dark .tag-suggest-item:hover, .dark .tag-suggest-item.selected {
-      background: var(--color-gray-700, #374151);
-    }
-    .tag-suggest-item.selected { font-weight: 500; }
-    .publisher-input-wrapper { position: relative; }
-  </style>
 </th:block>
