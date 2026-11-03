@@ -77,6 +77,9 @@
       <div id="notes" class="notes-layout">
         <main class="notes-core">
 
+          <!-- 发布框（登录 + 瞬间插件已安装，由 publisher-slot 统一判断） -->
+          <div th:replace="~{includes/components/momentPublisher :: publisher-slot}"></div>
+
           <!-- Tab 栏：链接与高亮统一由公共片段生成（current=posts） -->
           <div class="notes-tabbar sticky">
             <th:block th:replace="~{includes/components/contentTabs :: content-tabs(mode=${theme.config.layout.homepage_content ?: 'moments'}, current='posts')}"></th:block>

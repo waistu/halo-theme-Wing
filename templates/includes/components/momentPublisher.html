@@ -1,4 +1,12 @@
-<!-- ===== 发布框 ===== -->
+<!-- ===== 发布框（带准入判断的调用入口）=====
+  规则：登录 + 瞬间插件已安装 的列表页（首页 / /moments / 文章列表）统一展示，
+  保证用户在任何 tab 下都有发表入口；未登录或插件缺失时整体不渲染。
+-->
+<th:block th:fragment="publisher-slot"
+  th:if="${#authentication.name != 'anonymousUser' and momentFinder != null}">
+  <div th:replace="~{includes/components/momentPublisher :: momentPublisher}"></div>
+</th:block>
+
 <th:block th:fragment="momentPublisher">
 <div class="moment-publisher" id="momentPublisherWrapper">
     <div class="publisher-input-wrapper">

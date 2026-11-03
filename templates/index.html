@@ -76,10 +76,8 @@
       <div id="notes" class="notes-layout">
         <main class="notes-core">
 
-          <!-- ===== 发布框（仅登录用户显示）===== -->
-          <th:block th:if="${#authentication.name != 'anonymousUser'}">
-          <div th:replace="~{includes/components/momentPublisher :: momentPublisher}"></div>
-          </th:block>
+          <!-- ===== 发布框（登录 + 插件已安装，由 publisher-slot 统一判断）===== -->
+          <div th:replace="~{includes/components/momentPublisher :: publisher-slot}"></div>
 
           <!-- ===== Tab 栏：链接与高亮统一由公共片段生成 ===== -->
           <div class="notes-tabbar sticky">

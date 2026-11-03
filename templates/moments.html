@@ -97,6 +97,9 @@
           <!-- 插件已安装时显示内容 -->
           <th:block th:if="${pluginInstalled and moments != null}">
 
+            <!-- 发布框（登录 + 插件已安装，由 publisher-slot 统一判断） -->
+            <div th:replace="~{includes/components/momentPublisher :: publisher-slot}"></div>
+
             <div class="notes-tabbar sticky">
               <!-- Tab 链接与高亮统一由公共片段生成（current=moments） -->
               <th:block th:replace="~{includes/components/contentTabs :: content-tabs(mode=${theme.config.layout.homepage_content ?: 'moments'}, current='moments')}"></th:block>
