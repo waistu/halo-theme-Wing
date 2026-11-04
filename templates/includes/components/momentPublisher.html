@@ -12,9 +12,11 @@
     <div class="publisher-input-wrapper">
       <div id="momentEditor" class="moment-editor" contenteditable="true" data-placeholder="你在想什么，写下来吧？"></div>
       <textarea id="momentTextarea" style="display:none;" name="content"></textarea>
+      <div id="momentMediaTray" class="moment-media-tray" aria-label="已添加的附件"></div>
       <div id="tagSuggestPanel" class="tag-suggest-panel" style="display:none;"></div>
       <div id="linkPanel" class="moment-link-panel" style="display:none;">
         <div class="moment-link-title" id="linkPanelTitle">插入链接</div>
+        <input type="text" id="linkTextInput" class="moment-link-input" placeholder="链接文字（留空则显示网址）" />
         <input type="url" id="linkUrlInput" class="moment-link-input" placeholder="https://example.com" />
         <div class="moment-link-actions">
           <button type="button" class="moment-link-cancel" id="linkCancelBtn">取消</button>
@@ -537,13 +539,15 @@
             表单：只要 file，存储策略取系统设置里的「文章附件策略」
          先试 console，遇到 401/403/404 自动切 UC —— 管理员仍能指定策略，
          普通注册用户也有上传通道，模板里不用判断角色。
-         返回 Attachment，地址在 status.permalink。
-         编辑器里只放预览节点（contenteditable=false），提交时单独
-         组装 spec.content.medium，html 里剔掉预览节点——否则卡片
-         会把同一张图渲染两遍。
+        返回 Attachment，地址在 status.permalink。
+        预览节点不插入编辑器正文（朋友圈式），统一放进输入框下方的
+        固定托盘 #momentMediaTray，1:1 格子排列；提交时从托盘收集
+        spec.content.medium，html 里天然不含媒体节点——否则卡片
+        会把同一张图渲染两遍。
          ========================================================= */
       var MAX_MEDIA = 9;
       var mediaPolicy = null;
+      var mediaTray = document.getElementById('momentMediaTray');
       var UPLOAD_CONSOLE = '/apis/console.api.storage.halo.run/v1alpha1/attachments/upload';
       var UPLOAD_UC = '/apis/uc.api.storage.halo.run/v1alpha1/attachments/-/upload';
 
@@ -641,10 +645,11 @@
       }
 
       function countMedia() {
-        return editor.querySelectorAll('.moment-media').length;
+        return mediaTray ? mediaTray.querySelectorAll('.moment-media').length : 0;
       }
 
-      // 提交用 HTML：剔除预览节点和占位 <br>，媒体统一走 medium
+      // 提交用 HTML：正文不再包含媒体节点（媒体走托盘 → medium），
+      // 保留剔除逻辑作为旧数据的兜底
       function buildHtml() {
         var clone = editor.cloneNode(true);
         Array.prototype.forEach.call(clone.querySelectorAll('.moment-media'), function(el) {
@@ -657,38 +662,14 @@
 
       function collectMedia() {
         var list = [];
-        Array.prototype.forEach.call(editor.querySelectorAll('.moment-media'), function(el) {
-          var url = el.getAttribute('data-url');
-          if (!url) { return; }
-          list.push({ type: el.getAttribute('data-type') || 'PHOTO', url: url });
-        });
-        return list;
-      }
-
-      function insertNodeAtCaret(node) {
-        editor.focus();
-        var sel = window.getSelection();
-        if (sel && sel.rangeCount && sel.anchorNode && editor.contains(sel.anchorNode)) {
-          var range = sel.getRangeAt(0);
-          range.deleteContents();
-          range.insertNode(node);
-          var after = document.createRange();
-          after.setStartAfter(node);
-          after.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(after);
-        } else {
-          editor.appendChild(node);
-          var rEnd = document.createRange();
-          rEnd.setStartAfter(node);
-          rEnd.collapse(true);
-          if (sel) {
-            sel.removeAllRanges();
-            sel.addRange(rEnd);
-          }
+        if (mediaTray) {
+          Array.prototype.forEach.call(mediaTray.querySelectorAll('.moment-media'), function(el) {
+            var url = el.getAttribute('data-url');
+            if (!url) { return; }
+            list.push({ type: el.getAttribute('data-type') || 'PHOTO', url: url });
+          });
         }
-        // 不补 <br>：批量插图时要保持同一行自然流式排列
-        syncContent();
+        return list;
       }
 
       function createMediaNode() {
@@ -748,8 +729,6 @@
           syncContent();
         });
         span.appendChild(del);
-
-        syncContent();
       }
 
       function handleFiles(fileList) {
@@ -769,14 +748,15 @@
         files.forEach(function(file) {
           var node = createMediaNode();
           node.dataset.type = mediaTypeOf(file);
-          insertNodeAtCaret(node);
+          // 朋友圈式：预览固定进输入框下方托盘，不进正文
+          if (mediaTray) { mediaTray.appendChild(node); }
 
           uploadAttachment(file).then(function(res) {
             fillMediaNode(node, res.url, mediaTypeOf(file), res.name);
+            syncContent();
           }).catch(function(err) {
             console.error(err);
             if (node.parentNode) { node.remove(); }
-            syncContent();
             showToast(err && err.message ? err.message : '附件上传失败', 'error');
           });
         });
@@ -812,6 +792,7 @@
          5.6 链接插入 / 编辑 / 取消
          ========================================================= */
       var linkPanel = document.getElementById('linkPanel');
+      var linkTextInput = document.getElementById('linkTextInput');
       var linkUrlInput = document.getElementById('linkUrlInput');
       var linkPanelTitle = document.getElementById('linkPanelTitle');
       var savedLinkRange = null;
@@ -834,15 +815,20 @@
         if (existing) {
           linkPanel.dataset.mode = 'edit';
           linkPanelTitle.textContent = '编辑链接（清空地址可移除）';
+          linkTextInput.value = (existing.textContent || '').trim();
           linkUrlInput.value = existing.getAttribute('href') || '';
         } else {
           linkPanel.dataset.mode = 'insert';
-          var hasText = inEditor && sel.toString().trim().length > 0;
-          linkPanelTitle.textContent = hasText ? '为所选文字添加链接' : '插入链接';
+          var selected = inEditor ? sel.toString().trim() : '';
+          linkPanelTitle.textContent = '插入链接';
+          linkTextInput.value = selected;
           linkUrlInput.value = '';
         }
         linkPanel.style.display = 'block';
-        setTimeout(function() { linkUrlInput.focus(); linkUrlInput.select(); }, 0);
+        setTimeout(function() {
+          if (linkTextInput.value) { linkUrlInput.focus(); linkUrlInput.select(); }
+          else { linkTextInput.focus(); linkTextInput.select(); }
+        }, 0);
       }
 
       function closeLinkPanel() {
@@ -853,6 +839,7 @@
       function applyLink() {
         var mode = linkPanel.dataset.mode;
         var url = normalizeUrl(linkUrlInput.value);
+        var label = (linkTextInput.value || '').trim();
 
         var sel = window.getSelection();
         if (savedLinkRange) {
@@ -877,13 +864,13 @@
           anchor.setAttribute('href', url);
           anchor.setAttribute('target', '_blank');
           anchor.setAttribute('rel', 'noopener noreferrer');
+          if (label) { anchor.textContent = label; }
         } else {
-          var text = sel ? sel.toString() : '';
           var aEl = document.createElement('a');
           aEl.setAttribute('href', url);
           aEl.setAttribute('target', '_blank');
           aEl.setAttribute('rel', 'noopener noreferrer');
-          aEl.textContent = text || url;
+          aEl.textContent = label || url;
 
           if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
             var range = sel.getRangeAt(0);
@@ -912,6 +899,10 @@
         document.getElementById('linkCancelBtn').addEventListener('click', function(e) {
           e.preventDefault();
           closeLinkPanel();
+        });
+        linkTextInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); linkUrlInput.focus(); linkUrlInput.select(); }
+          else if (e.key === 'Escape') { e.preventDefault(); closeLinkPanel(); }
         });
         linkUrlInput.addEventListener('keydown', function(e) {
           if (e.key === 'Enter') { e.preventDefault(); applyLink(); }
@@ -1331,7 +1322,7 @@
         syncContent();
         var content = editor.dataset.markdown || '';
         if (!content.trim()) { showToast('请输入内容', 'warning'); return; }
-        if (editor.querySelector('.moment-media.is-uploading')) {
+        if (mediaTray && mediaTray.querySelector('.moment-media.is-uploading')) {
           showToast('附件还在上传中，请稍候', 'warning');
           return;
         }
@@ -1363,6 +1354,7 @@
           editor.innerHTML = '';
           editor.dataset.markdown = '';
           if (hiddenTextarea) { hiddenTextarea.value = ''; }
+          if (mediaTray) { mediaTray.innerHTML = ''; }
           hideTagSuggest();
           updateToolbarState();
 

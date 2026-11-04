@@ -522,4 +522,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ========== 回到顶部按钮 ==========
+  const toTopBtn = document.getElementById('wingToTop')
+  if (toTopBtn) {
+    const SHOW_AFTER = 200 // 滚过约 1/4 屏即出现（兼顾移动端短页面）
+    // 瞬间页等使用内部滚动容器，需一并处理
+    const innerScroller = document.querySelector('.notes-core')
+    let ticking = false
+
+    const getScrollTop = () => Math.max(
+      window.scrollY || document.documentElement.scrollTop || 0,
+      innerScroller ? innerScroller.scrollTop : 0
+    )
+
+    const syncToTop = () => {
+      toTopBtn.classList.toggle('is-visible', getScrollTop() > SHOW_AFTER)
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(syncToTop)
+    }
+
+    syncToTop()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    if (innerScroller) {
+      innerScroller.addEventListener('scroll', onScroll, { passive: true })
+    }
+
+    toTopBtn.addEventListener('click', () => {
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+      window.scrollTo({ top: 0, behavior })
+      if (innerScroller) innerScroller.scrollTo({ top: 0, behavior })
+      // 滚动后按钮会淡出，提前移开焦点，避免焦点停在不可见元素上
+      toTopBtn.blur()
+    })
+  }
+
 })

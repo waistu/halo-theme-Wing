@@ -1,5 +1,15 @@
 <!-- 底部公共文件 → 被 th:replace 引用 -->
 <div th:fragment="footer" class="footer --bg-page dark:--bg-page-dark text-gray-600 dark:text-gray-400" id="footer">
+    <!-- 回到顶部：滚动超过一屏后出现在视口右侧 -->
+    <button type="button" class="wing-to-top" id="wingToTop" aria-label="回到顶部" title="回到顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+                d="M8 2.5a.75.75 0 0 1 .53.22l4.25 4.25a.75.75 0 1 1-1.06 1.06L8.75 5.06V13a.75.75 0 0 1-1.5 0V5.06L4.28 8.03a.75.75 0 0 1-1.06-1.06l4.25-4.25A.75.75 0 0 1 8 2.5Z"
+                clip-rule="evenodd" />
+        </svg>
+    </button>
+
+<div th:fragment="footer" class="footer --bg-page dark:--bg-page-dark text-gray-600 dark:text-gray-400" id="footer">
     <div class="footer-container">
         <!-- 左侧：版权 + 网站标题 -->
         <div class="footer-left">

@@ -499,6 +499,94 @@
       /* ==================== 原位编辑 ==================== */
       window.__editingName = null;
 
+      /* DOM → Markdown，与发布器 toMarkdown 同一套规则，
+         保证行内编辑保存后 raw 里的链接/格式不丢 */
+      function wingMdSerialize(node) {
+        if (node.nodeType === 3) {
+          return (node.nodeValue || '').replace(/\u00a0/g, ' ');
+        }
+        if (node.nodeType !== 1) { return ''; }
+        var tag = node.tagName.toLowerCase();
+        var inner = '';
+        for (var i = 0; i < node.childNodes.length; i++) {
+          inner += wingMdSerialize(node.childNodes[i]);
+        }
+        switch (tag) {
+          case 'br':
+            return '\n';
+          case 'b':
+          case 'strong':
+            return inner.trim() ? '**' + inner + '**' : inner;
+          case 'i':
+          case 'em':
+            return inner.trim() ? '*' + inner + '*' : inner;
+          case 'u':
+            return inner.trim() ? '__' + inner + '__' : inner;
+          case 's':
+          case 'strike':
+          case 'del':
+            return inner.trim() ? '~~' + inner + '~~' : inner;
+          case 'code':
+            return inner ? '`' + inner + '`' : '';
+          case 'pre': {
+            var code = (node.textContent || '').replace(/\u00a0/g, ' ').replace(/\n+$/, '');
+            return '\n```\n' + code + '\n```\n';
+          }
+          case 'blockquote': {
+            var q = inner.replace(/[ \t]+\n/g, '\n').replace(/\n{2,}/g, '\n').trim();
+            return q ? '\n> ' + q.split('\n').join('\n> ') + '\n' : '';
+          }
+          case 'ul':
+          case 'ol': {
+            var lines = [];
+            for (var j = 0; j < node.children.length; j++) {
+              var li = node.children[j];
+              if (li.tagName.toLowerCase() !== 'li') { continue; }
+              var text = wingMdSerialize(li).replace(/\n+/g, ' ').trim();
+              if (!text) { continue; }
+              lines.push((tag === 'ul' ? '- ' : (lines.length + 1) + '. ') + text);
+            }
+            return lines.length ? '\n' + lines.join('\n') + '\n' : '';
+          }
+          case 'li':
+            return inner;
+          case 'div':
+          case 'p':
+            return '\n' + inner;
+          case 'span':
+            if (node.classList && node.classList.contains('moment-media')) { return ''; }
+            if (node.classList && node.classList.contains('moment-tag')) {
+              var tagName = (node.textContent || '').replace(/^#/, '').trim();
+              return tagName ? '#' + tagName : '';
+            }
+            return inner;
+          case 'a': {
+            var href = (node.getAttribute('href') || '').trim();
+            var label = inner.replace(/\n+/g, ' ').trim();
+            if (!href) { return inner; }
+            return '[' + (label || href) + '](' + href + ')';
+          }
+          case 'img':
+            return '';
+          /* 富文本遗留的媒体节点保留原样，避免编辑后 raw 丢视频 */
+          case 'figure':
+          case 'video':
+          case 'audio':
+          case 'iframe':
+            return node.outerHTML;
+          default:
+            return inner;
+        }
+      }
+      function wingMomentToMarkdown(root) {
+        return wingMdSerialize(root)
+          .replace(/\r\n?/g, '\n')
+          .replace(/[ \t]+\n/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .replace(/^\n+/, '')
+          .replace(/\s+$/, '');
+      }
+
       window.openEditModal = function (name) {
         if (window.__editingName || !name) return;
         var item = findItem(name);
@@ -518,6 +606,7 @@
           '<div class="toolbar-separator"></div>' +
           '<button class="toolbar-btn toolbar-format" type="button" title="粗体" data-action="bold"><b>B</b></button>' +
           '<button class="toolbar-btn toolbar-format" type="button" title="斜体" data-action="italic"><i>I</i></button>' +
+          '<button class="toolbar-btn toolbar-format" type="button" title="插入链接" data-action="link">🔗</button>' +
           '<div class="toolbar-more-wrapper"><button class="toolbar-btn toolbar-more" type="button" title="更多" data-action="more">⋯</button>' +
           '<div class="toolbar-more-menu" style="display:none;">' +
           '<button class="toolbar-more-item" type="button" data-action="underline">下划线</button>' +
@@ -531,6 +620,14 @@
           '<button class="toolbar-more-item" type="button" data-action="ol">1. 有序列表</button>' +
           '</div></div></div></div>' +
           '<div class="moment-editor" contenteditable="true" data-placeholder="写点什么..."></div>' +
+          '<div class="inline-link-panel moment-link-panel" style="display:none;">' +
+          '<div class="moment-link-title">插入链接</div>' +
+          '<input type="text" class="moment-link-input js-link-text" placeholder="链接文字（留空则显示网址）" />' +
+          '<input type="url" class="moment-link-input js-link-url" placeholder="https://example.com" />' +
+          '<div class="moment-link-actions">' +
+          '<button type="button" class="moment-link-cancel js-link-cancel">取消</button>' +
+          '<button type="button" class="moment-link-confirm js-link-confirm">确定</button>' +
+          '</div></div>' +
           '<div class="inline-edit-actions"><button class="inline-edit-cancel" type="button">取消</button>' +
           '<button class="inline-edit-save" type="button">保存</button></div>';
 
@@ -540,11 +637,110 @@
         var saveBtn = wrapper.querySelector('.inline-edit-save');
         var cancelBtn = wrapper.querySelector('.inline-edit-cancel');
 
+        /* ---- 链接面板：文字 + 地址两个输入框 ---- */
+        var linkPanel = wrapper.querySelector('.inline-link-panel');
+        var linkTextInput = wrapper.querySelector('.js-link-text');
+        var linkUrlInput = wrapper.querySelector('.js-link-url');
+        var savedLinkRange = null;
+
+        function normalizeUrl(raw) {
+          var url = (raw || '').trim();
+          if (!url) { return ''; }
+          if (/^(https?:|mailto:|tel:|\/|#)/i.test(url)) { return url; }
+          if (/^[\w-]+(\.[\w-]+)+/.test(url)) { return 'https://' + url; }
+          return url;
+        }
+        function nearestAnchor(node) {
+          var el = node && node.nodeType === 1 ? node : (node ? node.parentNode : null);
+          while (el && el !== ed) {
+            if (el.tagName && el.tagName.toLowerCase() === 'a') { return el; }
+            el = el.parentNode;
+          }
+          return null;
+        }
+        function openLinkPanel() {
+          var sel = window.getSelection();
+          var inEditor = sel && sel.rangeCount && sel.anchorNode && ed.contains(sel.anchorNode);
+          var existing = inEditor ? nearestAnchor(sel.anchorNode) : null;
+          savedLinkRange = inEditor ? sel.getRangeAt(0).cloneRange() : null;
+
+          if (existing) {
+            linkPanel.dataset.mode = 'edit';
+            linkTextInput.value = (existing.textContent || '').trim();
+            linkUrlInput.value = existing.getAttribute('href') || '';
+          } else {
+            linkPanel.dataset.mode = 'insert';
+            linkTextInput.value = inEditor ? sel.toString().trim() : '';
+            linkUrlInput.value = '';
+          }
+          linkPanel.style.display = 'block';
+          setTimeout(function() {
+            if (linkTextInput.value) { linkUrlInput.focus(); linkUrlInput.select(); }
+            else { linkTextInput.focus(); linkTextInput.select(); }
+          }, 0);
+        }
+        function closeLinkPanel() {
+          linkPanel.style.display = 'none';
+          savedLinkRange = null;
+        }
+        function applyLink() {
+          var url = normalizeUrl(linkUrlInput.value);
+          var label = (linkTextInput.value || '').trim();
+          if (!url) { linkUrlInput.focus(); return; }
+
+          var sel = window.getSelection();
+          if (savedLinkRange) {
+            sel.removeAllRanges();
+            sel.addRange(savedLinkRange);
+          }
+          var anchor = sel && sel.rangeCount ? nearestAnchor(sel.anchorNode) : null;
+
+          if (linkPanel.dataset.mode === 'edit' && anchor) {
+            anchor.setAttribute('href', url);
+            anchor.setAttribute('target', '_blank');
+            anchor.setAttribute('rel', 'noopener noreferrer');
+            if (label) { anchor.textContent = label; }
+          } else {
+            var aEl = document.createElement('a');
+            aEl.setAttribute('href', url);
+            aEl.setAttribute('target', '_blank');
+            aEl.setAttribute('rel', 'noopener noreferrer');
+            aEl.textContent = label || url;
+            if (sel && sel.rangeCount && ed.contains(sel.anchorNode)) {
+              var range = sel.getRangeAt(0);
+              range.deleteContents();
+              range.insertNode(aEl);
+              var after = document.createRange();
+              after.setStartAfter(aEl);
+              after.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(after);
+            } else {
+              ed.appendChild(aEl);
+            }
+          }
+          closeLinkPanel();
+          ed.focus();
+        }
+        wrapper.querySelector('.js-link-confirm').addEventListener('click', function(e) { e.preventDefault(); applyLink(); });
+        wrapper.querySelector('.js-link-cancel').addEventListener('click', function(e) { e.preventDefault(); closeLinkPanel(); });
+        linkTextInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); linkUrlInput.focus(); linkUrlInput.select(); }
+          else if (e.key === 'Escape') { e.preventDefault(); closeLinkPanel(); }
+        });
+        linkUrlInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); applyLink(); }
+          else if (e.key === 'Escape') { e.preventDefault(); closeLinkPanel(); }
+        });
+
         ed.textContent = '加载中...';
         fetch(API.ucItem + '/' + name, { credentials: 'include' })
           .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (d) {
-            if (d.spec && d.spec.content) ed.innerText = d.spec.content.raw || '';
+            if (d.spec && d.spec.content) {
+              /* 所见即所得：加载渲染后的 html（raw 是 Markdown 源码，直接展示会导致保存后链接变纯文本） */
+              ed.innerHTML = d.spec.content.html || (d.spec.content.raw || '');
+            }
             ed.focus();
           })
           .catch(function (e) { ed.textContent = '加载失败：' + e.message; });
@@ -576,6 +772,7 @@
           if (action === 'tag') insert('#');
           else if (action === 'bold') wrap('b');
           else if (action === 'italic') wrap('i');
+          else if (action === 'link') { openLinkPanel(); }
           else if (action === 'underline') wrap('u');
           else if (action === 'strike') wrap('s');
           else if (action === 'blockquote') wrap('blockquote');
@@ -629,6 +826,19 @@
           if (e.key === 'u') { e.preventDefault(); wrap('u'); }
         });
 
+        /* 编辑态点击链接：不跳转，打开面板可直接改文字/地址 */
+        ed.addEventListener('click', function (e) {
+          var a = e.target.closest && e.target.closest('a');
+          if (!a || !ed.contains(a)) { return; }
+          e.preventDefault();
+          var range = document.createRange();
+          range.selectNodeContents(a);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          openLinkPanel();
+        });
+
         function cleanup() {
           wrapper.remove();
           contentEl.style.display = '';
@@ -638,8 +848,9 @@
         cancelBtn.addEventListener('click', cleanup);
 
         saveBtn.addEventListener('click', function () {
-          var raw = ed.innerText.trim();
-          if (!raw) return;
+          var raw = wingMomentToMarkdown(ed);
+          var html = ed.innerHTML.trim();
+          if (!raw && !html) return;
           saveBtn.disabled = true;
           saveBtn.textContent = '保存中...';
 
@@ -647,7 +858,7 @@
             .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(function (moment) {
               moment.spec.content.raw = raw;
-              moment.spec.content.html = ed.innerHTML;
+              moment.spec.content.html = html;
               return fetch(API.ucItem + '/' + name, {
                 method: 'PUT',
                 credentials: 'include',
