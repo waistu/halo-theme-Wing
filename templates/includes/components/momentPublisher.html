@@ -13,31 +13,53 @@
       <div id="momentEditor" class="moment-editor" contenteditable="true" data-placeholder="你在想什么，写下来吧？"></div>
       <textarea id="momentTextarea" style="display:none;" name="content"></textarea>
       <div id="tagSuggestPanel" class="tag-suggest-panel" style="display:none;"></div>
+      <div id="linkPanel" class="moment-link-panel" style="display:none;">
+        <div class="moment-link-title" id="linkPanelTitle">插入链接</div>
+        <input type="url" id="linkUrlInput" class="moment-link-input" placeholder="https://example.com" />
+        <div class="moment-link-actions">
+          <button type="button" class="moment-link-cancel" id="linkCancelBtn">取消</button>
+          <button type="button" class="moment-link-confirm" id="linkConfirmBtn">确定</button>
+        </div>
+      </div>
     </div>
     <div class="publisher-toolbar">
       <div class="toolbar-main" id="toolbarMain">
-        <button class="toolbar-btn toolbar-format" title="话题" data-action="tag" data-markdown="#">#</button>
+        <button type="button" class="toolbar-btn toolbar-format" title="话题" data-action="tag">#</button>
         <div class="emoji-btn-wrapper">
-          <button class="toolbar-btn" title="表情" id="emojiBtn">☺</button>
+          <button type="button" class="toolbar-btn" title="表情" id="emojiBtn">☺</button>
           <div id="emojiMartPanel" class="emojis-mart-container" style="display:none;"></div>
         </div>
+        <button type="button" class="toolbar-btn" title="插入图片/视频" data-action="image" id="imageBtn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+          </svg>
+        </button>
+        <button type="button" class="toolbar-btn" title="插入链接" data-action="link" id="linkBtn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+        </button>
+        <input type="file" id="momentFileInput" accept="image/*,video/*,audio/*" multiple hidden />
         <div class="toolbar-separator"></div>
-        <button class="toolbar-btn toolbar-format" title="粗体（Ctrl+B）" data-action="bold" data-tag="b"><b>B</b></button>
-        <button class="toolbar-btn toolbar-format" title="斜体（Ctrl+I）" data-action="italic" data-tag="i"><i>I</i></button>
+        <button type="button" class="toolbar-btn toolbar-format" title="粗体（Ctrl+B）" data-action="bold"><b>B</b></button>
+        <button type="button" class="toolbar-btn toolbar-format" title="斜体（Ctrl+I）" data-action="italic"><i>I</i></button>
         <div class="toolbar-more-wrapper">
-          <button class="toolbar-btn toolbar-more" title="更多" id="moreBtn">⋯</button>
+          <button type="button" class="toolbar-btn toolbar-more" title="更多" id="moreBtn">⋯</button>
           <div class="toolbar-more-menu" id="moreMenu" style="display:none;">
-            <button class="toolbar-more-item" data-action="underline" data-tag="u">下划线</button>
-            <button class="toolbar-more-item" data-action="strike" data-tag="s">删除线</button>
+            <button type="button" class="toolbar-more-item" data-action="underline">下划线</button>
+            <button type="button" class="toolbar-more-item" data-action="strike">删除线</button>
             <div class="toolbar-more-divider"></div>
-            <button class="toolbar-more-item" data-action="blockquote" data-tag="blockquote">❝ 引用</button>
-            <button class="toolbar-more-item" data-action="code" data-tag="code">&lt;/&gt; 行内代码</button>
-            <button class="toolbar-more-item" data-action="codeblock">{ } 代码块</button>
+            <button type="button" class="toolbar-more-item" data-action="blockquote">❝ 引用</button>
+            <button type="button" class="toolbar-more-item" data-action="code">&lt;/&gt; 行内代码</button>
+            <button type="button" class="toolbar-more-item" data-action="codeblock">{ } 代码块</button>
             <div class="toolbar-more-divider"></div>
-            <button class="toolbar-more-item" data-action="ul" data-markdown="- ">☰ 无序列表</button>
-            <button class="toolbar-more-item" data-action="ol" data-markdown="1. ">1. 有序列表</button>
-            <div class="toolbar-more-divider"></div>
-            <button class="toolbar-more-item" data-action="sync">☁ 同步</button>
+            <button type="button" class="toolbar-more-item" data-action="ul">☰ 无序列表</button>
+            <button type="button" class="toolbar-more-item" data-action="ol">1. 有序列表</button>
           </div>
         </div>
       </div>
@@ -50,105 +72,920 @@
 
   <script>
     (function() {
+      'use strict';
+
       var editor = document.getElementById('momentEditor');
       var hiddenTextarea = document.getElementById('momentTextarea');
       var submitBtn = document.querySelector('.publisher-submit');
       var visibilityBtn = document.getElementById('visibilityBtn');
-      var isPublishing = false;
-      var momentVisibility = 'PUBLIC';
+      var tagSuggestPanel = document.getElementById('tagSuggestPanel');
+      var wrapper = editor ? editor.closest('.publisher-input-wrapper') : null;
 
       if (!editor || !submitBtn) { return; }
 
-      // 公开/私密切换
-      if (visibilityBtn) {
-        visibilityBtn.addEventListener('click', function() {
-          momentVisibility = momentVisibility === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
-          this.dataset.visible = momentVisibility;
-          this.textContent = momentVisibility === 'PUBLIC' ? '公开' : '私密';
-          this.classList.toggle('is-private', momentVisibility === 'PRIVATE');
-        });
+      var isPublishing = false;
+      var momentVisibility = 'PUBLIC';
+
+      /* =========================================================
+         1. 序列化：HTML → Markdown
+         用 DOM 递归遍历，不用正则。正则处理不了嵌套标签、跨行
+         加粗（<b>a<br>b</b>）、空标签会残留 ****，也无法识别
+         execCommand 生成的 <strike> 等变体。
+         ========================================================= */
+      function escapeText(s) {
+        return s;
       }
 
-      async function publishMoment() {
-        if (isPublishing) return;
-        var content = editor.dataset.markdown || '';
-        if (!content.trim()) { showToast('请输入内容', 'warning'); return; }
+      function serialize(node) {
+        // 文本节点
+        if (node.nodeType === 3) {
+          return escapeText((node.nodeValue || '').replace(/\u00a0/g, ' '));
+        }
+        if (node.nodeType !== 1) { return ''; }
 
-        isPublishing = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = '发送中...';
+        var tag = node.tagName.toLowerCase();
+        var inner = '';
+        for (var i = 0; i < node.childNodes.length; i++) {
+          inner += serialize(node.childNodes[i]);
+        }
 
-        try {
-          var htmlContent = editor.innerHTML;
-          var tags = extractTags();
-          var momentData = {
-            spec: {
-              content: { raw: content, html: htmlContent },
-              releaseTime: new Date().toISOString(),
-              visible: momentVisibility,
-              approved: true,
-              tags: tags
-            },
-            apiVersion: 'moment.halo.run/v1alpha1',
-            kind: 'Moment',
-            metadata: { generateName: 'moment-' }
-          };
-
-          var response = await fetch('/apis/console.api.moment.halo.run/v1alpha1/moments', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(momentData)
-          });
-
-          if (!response.ok) {
-            var errorText = await response.text();
-            console.error('发布失败:', response.status, errorText);
-            throw new Error('发布失败: ' + response.status);
+        switch (tag) {
+          case 'br':
+            return '\n';
+          case 'b':
+          case 'strong':
+            return inner.trim() ? '**' + inner + '**' : inner;
+          case 'i':
+          case 'em':
+            return inner.trim() ? '*' + inner + '*' : inner;
+          case 'u':
+            return inner.trim() ? '__' + inner + '__' : inner;
+          case 's':
+          case 'strike':
+          case 'del':
+            return inner.trim() ? '~~' + inner + '~~' : inner;
+          case 'code':
+            return inner ? '`' + inner + '`' : '';
+          case 'pre': {
+            var raw = (node.textContent || '').replace(/\u00a0/g, ' ').replace(/\n+$/, '');
+            return '\n```\n' + raw + '\n```\n';
           }
-
-          showToast('发布成功', 'success');
-          editor.innerHTML = '';
-          editor.dataset.markdown = '';
-          hiddenTextarea.value = '';
-
-          if (window.refreshMoments) {
-            window.refreshMoments();
-          } else {
-            setTimeout(function() { location.reload(); }, 500);
+          case 'blockquote': {
+            var q = inner.replace(/[ \t]+\n/g, '\n').replace(/\n{2,}/g, '\n').trim();
+            return q ? '\n> ' + q.split('\n').join('\n> ') + '\n' : '';
           }
-        } catch (e) {
-          console.error('发布失败:', e);
-          showToast('发布失败，请重试', 'error');
-        } finally {
-          isPublishing = false;
-          submitBtn.disabled = false;
-          submitBtn.textContent = '发送';
+          case 'ul':
+          case 'ol': {
+            var lines = [];
+            for (var j = 0; j < node.children.length; j++) {
+              var li = node.children[j];
+              if (li.tagName.toLowerCase() !== 'li') { continue; }
+              var text = serialize(li).replace(/\n+/g, ' ').trim();
+              if (!text) { continue; }
+              lines.push((tag === 'ul' ? '- ' : (lines.length + 1) + '. ') + text);
+            }
+            return lines.length ? '\n' + lines.join('\n') + '\n' : '';
+          }
+          case 'li':
+            return inner;
+          case 'div':
+          case 'p':
+            return '\n' + inner;
+          case 'span':
+            // 媒体预览节点不进正文，统一走 spec.content.medium
+            if (node.classList && node.classList.contains('moment-media')) {
+              return '';
+            }
+            if (node.classList && node.classList.contains('moment-tag')) {
+              var tagName = (node.textContent || '').replace(/^#/, '').trim();
+              return tagName ? '#' + tagName : '';
+            }
+            return inner;
+          case 'a': {
+            var href = (node.getAttribute('href') || '').trim();
+            var label = inner.replace(/\n+/g, ' ').trim();
+            if (!href) { return inner; }
+            return '[' + (label || href) + '](' + href + ')';
+          }
+          case 'img':
+            return '';
+          default:
+            return inner;
         }
       }
 
-      // ===== 标签建议功能 =====
-      var tagSuggestPanel = document.getElementById('tagSuggestPanel');
+      function toMarkdown() {
+        return serialize(editor)
+          .replace(/\r\n?/g, '\n')
+          .replace(/[ \t]+\n/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .replace(/^\n+/, '')
+          .replace(/\s+$/, '');
+      }
+
+      function syncContent() {
+        var md = toMarkdown();
+        if (hiddenTextarea) { hiddenTextarea.value = md; }
+        editor.dataset.markdown = md;
+      }
+
+      /* =========================================================
+         2. 选区工具
+         ========================================================= */
+      function nearestTag(node, names) {
+        var el = node;
+        if (el && el.nodeType !== 1) { el = el.parentNode; }
+        while (el && el !== editor) {
+          if (names.indexOf(el.tagName.toLowerCase()) !== -1) { return el; }
+          el = el.parentNode;
+        }
+        return null;
+      }
+
+      function unwrapElement(el) {
+        var parent = el.parentNode;
+        if (!parent) { return; }
+        var frag = document.createDocumentFragment();
+        while (el.firstChild) { frag.appendChild(el.firstChild); }
+        parent.replaceChild(frag, el);
+        parent.normalize();
+      }
+
+      // 把当前选区包进 tagName 元素（支持跨节点）
+      function wrapSelection(tagName) {
+        var sel = window.getSelection();
+        if (!sel || !sel.rangeCount) { return false; }
+        var range = sel.getRangeAt(0);
+        if (range.collapsed) { return false; }
+        var newEl = document.createElement(tagName);
+        newEl.appendChild(range.extractContents());
+        range.insertNode(newEl);
+        var after = document.createRange();
+        after.selectNodeContents(newEl);
+        sel.removeAllRanges();
+        sel.addRange(after);
+        return true;
+      }
+
+      function insertText(text) {
+        editor.focus();
+        try {
+          document.execCommand('insertText', false, text);
+        } catch (e) {
+          var sel = window.getSelection();
+          if (sel && sel.rangeCount) {
+            var range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+            range.collapse(false);
+          }
+        }
+        syncContent();
+      }
+
+      /* =========================================================
+         3. 格式命令
+         ---------------------------------------------------------
+         关键修复：bold / italic / underline / strike 全部交给
+         execCommand 实现原生 toggle。
+           · 有选区  → 加粗所选，再点一次取消（解包）
+           · 无选区  → 切换后续输入的格式，再点一次取消
+         旧实现只会往选区上再包一层 <b>，永远无法取消。
+         ========================================================= */
+      var INLINE_CMDS = {
+        bold: 'bold',
+        italic: 'italic',
+        underline: 'underline',
+        strike: 'strikeThrough'
+      };
+
+      function withEditorFocus(fn) {
+        editor.focus();
+        try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
+        fn();
+        syncContent();
+        updateToolbarState();
+      }
+
+      function execInline(action) {
+        var cmd = INLINE_CMDS[action];
+        if (!cmd) { return; }
+        withEditorFocus(function() {
+          try { document.execCommand(cmd, false, null); } catch (e) {}
+        });
+      }
+
+      function selectBlock() {
+        var range = null;
+        var sel = window.getSelection();
+        if (sel && sel.rangeCount) { range = sel.getRangeAt(0); }
+        var cur = '';
+        try {
+          cur = (document.queryCommandValue('formatBlock') || '').toLowerCase();
+        } catch (e) {}
+        if (!cur && range) {
+          var blk = nearestTag(range.startContainer, ['blockquote', 'pre', 'div', 'p']);
+          cur = blk ? blk.tagName.toLowerCase() : '';
+        }
+        return cur;
+      }
+
+      function toggleBlockquote() {
+        withEditorFocus(function() {
+          var cur = selectBlock();
+          try {
+            document.execCommand('formatBlock', false, cur === 'blockquote' ? '<div>' : '<blockquote>');
+          } catch (e) {}
+        });
+      }
+
+      function toggleCodeBlock() {
+        withEditorFocus(function() {
+          var cur = selectBlock();
+          try {
+            document.execCommand('formatBlock', false, cur === 'pre' ? '<div>' : '<pre>');
+          } catch (e) {}
+        });
+      }
+
+      function toggleInlineCode() {
+        var sel = window.getSelection();
+        var inCode = sel && sel.rangeCount ? nearestTag(sel.anchorNode, ['code']) : null;
+
+        withEditorFocus(function() {
+          if (inCode) {
+            unwrapElement(inCode);
+            return;
+          }
+          if (!wrapSelection('code')) {
+            // 无选区：插入一对反引号并把光标放到中间
+            try {
+              document.execCommand('insertText', false, '``');
+            } catch (e) { return; }
+            var s = window.getSelection();
+            if (s && s.rangeCount) {
+              var r = s.getRangeAt(0);
+              if (r.startContainer.nodeType === 3 && r.startOffset >= 2) {
+                r.setStart(r.startContainer, r.startOffset - 1);
+                r.collapse(true);
+                s.removeAllRanges();
+                s.addRange(r);
+              }
+            }
+          }
+        });
+      }
+
+      function toggleList(kind) {
+        withEditorFocus(function() {
+          try {
+            document.execCommand(kind === 'ul' ? 'insertUnorderedList' : 'insertOrderedList', false, null);
+          } catch (e) {}
+        });
+      }
+
+      /* =========================================================
+         4. 工具栏状态（当前段落/选区处于什么格式）
+         ========================================================= */
+      function updateToolbarState() {
+        var sel = window.getSelection();
+        var inEditor = !!(sel && sel.rangeCount && sel.anchorNode && editor.contains(sel.anchorNode));
+
+        var btns = document.querySelectorAll('.toolbar-format[data-action], .toolbar-more-item[data-action]');
+        Array.prototype.forEach.call(btns, function(btn) {
+          var action = btn.dataset.action;
+          var on = false;
+
+          if (inEditor) {
+            try {
+              if (action === 'bold') { on = document.queryCommandState('bold'); }
+              else if (action === 'italic') { on = document.queryCommandState('italic'); }
+              else if (action === 'underline') { on = document.queryCommandState('underline'); }
+              else if (action === 'strike') { on = document.queryCommandState('strikeThrough'); }
+              else if (action === 'code') { on = !!nearestTag(sel.anchorNode, ['code']); }
+              else if (action === 'blockquote') { on = !!nearestTag(sel.anchorNode, ['blockquote']); }
+              else if (action === 'codeblock') { on = !!nearestTag(sel.anchorNode, ['pre']); }
+              else if (action === 'ul') { on = !!nearestTag(sel.anchorNode, ['ul']); }
+              else if (action === 'ol') { on = !!nearestTag(sel.anchorNode, ['ol']); }
+            } catch (e) {}
+          }
+          if (on) { btn.classList.add('active'); } else { btn.classList.remove('active'); }
+        });
+      }
+
+      /* =========================================================
+         5. 编辑区事件
+         ========================================================= */
+      editor.addEventListener('input', syncContent);
+
+      // 粘贴：只保留纯文本。否则从网页复制来的粗体/字号会带进编辑器，
+      // 而且外部样式（font-weight:700 的 span）无法用工具栏取消。
+      editor.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var text = '';
+        if (e.clipboardData) {
+          text = e.clipboardData.getData('text/plain') || '';
+        } else if (window.clipboardData) {
+          text = window.clipboardData.getData('Text') || '';
+        }
+        if (text) { insertText(text); }
+      });
+
+      // 回车：断开行内格式，避免新行继续加粗
+      editor.addEventListener('keydown', function(e) {
+        // 中文输入法组词中，Enter 是选词，不能拦
+        if (e.isComposing || e.keyCode === 229) { return; }
+
+        if (e.key === 'Enter' && !e.shiftKey) {
+          // 标签面板打开时交给面板处理
+          if (tagSuggestPanel && tagSuggestPanel.style.display !== 'none') { return; }
+
+          var sel = window.getSelection();
+          if (!sel || !sel.rangeCount) { return; }
+
+          // 代码块内保留浏览器默认换行
+          if (nearestTag(sel.anchorNode, ['pre'])) { return; }
+
+          e.preventDefault();
+
+          // 关掉当前的行内格式，新段落就是干净状态
+          ['bold', 'italic', 'underline', 'strikeThrough'].forEach(function(cmd) {
+            try {
+              if (document.queryCommandState(cmd)) {
+                document.execCommand(cmd, false, null);
+              }
+            } catch (err) {}
+          });
+
+          try {
+            document.execCommand('insertParagraph', false, null);
+          } catch (err) {
+            document.execCommand('insertHTML', false, '<div><br></div>');
+          }
+
+          // 保险：若新段落仍嵌在行内标签里，把它提到编辑器直属
+          liftBlockOutOfInline();
+
+          syncContent();
+          updateToolbarState();
+        }
+      });
+
+      // 如果新段落被浏览器塞进了 <b>/<i> 内部，提升到顶层
+      function liftBlockOutOfInline() {
+        var sel = window.getSelection();
+        if (!sel || !sel.rangeCount) { return; }
+        var node = sel.anchorNode;
+        var block = node && node.nodeType === 1 ? node : (node ? node.parentNode : null);
+        while (block && block !== editor && !/^(DIV|P|LI|BLOCKQUOTE|PRE)$/.test(block.tagName)) {
+          block = block.parentNode;
+        }
+        if (!block || block === editor) { return; }
+
+        var inlineParent = block.parentNode;
+        var hasInline = false;
+        while (inlineParent && inlineParent !== editor) {
+          if (/^(B|STRONG|I|EM|U|S|STRIKE|CODE|SPAN)$/.test(inlineParent.tagName)) {
+            hasInline = true;
+            break;
+          }
+          inlineParent = inlineParent.parentNode;
+        }
+        if (!hasInline) { return; }
+
+        // 把光标所在段落挪到编辑器末尾之后，再重建选区
+        var inlineBox = inlineParent;
+        var moved = block;
+        while (inlineBox && inlineBox.parentNode !== editor) { inlineBox = inlineBox.parentNode; }
+        if (!inlineBox || inlineBox === block) { return; }
+
+        editor.appendChild(moved);
+        var range = document.createRange();
+        range.selectNodeContents(moved);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      document.addEventListener('selectionchange', function() {
+        if (document.activeElement === editor) { updateToolbarState(); }
+      });
+
+      // 工具栏按钮按下时不让编辑器失焦，否则选区会丢
+      var toolbarButtons = document.querySelectorAll('.publisher-toolbar button');
+      Array.prototype.forEach.call(toolbarButtons, function(btn) {
+        btn.addEventListener('mousedown', function(e) { e.preventDefault(); });
+      });
+
+      // 工具栏动作
+      function runAction(action) {
+        // 这两个不抢编辑器焦点：插图要走文件选择器，链接要弹输入面板
+        if (action === 'image') {
+          if (fileInput) { fileInput.click(); }
+          return;
+        }
+        if (action === 'link') {
+          openLinkPanel();
+          return;
+        }
+
+        editor.focus();
+        if (action === 'tag') { insertText('#'); }
+        else if (action === 'bold' || action === 'italic' || action === 'underline' || action === 'strike') {
+          execInline(action);
+        }
+        else if (action === 'blockquote') { toggleBlockquote(); }
+        else if (action === 'codeblock') { toggleCodeBlock(); }
+        else if (action === 'code') { toggleInlineCode(); }
+        else if (action === 'ul' || action === 'ol') { toggleList(action); }
+        updateToolbarState();
+      }
+
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.publisher-toolbar [data-action], .toolbar-more-menu [data-action]'),
+        function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            runAction(btn.dataset.action);
+            var menu = document.getElementById('moreMenu');
+            if (menu) { menu.style.display = 'none'; }
+          });
+        }
+      );
+
+      // 快捷键
+      document.addEventListener('keydown', function(e) {
+        if (document.activeElement !== editor) { return; }
+        if (!(e.ctrlKey || e.metaKey)) { return; }
+        var key = e.key.toLowerCase();
+        var map = { b: 'bold', i: 'italic', u: 'underline' };
+        if (map[key]) {
+          e.preventDefault();
+          execInline(map[key]);
+        }
+      });
+
+      /* =========================================================
+         5.5 附件上传（图片 / 视频 / 音频）
+         ---------------------------------------------------------
+         两套接口，按权限自动选择（Halo 2.26 起提供用户中心上传）：
+         1) 管理员 / console：
+            POST /apis/console.api.storage.halo.run/v1alpha1/attachments/upload
+            表单：file + policyName（必填）+ groupName（可选）
+         2) 普通登录用户 / 用户中心（2.26+）：
+            POST /apis/uc.api.storage.halo.run/v1alpha1/attachments/-/upload
+            表单：只要 file，存储策略取系统设置里的「文章附件策略」
+         先试 console，遇到 401/403/404 自动切 UC —— 管理员仍能指定策略，
+         普通注册用户也有上传通道，模板里不用判断角色。
+         返回 Attachment，地址在 status.permalink。
+         编辑器里只放预览节点（contenteditable=false），提交时单独
+         组装 spec.content.medium，html 里剔掉预览节点——否则卡片
+         会把同一张图渲染两遍。
+         ========================================================= */
+      var MAX_MEDIA = 9;
+      var mediaPolicy = null;
+      var UPLOAD_CONSOLE = '/apis/console.api.storage.halo.run/v1alpha1/attachments/upload';
+      var UPLOAD_UC = '/apis/uc.api.storage.halo.run/v1alpha1/attachments/-/upload';
+
+      function xsrfToken() {
+        var m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : '';
+      }
+
+      function resolvePolicy() {
+        if (mediaPolicy) { return Promise.resolve(mediaPolicy); }
+        var useDefault = function() { mediaPolicy = 'default-policy'; return mediaPolicy; };
+        return fetch('/apis/console.api.storage.halo.run/v1alpha1/policies?page=0&size=20', {
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' }
+        }).then(function(res) {
+          return res.ok ? res.json() : null;
+        }).then(function(data) {
+          var items = (data && data.items) || [];
+          if (!items.length) { return useDefault(); }
+          var pick = null;
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].metadata && items[i].metadata.name === 'default-policy') { pick = items[i]; break; }
+          }
+          if (!pick) { pick = items[0]; }
+          mediaPolicy = (pick.metadata && pick.metadata.name) || 'default-policy';
+          return mediaPolicy;
+        }).catch(useDefault);
+      }
+
+      function postForm(url, form) {
+        var headers = {};
+        var token = xsrfToken();
+        if (token) { headers['X-XSRF-TOKEN'] = token; }
+        return fetch(url, {
+          method: 'POST',
+          credentials: 'include',
+          headers: headers,
+          body: form
+        });
+      }
+
+      function readUploadResult(res, file) {
+        if (!res.ok) {
+          return res.text().then(function(t) {
+            var msg = '上传失败 ' + res.status;
+            if (t && t.indexOf('configure storage policy') >= 0) {
+              msg = '站点未配置附件存储策略，请在控制台「设置 → 附件」中配置';
+            } else if (t) {
+              msg += '（' + t.slice(0, 100) + '）';
+            }
+            throw new Error(msg);
+          });
+        }
+        return res.json().then(function(att) {
+          var url = att && att.status && att.status.permalink;
+          if (!url) { throw new Error('上传成功但未返回附件地址'); }
+          return { url: url, name: file.name };
+        });
+      }
+
+      // 管理员通道：可显式指定存储策略
+      function uploadViaConsole(file) {
+        return resolvePolicy().then(function(policy) {
+          var form = new FormData();
+          form.append('file', file);
+          form.append('policyName', policy);
+          return postForm(UPLOAD_CONSOLE, form);
+        });
+      }
+
+      // 用户中心通道（Halo 2.26+）：只需 file，策略由系统设置决定
+      function uploadViaUc(file) {
+        var form = new FormData();
+        form.append('file', file);
+        return postForm(UPLOAD_UC, form);
+      }
+
+      function uploadAttachment(file) {
+        return uploadViaConsole(file).then(function(res) {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
+            return uploadViaUc(file).then(function(res2) { return readUploadResult(res2, file); });
+          }
+          return readUploadResult(res, file);
+        }, function() {
+          return uploadViaUc(file).then(function(res2) { return readUploadResult(res2, file); });
+        });
+      }
+
+      function mediaTypeOf(file) {
+        var t = (file.type || '').toLowerCase();
+        if (t.indexOf('image/') === 0) { return 'PHOTO'; }
+        if (t.indexOf('video/') === 0) { return 'VIDEO'; }
+        if (t.indexOf('audio/') === 0) { return 'AUDIO'; }
+        return 'POST';
+      }
+
+      function countMedia() {
+        return editor.querySelectorAll('.moment-media').length;
+      }
+
+      // 提交用 HTML：剔除预览节点和占位 <br>，媒体统一走 medium
+      function buildHtml() {
+        var clone = editor.cloneNode(true);
+        Array.prototype.forEach.call(clone.querySelectorAll('.moment-media'), function(el) {
+          if (el.parentNode) { el.parentNode.removeChild(el); }
+        });
+        return clone.innerHTML
+          .replace(/^(?:\s*<br\s*\/?>)+/i, '')
+          .replace(/(?:<br\s*\/?>\s*)+$/i, '');
+      }
+
+      function collectMedia() {
+        var list = [];
+        Array.prototype.forEach.call(editor.querySelectorAll('.moment-media'), function(el) {
+          var url = el.getAttribute('data-url');
+          if (!url) { return; }
+          list.push({ type: el.getAttribute('data-type') || 'PHOTO', url: url });
+        });
+        return list;
+      }
+
+      function insertNodeAtCaret(node) {
+        editor.focus();
+        var sel = window.getSelection();
+        if (sel && sel.rangeCount && sel.anchorNode && editor.contains(sel.anchorNode)) {
+          var range = sel.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(node);
+          var after = document.createRange();
+          after.setStartAfter(node);
+          after.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(after);
+        } else {
+          editor.appendChild(node);
+          var rEnd = document.createRange();
+          rEnd.setStartAfter(node);
+          rEnd.collapse(true);
+          if (sel) {
+            sel.removeAllRanges();
+            sel.addRange(rEnd);
+          }
+        }
+        // 不补 <br>：批量插图时要保持同一行自然流式排列
+        syncContent();
+      }
+
+      function createMediaNode() {
+        var span = document.createElement('span');
+        span.className = 'moment-media is-uploading';
+        span.setAttribute('contenteditable', 'false');
+        span.dataset.pending = '1';
+
+        var box = document.createElement('span');
+        box.className = 'moment-media-box';
+        var spin = document.createElement('span');
+        spin.className = 'moment-media-spinner';
+        box.appendChild(spin);
+        span.appendChild(box);
+        return span;
+      }
+
+      function fillMediaNode(span, url, type, name) {
+        span.classList.remove('is-uploading');
+        delete span.dataset.pending;
+        span.dataset.url = url;
+        span.dataset.type = type;
+        span.title = name || '';
+
+        var box = document.createElement('span');
+        box.className = 'moment-media-box';
+
+        if (type === 'PHOTO') {
+          var img = document.createElement('img');
+          img.src = url;
+          img.alt = name || '';
+          img.loading = 'lazy';
+          box.appendChild(img);
+        } else {
+          var icon = document.createElement('span');
+          icon.className = 'moment-media-icon';
+          icon.textContent = type === 'VIDEO' ? '🎬' : (type === 'AUDIO' ? '🎵' : '📄');
+          box.appendChild(icon);
+          var label = document.createElement('span');
+          label.className = 'moment-media-name';
+          label.textContent = name || type;
+          box.appendChild(label);
+        }
+        span.innerHTML = '';
+        span.appendChild(box);
+
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'moment-media-remove';
+        del.setAttribute('aria-label', '移除附件');
+        del.textContent = '×';
+        del.addEventListener('mousedown', function(e) { e.preventDefault(); });
+        del.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          span.remove();
+          syncContent();
+        });
+        span.appendChild(del);
+
+        syncContent();
+      }
+
+      function handleFiles(fileList) {
+        var files = Array.prototype.slice.call(fileList || []);
+        if (!files.length) { return; }
+
+        var remain = MAX_MEDIA - countMedia();
+        if (remain <= 0) {
+          showToast('最多添加 ' + MAX_MEDIA + ' 个附件', 'warning');
+          return;
+        }
+        if (files.length > remain) {
+          files = files.slice(0, remain);
+          showToast('最多 ' + MAX_MEDIA + ' 个附件，多余文件已忽略', 'warning');
+        }
+
+        files.forEach(function(file) {
+          var node = createMediaNode();
+          node.dataset.type = mediaTypeOf(file);
+          insertNodeAtCaret(node);
+
+          uploadAttachment(file).then(function(res) {
+            fillMediaNode(node, res.url, mediaTypeOf(file), res.name);
+          }).catch(function(err) {
+            console.error(err);
+            if (node.parentNode) { node.remove(); }
+            syncContent();
+            showToast(err && err.message ? err.message : '附件上传失败', 'error');
+          });
+        });
+      }
+
+      var fileInput = document.getElementById('momentFileInput');
+      if (fileInput) {
+        fileInput.addEventListener('change', function() {
+          handleFiles(this.files);
+          this.value = '';
+        });
+      }
+
+      // 粘贴图片（截图/复制图片）直接走上传
+      editor.addEventListener('paste', function(e) {
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) { return; }
+        var picked = [];
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].kind === 'file') {
+            var f = items[i].getAsFile();
+            if (f) { picked.push(f); }
+          }
+        }
+        if (picked.length) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          handleFiles(picked);
+        }
+      }, true);
+
+      /* =========================================================
+         5.6 链接插入 / 编辑 / 取消
+         ========================================================= */
+      var linkPanel = document.getElementById('linkPanel');
+      var linkUrlInput = document.getElementById('linkUrlInput');
+      var linkPanelTitle = document.getElementById('linkPanelTitle');
+      var savedLinkRange = null;
+
+      function normalizeUrl(raw) {
+        var url = (raw || '').trim();
+        if (!url) { return ''; }
+        if (/^(https?:|mailto:|tel:|\/|#)/i.test(url)) { return url; }
+        if (/^[\w-]+(\.[\w-]+)+/.test(url)) { return 'https://' + url; }
+        return url;
+      }
+
+      function openLinkPanel() {
+        var sel = window.getSelection();
+        var inEditor = sel && sel.rangeCount && sel.anchorNode && editor.contains(sel.anchorNode);
+        var existing = inEditor ? nearestTag(sel.anchorNode, ['a']) : null;
+
+        savedLinkRange = inEditor ? sel.getRangeAt(0).cloneRange() : null;
+
+        if (existing) {
+          linkPanel.dataset.mode = 'edit';
+          linkPanelTitle.textContent = '编辑链接（清空地址可移除）';
+          linkUrlInput.value = existing.getAttribute('href') || '';
+        } else {
+          linkPanel.dataset.mode = 'insert';
+          var hasText = inEditor && sel.toString().trim().length > 0;
+          linkPanelTitle.textContent = hasText ? '为所选文字添加链接' : '插入链接';
+          linkUrlInput.value = '';
+        }
+        linkPanel.style.display = 'block';
+        setTimeout(function() { linkUrlInput.focus(); linkUrlInput.select(); }, 0);
+      }
+
+      function closeLinkPanel() {
+        linkPanel.style.display = 'none';
+        savedLinkRange = null;
+      }
+
+      function applyLink() {
+        var mode = linkPanel.dataset.mode;
+        var url = normalizeUrl(linkUrlInput.value);
+
+        var sel = window.getSelection();
+        if (savedLinkRange) {
+          sel.removeAllRanges();
+          sel.addRange(savedLinkRange);
+        }
+        var anchor = sel && sel.rangeCount ? nearestTag(sel.anchorNode, ['a']) : null;
+
+        if (!url) {
+          if (mode === 'edit' && anchor) {
+            unwrapElement(anchor);
+            closeLinkPanel();
+            syncContent();
+            return;
+          }
+          showToast('请输入链接地址', 'warning');
+          linkUrlInput.focus();
+          return;
+        }
+
+        if (mode === 'edit' && anchor) {
+          anchor.setAttribute('href', url);
+          anchor.setAttribute('target', '_blank');
+          anchor.setAttribute('rel', 'noopener noreferrer');
+        } else {
+          var text = sel ? sel.toString() : '';
+          var aEl = document.createElement('a');
+          aEl.setAttribute('href', url);
+          aEl.setAttribute('target', '_blank');
+          aEl.setAttribute('rel', 'noopener noreferrer');
+          aEl.textContent = text || url;
+
+          if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+            var range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(aEl);
+            var after = document.createRange();
+            after.setStartAfter(aEl);
+            after.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(after);
+          } else {
+            editor.appendChild(aEl);
+          }
+        }
+
+        closeLinkPanel();
+        syncContent();
+        updateToolbarState();
+      }
+
+      if (linkPanel) {
+        document.getElementById('linkConfirmBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          applyLink();
+        });
+        document.getElementById('linkCancelBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          closeLinkPanel();
+        });
+        linkUrlInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); applyLink(); }
+          else if (e.key === 'Escape') { e.preventDefault(); closeLinkPanel(); }
+        });
+      }
+
+      // 点击编辑器里的链接 → 直接进入编辑，不跳转
+      editor.addEventListener('click', function(e) {
+        var a = e.target && e.target.closest ? e.target.closest('a') : null;
+        if (!a || !editor.contains(a)) { return; }
+        e.preventDefault();
+        var range = document.createRange();
+        range.selectNodeContents(a);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        openLinkPanel();
+      });
+
+      /* =========================================================
+         6. 标签建议
+         ---------------------------------------------------------
+         旧实现用 node.appendChild(fragment)，node 是 Text 节点，
+         必然抛 HierarchyRequestError，标签根本插不进去。
+         改为用 Range 删除 #搜索词 再插入节点。
+         ========================================================= */
       var tagSearchText = '';
       var tagSelectedIndex = -1;
       var tagList = [];
       var tagDebounceTimer = null;
 
-      async function fetchTags(keyword) {
-        try {
-          var url = '/apis/console.api.moment.halo.run/v1alpha1/tags';
-          if (keyword) url += '?name=' + encodeURIComponent(keyword);
-          console.log('获取标签:', url);
-          var res = await fetch(url, { credentials: 'include' });
-          console.log('标签响应:', res.status, res.ok);
-          if (res.ok) return await res.json();
-        } catch (e) { console.error('获取标签失败', e); }
-        return [];
+      function normalizeTagList(data) {
+        var list = [];
+        if (Array.isArray(data)) { list = data; }
+        else if (data && Array.isArray(data.items)) { list = data.items; }
+        return list.map(function(t) {
+          if (typeof t === 'string') { return t; }
+          if (t && typeof t === 'object') { return t.name || t.displayName || t.tagName || ''; }
+          return '';
+        }).filter(function(t) { return !!t; });
       }
 
-      function showTagSuggest(text, x, y) {
+      function fetchTags(keyword) {
+        var qs = keyword ? '?name=' + encodeURIComponent(keyword) : '';
+        var get = function(url) {
+          return fetch(url, { credentials: 'include', headers: { 'Accept': 'application/json' } });
+        };
+        // 2.26 起普通用户没有 console 权限，标签建议同样要退到用户中心端点
+        return get('/apis/console.api.moment.halo.run/v1alpha1/tags' + qs)
+          .then(function(res) {
+            if (res.status === 401 || res.status === 403 || res.status === 404) {
+              return get('/apis/uc.api.moment.halo.run/v1alpha1/tags' + qs);
+            }
+            return res;
+          })
+          .then(function(res) { return res.ok ? res.json() : null; })
+          .then(function(data) { return normalizeTagList(data); })
+          .catch(function() { return []; });
+      }
+
+      function hideTagSuggest() {
+        if (!tagSuggestPanel) { return; }
+        tagSuggestPanel.style.display = 'none';
         tagSuggestPanel.innerHTML = '';
-        if (tagList.length === 0) {
+        tagSearchText = '';
+        tagSelectedIndex = -1;
+        tagList = [];
+      }
+
+      function renderTagSuggest(x, y) {
+        if (!tagSuggestPanel) { return; }
+        tagSuggestPanel.innerHTML = '';
+        if (!tagList.length) {
           tagSuggestPanel.style.display = 'none';
           return;
         }
@@ -156,181 +993,308 @@
           var item = document.createElement('div');
           item.className = 'tag-suggest-item' + (i === tagSelectedIndex ? ' selected' : '');
           item.textContent = '#' + tag;
-          item.dataset.tag = tag;
+          item.addEventListener('mousedown', function(e) { e.preventDefault(); });
           item.addEventListener('click', function() { selectTag(tag); });
           tagSuggestPanel.appendChild(item);
         });
         tagSuggestPanel.style.display = 'block';
-        tagSuggestPanel.style.left = x + 'px';
+
+        // 面板相对 .publisher-input-wrapper 定位，并夹在容器内
+        var box = wrapper ? wrapper.getBoundingClientRect() : editor.getBoundingClientRect();
+        var panelW = tagSuggestPanel.offsetWidth || 160;
+        var left = Math.max(0, Math.min(x, box.width - panelW - 4));
+        tagSuggestPanel.style.left = left + 'px';
         tagSuggestPanel.style.top = y + 'px';
       }
 
-      function hideTagSuggest() {
-        tagSuggestPanel.style.display = 'none';
-        tagSearchText = '';
-        tagSelectedIndex = -1;
-        tagList = [];
-      }
-
       function selectTag(tag) {
-        editor.focus();
         var sel = window.getSelection();
-        if (!sel.rangeCount) return;
-        
+        if (!sel || !sel.rangeCount) { hideTagSuggest(); return; }
+
         var range = sel.getRangeAt(0);
         var node = range.startContainer;
+        if (node.nodeType !== 3) { hideTagSuggest(); return; }
+
         var offset = range.startOffset;
-        var text = node.textContent || '';
-        
-        // 找到光标前最近的 #
-        var beforeText = text.substring(0, offset);
-        var hashIdx = beforeText.lastIndexOf('#');
-        
-        if (hashIdx === -1) {
-          hideTagSuggest();
-          return;
-        }
-        
-        // 创建文档片段
-        var fragment = document.createDocumentFragment();
-        
-        // 保留 # 之前的内容
-        var beforePart = text.substring(0, hashIdx);
-        if (beforePart) {
-          fragment.appendChild(document.createTextNode(beforePart));
-        }
-        
-        // 插入标签
+        var before = (node.textContent || '').substring(0, offset);
+        var hashIdx = before.lastIndexOf('#');
+        if (hashIdx === -1) { hideTagSuggest(); return; }
+
+        // 1) 删掉 "#搜索词"
+        var delRange = document.createRange();
+        delRange.setStart(node, hashIdx);
+        delRange.setEnd(node, offset);
+        delRange.deleteContents();
+
+        // 2) 插入 <span class="moment-tag">#tag</span> + 一个不间断空格
         var tagSpan = document.createElement('span');
         tagSpan.className = 'moment-tag';
         tagSpan.textContent = '#' + tag;
-        fragment.appendChild(tagSpan);
-        
-        // 插入空格分隔
-        fragment.appendChild(document.createTextNode(' '));
-        
-        // 保留 # 之后的内容（搜索词部分）
-        var afterPart = text.substring(offset);
-        if (afterPart) {
-          fragment.appendChild(document.createTextNode(afterPart));
-        }
-        
-        // 替换当前文本节点
-        node.textContent = '';
-        node.appendChild(fragment);
-        
-        // 设置光标到标签后面
-        var newRange = document.createRange();
-        newRange.setStart(node, hashIdx + tag.length + 2); // # + tag + 空格
-        newRange.collapse(true);
+
+        var space = document.createTextNode('\u00a0');
+        delRange.insertNode(space);
+        delRange.insertNode(tagSpan);
+
+        // 3) 光标放到空格之后
+        var after = document.createRange();
+        after.setStartAfter(space);
+        after.collapse(true);
         sel.removeAllRanges();
-        sel.addRange(newRange);
-        
+        sel.addRange(after);
+
         hideTagSuggest();
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
+        syncContent();
       }
 
-      function handleTagInput() {
+      var detectTimer = null;
+      editor.addEventListener('input', function() {
+        clearTimeout(detectTimer);
+        detectTimer = setTimeout(checkTagTrigger, 60);
+      });
+
+      function checkTagTrigger() {
         var sel = window.getSelection();
-        if (!sel.rangeCount) { hideTagSuggest(); return; }
+        if (!sel || !sel.rangeCount) { hideTagSuggest(); return; }
         var range = sel.getRangeAt(0);
         var node = range.startContainer;
-        if (node.nodeType !== Node.TEXT_NODE) { hideTagSuggest(); return; }
+        if (node.nodeType !== 3) { hideTagSuggest(); return; }
 
-        var text = node.textContent || '';
-        var offset = range.startOffset;
-        var beforeCursor = text.substring(0, offset);
+        var beforeCursor = (node.textContent || '').substring(0, range.startOffset);
+        var m = beforeCursor.match(/#([\u4e00-\u9fff\w-]*)$/);
+        if (!m) { hideTagSuggest(); return; }
 
-        // 检测 # 开头
-        var hashMatch = beforeCursor.match(/#([\u4e00-\u9fff\w]*)$/);
-        if (hashMatch) {
-          tagSearchText = hashMatch[1];
-          clearTimeout(tagDebounceTimer);
-          tagDebounceTimer = setTimeout(async function() {
-            // 重新获取当前光标位置
-            var currentSel = window.getSelection();
-            if (!currentSel || !currentSel.rangeCount) return;
-            var currentRange = currentSel.getRangeAt(0);
-            
-            tagList = await fetchTags(tagSearchText);
-            tagSelectedIndex = tagList.length > 0 ? 0 : -1;
-            // 计算面板位置
-            var rect = currentRange.getBoundingClientRect();
-            var editorRect = editor.getBoundingClientRect();
-            showTagSuggest(tagSearchText, rect.left - editorRect.left, rect.bottom - editorRect.top + 4);
-          }, 150);
-        } else {
-          hideTagSuggest();
-        }
+        tagSearchText = m[1];
+        clearTimeout(tagDebounceTimer);
+        tagDebounceTimer = setTimeout(function() {
+          fetchTags(tagSearchText).then(function(list) {
+            // 取词可能已经变了
+            var cur = window.getSelection();
+            if (!cur || !cur.rangeCount) { return; }
+            tagList = list;
+            tagSelectedIndex = list.length ? 0 : -1;
+
+            var rect = cur.getRangeAt(0).getBoundingClientRect();
+            var box = wrapper ? wrapper.getBoundingClientRect() : editor.getBoundingClientRect();
+            var x = rect.left - box.left;
+            var y = rect.bottom - box.top + 4;
+            if (!rect.width && !rect.height) { x = 8; y = editor.offsetHeight + 4; }
+            renderTagSuggest(x, y);
+          });
+        }, 150);
       }
 
-      // 检测 # 开头并触发建议
-      editor.addEventListener('input', function() {
-        handleTagInput();
-      });
-
-      // 键盘导航
       editor.addEventListener('keydown', function(e) {
-        if (tagSuggestPanel.style.display !== 'none' && tagList.length > 0) {
-          if (e.key === 'ArrowDown') {
+        if (!tagSuggestPanel || tagSuggestPanel.style.display === 'none') { return; }
+        if (!tagList.length) { return; }
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          tagSelectedIndex = (tagSelectedIndex + 1) % tagList.length;
+          updateTagSelection();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          tagSelectedIndex = tagSelectedIndex <= 0 ? tagList.length - 1 : tagSelectedIndex - 1;
+          updateTagSelection();
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+          if (tagSelectedIndex >= 0) {
             e.preventDefault();
-            tagSelectedIndex = (tagSelectedIndex + 1) % tagList.length;
-            updateTagSuggestUI();
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            tagSelectedIndex = tagSelectedIndex === 0 ? tagList.length - 1 : tagSelectedIndex - 1;
-            updateTagSuggestUI();
-          } else if (e.key === 'Enter' || e.key === 'Tab') {
-            if (tagSelectedIndex >= 0) {
-              e.preventDefault();
-              selectTag(tagList[tagSelectedIndex]);
-            }
-          } else if (e.key === 'Escape') {
-            hideTagSuggest();
+            selectTag(tagList[tagSelectedIndex]);
           }
+        } else if (e.key === 'Escape') {
+          hideTagSuggest();
         }
       });
 
-      function updateTagSuggestUI() {
+      function updateTagSelection() {
         var items = tagSuggestPanel.querySelectorAll('.tag-suggest-item');
-        items.forEach(function(item, i) {
-          item.classList.toggle('selected', i === tagSelectedIndex);
+        Array.prototype.forEach.call(items, function(item, i) {
+          if (i === tagSelectedIndex) { item.classList.add('selected'); }
+          else { item.classList.remove('selected'); }
         });
       }
 
-      // 点击其他地方关闭
       document.addEventListener('click', function(e) {
-        if (!e.target.closest('#tagSuggestPanel') && e.target !== editor) {
-          hideTagSuggest();
-        }
+        if (!e.target.closest('#tagSuggestPanel') && e.target !== editor) { hideTagSuggest(); }
       });
 
-      // 提取 HTML 中的标签
       function extractTags() {
         var tags = [];
-        var tagElements = editor.querySelectorAll('span.moment-tag');
-        tagElements.forEach(function(el) {
-          var tag = el.textContent.replace(/^#/, '').trim();
-          if (tag && tags.indexOf(tag) === -1) {
-            tags.push(tag);
-          }
+        var seen = {};
+
+        function add(name) {
+          name = (name || '').replace(/^#/, '').trim();
+          if (name && !seen[name]) { seen[name] = 1; tags.push(name); }
+        }
+
+        Array.prototype.forEach.call(editor.querySelectorAll('span.moment-tag'), function(el) {
+          add(el.textContent);
         });
-        // 同时从纯文本中提取 #标签（未被 span 包裹的）
+
+        // 未转成 span 的裸标签：要求 # 前是行首或空白，避免把 C# / #1 当标签
         var text = editor.innerText || '';
-        var tagMatches = text.match(/#([\u4e00-\u9fff\w]+)/g) || [];
-        tagMatches.forEach(function(t) {
-          var tag = t.replace(/^#/, '').trim();
-          if (tag && tags.indexOf(tag) === -1) {
-            tags.push(tag);
-          }
-        });
+        var re = /(?:^|[\s\u3000])#([\u4e00-\u9fff][\u4e00-\u9fff\w-]*)/g;
+        var m;
+        while ((m = re.exec(text))) { add(m[1]); }
+
         return tags;
       }
 
-      // ===== Toast =====
+      /* =========================================================
+         7. 表情
+         优先用本地 emoji-mart（若已加载），失败则用内置面板，
+         不再强依赖 CDN。
+         ========================================================= */
+      (function() {
+        var panel = document.getElementById('emojiMartPanel');
+        var emojiBtn = document.getElementById('emojiBtn');
+        if (!panel || !emojiBtn) { return; }
+
+        var FALLBACK = ['😀', '😄', '😁', '😂', '🤣', '😊', '😍', '🤔', '😅', '😭',
+          '😡', '🥳', '😴', '😎', '👍', '👏', '🙏', '💪', '🤝', '✌️',
+          '🔥', '✨', '🎉', '❤️', '💔', '🌹', '🌙', '☀️', '🌈', '☕',
+          '🍺', '🍜', '🎵', '📷', '💻', '📚', '✈️', '🏃', '🐱', '🐶'];
+        var picker = null;
+        var fallbackBuilt = false;
+
+        function buildFallback() {
+          if (fallbackBuilt) { return; }
+          fallbackBuilt = true;
+          panel.innerHTML = '';
+          panel.classList.add('emoji-fallback');
+          FALLBACK.forEach(function(ch) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'emoji-fallback-item';
+            b.textContent = ch;
+            b.addEventListener('mousedown', function(e) { e.preventDefault(); });
+            b.addEventListener('click', function() {
+              insertText(ch);
+              panel.style.display = 'none';
+            });
+            panel.appendChild(b);
+          });
+        }
+
+        // data / i18n 全部走本地，避免 CDN 不可达时表情面板直接失效
+        var assetsPromise = null;
+
+        function loadEmojiAssets() {
+          if (!assetsPromise) {
+            assetsPromise = Promise.all([
+              fetch('/assets/vendor/emoji-mart-data.json').then(function(r) {
+                if (!r.ok) { throw new Error('data ' + r.status); }
+                return r.json();
+              }),
+              fetch('/assets/vendor/emoji-mart-zh.json').then(function(r) {
+                return r.ok ? r.json() : null;
+              }).catch(function() { return null; })
+            ]).then(function(arr) {
+              return { data: arr[0], i18n: arr[1] };
+            });
+          }
+          return assetsPromise;
+        }
+
+        function initPicker() {
+          if (picker || !window.EmojiMart) { return; }
+          loadEmojiAssets().then(function(assets) {
+            if (picker || !window.EmojiMart) { return; }
+            try {
+              picker = new EmojiMart.Picker({
+                data: assets.data,
+                i18n: assets.i18n || undefined,
+                onEmojiSelect: function(item) {
+                  insertText(item.native);
+                  panel.style.display = 'none';
+                },
+                autoFocus: false,
+                locale: 'zh',
+                theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+              });
+              panel.innerHTML = '';
+              panel.appendChild(picker);
+            } catch (e) {
+              console.error('表情面板初始化失败', e);
+              buildFallback();
+            }
+          }).catch(function(e) {
+            console.error('表情数据加载失败', e);
+            buildFallback();
+          });
+        }
+
+        if (window.EmojiMart) {
+          initPicker();
+        } else if (!document.getElementById('emojiMartScript')) {
+          var script = document.createElement('script');
+          script.id = 'emojiMartScript';
+          script.src = '/assets/vendor/emoji-mart.browser.js';
+          script.onload = initPicker;
+          script.onerror = buildFallback;
+          document.head.appendChild(script);
+          // 3 秒还没就绪就先用内置面板顶上
+          setTimeout(function() {
+            if (!window.EmojiMart && panel.style.display !== 'none') { buildFallback(); }
+          }, 3000);
+        }
+
+        emojiBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var visible = panel.style.display !== 'none';
+          if (visible) {
+            panel.style.display = 'none';
+            return;
+          }
+          panel.style.display = 'block';
+          if (window.EmojiMart) { initPicker(); }
+          else if (fallbackBuilt || !document.getElementById('emojiMartScript')) { buildFallback(); }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('#emojiMartPanel') && !e.target.closest('.emoji-btn-wrapper')) {
+            panel.style.display = 'none';
+          }
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') { panel.style.display = 'none'; }
+        });
+      })();
+
+      /* =========================================================
+         8. 更多菜单
+         ========================================================= */
+      (function() {
+        var moreBtn = document.getElementById('moreBtn');
+        var moreMenu = document.getElementById('moreMenu');
+        if (!moreBtn || !moreMenu) { return; }
+
+        moreBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('.toolbar-more-wrapper')) { moreMenu.style.display = 'none'; }
+        });
+      })();
+
+      /* =========================================================
+         9. 可见性切换 + 发布
+         ========================================================= */
+      if (visibilityBtn) {
+        visibilityBtn.addEventListener('click', function() {
+          momentVisibility = momentVisibility === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC';
+          this.dataset.visible = momentVisibility;
+          this.textContent = momentVisibility === 'PUBLIC' ? '公开' : '私密';
+          if (momentVisibility === 'PRIVATE') { this.classList.add('is-private'); }
+          else { this.classList.remove('is-private'); }
+        });
+      }
+
       function showToast(message, type) {
         var existing = document.querySelector('.moment-toast');
-        if (existing) existing.remove();
+        if (existing) { existing.remove(); }
         var toast = document.createElement('div');
         toast.className = 'moment-toast moment-toast-' + (type || 'info');
         toast.textContent = message;
@@ -342,211 +1306,84 @@
         }, 2000);
       }
 
-      var isProcessing = false;
-
-      function insertAtCursor(text) {
-        editor.focus();
-        document.execCommand('insertText', false, text);
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      function wrapWithTag(tagName) {
-        editor.focus();
-        var sel = window.getSelection();
-        if (sel.rangeCount > 0 && sel.toString().length > 0) {
-          var range = sel.getRangeAt(0);
-          var selectedText = sel.toString();
-          var wrapper = document.createElement(tagName);
-          wrapper.innerText = selectedText;
-          range.deleteContents();
-          range.insertNode(wrapper);
-          range.setStartAfter(wrapper);
-          range.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      function insertCodeBlock() {
-        editor.focus();
-        insertAtCursor('\n```\n代码\n```\n');
-      }
-
-      function updateToolbarState() {
-        var sel = window.getSelection();
-        var hasSelection = sel.rangeCount > 0 && sel.toString().length > 0;
-        document.querySelectorAll('.toolbar-format[data-action]').forEach(function(btn) {
-          btn.classList.remove('active');
-          if (hasSelection) {
-            var range = sel.getRangeAt(0);
-            var parent = range.commonAncestorContainer;
-            while (parent && parent !== editor) {
-              var tagName = parent.tagName ? parent.tagName.toLowerCase() : '';
-              if (btn.dataset.action === 'bold' && (tagName === 'b' || tagName === 'strong')) { btn.classList.add('active'); break; }
-              if (btn.dataset.action === 'italic' && tagName === 'i') { btn.classList.add('active'); break; }
-              if (btn.dataset.action === 'underline' && tagName === 'u') { btn.classList.add('active'); break; }
-              if (btn.dataset.action === 'strike' && (tagName === 's' || tagName === 'del')) { btn.classList.add('active'); break; }
-              if (btn.dataset.action === 'code' && tagName === 'code') { btn.classList.add('active'); break; }
-              if (btn.dataset.action === 'blockquote' && tagName === 'blockquote') { btn.classList.add('active'); break; }
-              parent = parent.parentNode;
-            }
+      // 发布：管理员走 console；普通用户 403 时切用户中心端点（2.26+）
+      function postMoment(payload) {
+        var body = JSON.stringify(payload);
+        var post = function(url) {
+          return fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+          });
+        };
+        return post('/apis/console.api.moment.halo.run/v1alpha1/moments').then(function(res) {
+          if (res.status === 401 || res.status === 403 || res.status === 404) {
+            return post('/apis/uc.api.moment.halo.run/v1alpha1/moments');
           }
+          return res;
         });
       }
 
-      editor.addEventListener('input', function() {
-        if (isProcessing) return;
-        isProcessing = true;
-        var html = editor.innerHTML;
-        var markdown = html
-          .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
-          .replace(/<b>(.*?)<\/b>/g, '**$1**')
-          .replace(/<em>(.*?)<\/em>/g, '*$1*')
-          .replace(/<i>(.*?)<\/i>/g, '*$1*')
-          .replace(/<u>(.*?)<\/u>/g, '__$1__')
-          .replace(/<del>(.*?)<\/del>/g, '~~$1~~')
-          .replace(/<s>(.*?)<\/s>/g, '~~$1~~')
-          .replace(/<code>(.*?)<\/code>/g, '`$1`')
-          .replace(/<br\s*\/?>/g, '\n')
-          .replace(/<div>(.*?)<\/div>/g, '$1\n')
-          .replace(/<blockquote>(.*?)<\/blockquote>/gi, '> $1\n')
-          .replace(/<\/?p>/g, '\n')
-          // 保留 moment-tag span 为 #标签
-          .replace(/<span class="moment-tag">(.*?)<\/span>/g, '#$1')
-          // 移除其他标签
-          .replace(/<(?:[^>'"]|"[^"]*"|'[^']*')*>/g, '')
-          .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
-          .trim();
-        hiddenTextarea.value = markdown;
-        editor.dataset.markdown = markdown;
-        isProcessing = false;
-      });
+      function publishMoment() {
+        if (isPublishing) { return; }
 
-      editor.addEventListener('keyup', updateToolbarState);
-      editor.addEventListener('mouseup', updateToolbarState);
+        syncContent();
+        var content = editor.dataset.markdown || '';
+        if (!content.trim()) { showToast('请输入内容', 'warning'); return; }
+        if (editor.querySelector('.moment-media.is-uploading')) {
+          showToast('附件还在上传中，请稍候', 'warning');
+          return;
+        }
 
-      // Emoji Mart
-      (function() {
-        var panel = document.getElementById('emojiMartPanel');
-        var picker = null;
+        isPublishing = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = '发送中...';
 
-        function initPicker() {
-          if (picker) return;
-          if (window.EmojiMart) {
-            picker = new EmojiMart.Picker({
-              onEmojiSelect: function(item) {
-                insertAtCursor(item.native);
-                panel.style.display = 'none';
-              },
-              autoFocus: false,
-              locale: 'zh'
+        var payload = {
+          spec: {
+            content: { raw: content, html: buildHtml(), medium: collectMedia() },
+            releaseTime: new Date().toISOString(),
+            visible: momentVisibility,
+            approved: true,
+            tags: extractTags()
+          },
+          apiVersion: 'moment.halo.run/v1alpha1',
+          kind: 'Moment',
+          metadata: { generateName: 'moment-' }
+        };
+
+        postMoment(payload).then(function(res) {
+          if (!res.ok) {
+            return res.text().then(function(t) {
+              throw new Error('发布失败 ' + res.status + ': ' + t.slice(0, 200));
             });
-            panel.appendChild(picker);
-          } else {
-            console.error('EmojiMart 未加载');
           }
-        }
-
-        // 预加载 browser.js（CDN）
-        if (!document.getElementById('emojiMartScript')) {
-          var script = document.createElement('script');
-          script.id = 'emojiMartScript';
-          script.src = 'https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/dist/browser.js';
-          script.crossOrigin = 'anonymous';
-          script.onload = function() { initPicker(); };
-          script.onerror = function() { console.error('表情加载失败'); };
-          document.head.appendChild(script);
-        }
-
-        var emojiBtn = document.getElementById('emojiBtn');
-        if (emojiBtn) {
-          emojiBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (panel.style.display === 'none') {
-              panel.style.display = 'block';
-              if (!picker && window.EmojiMart) initPicker();
-            } else {
-              panel.style.display = 'none';
-            }
-          });
-        }
-
-        document.addEventListener('click', function(e) {
-          if (!e.target.closest('#emojiMartPanel') && !e.target.closest('.emoji-btn-wrapper')) {
-            panel.style.display = 'none';
-          }
-        });
-
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') panel.style.display = 'none';
-        });
-      })();
-
-      // 更多菜单
-      (function() {
-        var moreBtn = document.getElementById('moreBtn');
-        var moreMenu = document.getElementById('moreMenu');
-        if (!moreBtn || !moreMenu) return;
-
-        moreBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          moreMenu.style.display = moreMenu.style.display === 'none' ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function(e) {
-          if (!e.target.closest('.toolbar-more-wrapper')) moreMenu.style.display = 'none';
-        });
-
-        moreMenu.querySelectorAll('.toolbar-more-item').forEach(function(item) {
-          item.addEventListener('click', function(e) {
-            e.preventDefault();
-            var action = this.dataset.action;
-            var tag = this.dataset.tag;
-            editor.focus();
-            if (action === 'codeblock') { insertCodeBlock(); }
-            else if (action === 'tag') { insertAtCursor('#'); }
-            else if (action === 'ul' || action === 'ol') { insertAtCursor((action === 'ul' ? '- ' : '1. ')); }
-            else if (action === 'sync') { console.log('同步功能'); }
-            else if (tag) { wrapWithTag(tag); }
-            updateToolbarState();
-            moreMenu.style.display = 'none';
-          });
-        });
-      })();
-
-      // 工具栏按钮
-      document.querySelectorAll('.publisher-toolbar .toolbar-btn[data-action]').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          var action = btn.dataset.action;
-          var tag = btn.dataset.tag;
-          if (action === 'codeblock') { insertCodeBlock(); }
-          else if (action === 'tag') { insertAtCursor('#'); }
-          else if (tag) { wrapWithTag(tag); }
-          else if (action === 'ul') { insertAtCursor('- '); }
-          else if (action === 'ol') { insertAtCursor('1. '); }
+          showToast('发布成功', 'success');
+          editor.innerHTML = '';
+          editor.dataset.markdown = '';
+          if (hiddenTextarea) { hiddenTextarea.value = ''; }
+          hideTagSuggest();
           updateToolbarState();
-        });
-      });
 
-      // 快捷键
-      document.addEventListener('keydown', function(e) {
-        if (document.activeElement !== editor) return;
-        if (e.ctrlKey || e.metaKey) {
-          if (e.key.toLowerCase() === 'b') { e.preventDefault(); wrapWithTag('b'); }
-          if (e.key.toLowerCase() === 'i') { e.preventDefault(); wrapWithTag('i'); }
-          if (e.key.toLowerCase() === 'u') { e.preventDefault(); wrapWithTag('u'); }
-        }
-      });
-
-      // 发送按钮
-      if (submitBtn) {
-        submitBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          publishMoment();
+          setTimeout(function() {
+            if (window.refreshMoments) { window.refreshMoments(); }
+            else { location.reload(); }
+          }, 600);
+        }).catch(function(e) {
+          console.error(e);
+          showToast('发布失败，请重试', 'error');
+        }).then(function() {
+          isPublishing = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = '发送';
         });
       }
+
+      submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        publishMoment();
+      });
     })();
   </script>
 

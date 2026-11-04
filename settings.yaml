@@ -340,3 +340,235 @@ spec:
               name: url
               label: 链接
               placeholder: https://
+    - group: about
+      label: 关于
+      formSchema:
+        - $formkit: group
+          name: profile_card
+          label: 资料卡片
+          children:
+            - $formkit: url
+              name: avatar
+              label: 头像图片
+              placeholder: https://...
+              value: https://framerusercontent.com/images/qwgsLRrKEdTUOWnmRQWb0Utxdh8.png
+            - $formkit: text
+              name: status
+              label: 状态文本
+              placeholder: Available To Work
+              value: 种菜中
+            - $formkit: select
+              name: status_type
+              label: 状态类型
+              placeholder: 在线
+              value: online
+              options:
+                - label: 在线
+                  value: online
+                - label: 离线
+                  value: offline
+                - label: 忙碌
+                  value: busy
+                - label: 离开
+                  value: away
+                - label: 自定义
+                  value: custom
+            - $formkit: text
+              name: status_icon
+              label: 状态图标
+              placeholder: czs-gift-l
+              value: czs-coffee-l
+              help: 留空则使用默认呼吸效果，支持 czs- 开头的图标类名或 emoji 表情
+            - $formkit: text
+              name: resume_icon
+              label: 简历图标
+              placeholder: czs-download-l
+              value: czs-download-l
+              help: 支持 czs- 开头的图标类名或 emoji 表情
+            - $formkit: text
+              name: name
+              label: 姓名
+              placeholder: Pragadeswaran
+              value: Pragadeswaran
+            - $formkit: text
+              name: role_prefix
+              label: 角色前缀
+              placeholder: Im a
+              value: Im a
+            - $formkit: array
+              name: typewriter_texts
+              label: 打字机文本
+              help: 多个选项，会循环显示
+              value:
+                - text: Designer
+                - text: Developer
+                - text: Creator
+              children:
+                - $formkit: text
+                  name: text
+                  label: 文本
+                  placeholder: Designer
+            - $formkit: array
+              name: meta_rows
+              label: 资料元数据行
+              help: 分三行，每行多个元数据项
+              value:
+                - items:
+                    - icon: 📍
+                      text: India
+                    - icon: 🌐
+                      text: English & Tamil
+                - items:
+                    - icon: ⏰
+                      text: IST
+                    - icon: 💼
+                      text: Software Engineer
+                - items:
+                    - icon: 🎓
+                      text: MIT University
+                    - icon: 😊
+                      text: Good Boy
+              children:
+                - $formkit: array
+                  name: items
+                  label: 元数据项
+                  children:
+                    - $formkit: text
+                      name: icon
+                      label: 图标
+                      placeholder: 📍
+                    - $formkit: text
+                      name: text
+                      label: 文本
+                      placeholder: India
+            - $formkit: group
+              name: buttons
+              label: 按钮设置
+              children:
+                - $formkit: url
+                  name: button1_url
+                  label: 第一个按钮链接
+                  placeholder: https://telegram.org/
+                  value: https://telegram.org/
+                - $formkit: text
+                  name: button1_text
+                  label: 第一个按钮文本
+                  placeholder: Telegram Me
+                  value: Telegram Me
+                - $formkit: url
+                  name: button1_icon
+                  label: 第一个按钮图标
+                  placeholder: https://framerusercontent.com/images/HI0c5zorTrsi3FIimQpAMAm29U.svg
+                  value: https://framerusercontent.com/images/HI0c5zorTrsi3FIimQpAMAm29U.svg
+                - $formkit: url
+                  name: button2_url
+                  label: 第二个按钮链接
+                  placeholder: https://www.whatsapp.com/
+                  value: https://www.whatsapp.com/
+                - $formkit: text
+                  name: button2_text
+                  label: 第二个按钮文本
+                  placeholder: WhatsApp Me
+                  value: WhatsApp Me
+                - $formkit: url
+                  name: button2_icon
+                  label: 第二个按钮图标
+                  placeholder: https://framerusercontent.com/images/Noy5SjiQS1OWy3FZmUE4TGu45ZA.svg
+                  value: https://framerusercontent.com/images/Noy5SjiQS1OWy3FZmUE4TGu45ZA.svg
+        - $formkit: group
+          name: stats_grid
+          label: 统计数据网格
+          children:
+            - $formkit: group
+              name: stat1
+              label: 统计项 1
+              children:
+                - $formkit: number
+                  name: number
+                  label: 数字
+                  placeholder: 100
+                  value: 100
+                  validation: required
+                - $formkit: text
+                  name: label
+                  label: 标签（含图标）
+                  placeholder: 📁 Projects
+                  value: 📁 Projects
+                  validation: required
+                  help: 直接输入包含图标的文本，如 "📁 Projects"
+                - $formkit: text
+                  name: plus_sign
+                  label: 后缀符号
+                  placeholder: +
+                  value: +
+                  help: 如 +、% 等
+            - $formkit: group
+              name: stat2
+              label: 统计项 2
+              children:
+                - $formkit: number
+                  name: number
+                  label: 数字
+                  placeholder: 50
+                  value: 50
+                  validation: required
+                - $formkit: text
+                  name: label
+                  label: 标签（含图标）
+                  placeholder: 👥 Clients
+                  value: 👥 Clients
+                  validation: required
+                  help: 直接输入包含图标的文本，如 "👥 Clients"
+                - $formkit: text
+                  name: plus_sign
+                  label: 后缀符号
+                  placeholder: +
+                  value: +
+                  help: 如 +、% 等
+            - $formkit: group
+              name: stat3
+              label: 统计项 3
+              children:
+                - $formkit: number
+                  name: number
+                  label: 数字
+                  placeholder: 150
+                  value: 150
+                  validation: required
+                - $formkit: text
+                  name: label
+                  label: 标签（含图标）
+                  placeholder: ☕ Coffee
+                  value: ☕ Coffee
+                  validation: required
+                  help: 直接输入包含图标的文本，如 "☕ Coffee"
+                - $formkit: text
+                  name: plus_sign
+                  label: 后缀符号
+                  placeholder: +
+                  value: +
+                  help: 如 +、% 等
+        - $formkit: group
+          name: map_card
+          label: 地图卡片
+          children:
+            - $formkit: url
+              name: light_map_image
+              label: 浅色模式地图图片
+              placeholder: https://...
+              value: https://s3.api.waistu.com/bucket-alpha-bravo-charlie-12345/upload/2026/04/15/69df379b8f169.webp
+            - $formkit: url
+              name: dark_map_image
+              label: 深色模式地图图片
+              placeholder: https://...
+              value: https://s3.api.waistu.com/bucket-alpha-bravo-charlie-12345/upload/2026/04/15/69df379b8f169.webp
+            - $formkit: text
+              name: map_location
+              label: 地图标记位置
+              placeholder: 宁夏·银川
+              value: 宁夏·银川
+            - $formkit: text
+              name: map_bottom_text
+              label: 底部横栏文本
+              placeholder: 我现在住在 陕西省西安市雁塔区
+              value: 我现在住在 陕西省西安市雁塔区

@@ -13,9 +13,6 @@
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
-  <!-- Header 滚动隐藏脚本 -->
-  <script>
-  </script>
   <script th:src="@{/assets/dist/js/main.js}"></script>
 </head>
 
@@ -29,15 +26,59 @@
       </div>
     </aside>
     <main class="main-content content">
-      <div class="page-404">
-        <div class="container-404">
-          <h1 class="code-404">404</h1>
-          <p class="desc-404">抱歉，你访问的页面不存在或已被移除</p>
+      <div class="wing-404">
+        <div class="wing-404-card">
+          <!-- 顶部柔光装饰 -->
+          <span class="wing-404-aura" aria-hidden="true"></span>
+
+          <!-- 大号数字（纯装饰，语义由标题承担） -->
+          <div class="wing-404-code" aria-hidden="true">404</div>
+
+          <h1 class="wing-404-title">页面走丢了</h1>
+          <p class="wing-404-desc">你要找的页面可能已被移动、删除，或者从来就不存在。</p>
+
+          <div class="wing-404-actions">
+            <a class="wing-404-btn wing-404-btn--primary" th:href="@{/}">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z" />
+              </svg>
+              回到首页
+            </a>
+            <a class="wing-404-btn wing-404-btn--ghost" href="javascript:;" id="wing404Back">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd"
+                  d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0Z"
+                  clip-rule="evenodd" />
+              </svg>
+              返回上一页
+            </a>
+          </div>
+
+          <p class="wing-404-tip">
+            也可以试试顶部搜索，或翻翻
+            <a th:href="@{/archives}">全部文章</a>
+          </p>
         </div>
       </div>
     </main>
   </div>
   <div th:replace="includes/components/footer :: footer"></div>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('wing404Back');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        // 有站内来路才后退，否则回首页（避免把用户甩到站外）
+        if (document.referrer && document.referrer.indexOf(location.origin) === 0) {
+          history.back();
+        } else {
+          location.href = '/';
+        }
+      });
+    })();
+  </script>
 </body>
 
 </html>

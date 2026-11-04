@@ -116,7 +116,7 @@ jobs:
           path: dist
 
       - name: Release to Halo App Store
-        uses: halo-sigs/app-store-release-action@v3
+        uses: halo-sigs/reusable-workflows/app-store-release-action@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           app-id: app-rumygxyf

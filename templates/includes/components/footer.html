@@ -31,9 +31,6 @@
 
         </div>
     </div>
-    <!-- 搜索插件必须加载的JS -->
-    <div th:if="${pluginFinder.available('PluginSearchWidget')}">
-        <script th:src="@{/plugins/search-widget/assets/static/search-widget.iife.js}"></script>
-    </div>
-
+    <!-- Halo / 插件注入点：设置与插件通过它追加脚本、样式、统计代码 -->
+    <halo:footer />
 </div>
