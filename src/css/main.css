@@ -11349,8 +11349,3 @@ html.dark .wing-to-top:hover,
     height: 2.5rem;
   }
 }
-
-/* 足迹插件页有自己的底部导航坞与浮动控件，避免叠在一起 */
-body#footprint-page .wing-to-top {
-  display: none;
-}
