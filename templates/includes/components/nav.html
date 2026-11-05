@@ -1,11 +1,16 @@
-<div th:fragment="nav" class="nav side-nav widget-box bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
-    <!-- 获取主菜单 -->
-    <th:block th:with="menu = ${menuFinder.getPrimary()}">
-        <!-- 判断是否有自定义菜单 -->
-        <th:block th:if="${menu != null and not #lists.isEmpty(menu.menuItems)}">
-            <!-- 有自定义菜单：动态渲染 -->
+<!--
+    站点导航：菜单来源为主题设置「首页布局 → 站点主菜单」(theme.config.layout.primary_menu)。
+    menuSelect 保存的是菜单资源的 metadata.name，这里用 menuFinder.getByName 取；
+    未选择菜单时整块导航不渲染，也不回退到系统主菜单（menuFinder.getPrimary）。
+-->
+<th:block th:fragment="nav">
+    <th:block
+        th:with="menuName=${theme.config.layout.primary_menu},
+                 menu=${!#strings.isEmpty(menuName) ? menuFinder.getByName(menuName) : null}">
+        <div class="nav side-nav widget-box bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700"
+            th:if="${menu != null and not #lists.isEmpty(menu.menuItems)}">
             <ul class="nav-list">
-                <li class="nav-item" th:each="menuItem : ${menu.menuItems}" 
+                <li class="nav-item" th:each="menuItem : ${menu.menuItems}"
                     th:data-path="${menuItem.status.href}"
                     th:classappend="${menuItem.status.href == currentPath || (menuItem.status.href == '/' && (currentPath == '/' || currentPath == '/index' || currentPath == '/index.html'))} ? 'active' : ''">
                     <a th:href="${menuItem.status.href}" th:target="${menuItem.spec.target?.value}">
@@ -19,7 +24,7 @@
                     </a>
                     <!-- 二级子菜单 -->
                     <ul class="nav-sublist" th:if="${not #lists.isEmpty(menuItem.children)}">
-                        <li class="nav-subitem" th:each="subItem : ${menuItem.children}" 
+                        <li class="nav-subitem" th:each="subItem : ${menuItem.children}"
                             th:data-path="${subItem.status.href}"
                             th:data-fullpath="${currentPath}"
                             th:classappend="${subItem.status.href == currentPath} ? 'active'">
@@ -33,56 +38,38 @@
                     </ul>
                 </li>
             </ul>
-        </th:block>
+        </div>
+        <script th:if="${menu != null and not #lists.isEmpty(menu.menuItems)}">
+            (function() {
+                var currentPath = window.location.pathname;
 
-        <!-- 没有自定义菜单：显示默认菜单 -->
-        <th:block th:unless="${menu != null and not #lists.isEmpty(menu.menuItems)}">
-            <ul class="nav-list">
-                <li class="nav-item" data-path="/">
-                    <a href="/"><i class="czs czs-home-l"></i>首页</a>
-                </li>
-                <li class="nav-item" data-path="/works">
-                    <a href="/archives"><i class="czs-clothes-l"></i>作品</a>
-                </li>
-                <li class="nav-item" data-path="/code">
-                    <a href="/archives"><i class="czs-code-l"></i>代码</a>
-                </li>
-                <li class="nav-item" data-path="/notes">
-                    <a href="/archives"><i class="czs-gift-l"></i>随笔</a>
-                </li>
-            </ul>
-        </th:block>
-    </th:block>
-    <script>
-        (function() {
-            var currentPath = window.location.pathname;
-            
-            // 处理一级菜单选中
-            var navItems = document.querySelectorAll('.nav-item');
-            for (var i = 0; i < navItems.length; i++) {
-                var item = navItems[i];
-                var itemPath = item.getAttribute('data-path');
-                if (itemPath && currentPath === itemPath) {
-                    item.classList.add('active');
-                }
-                if (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')) {
-                    item.classList.add('active');
-                }
-            }
-            
-            // 处理二级子菜单选中
-            var navSubItems = document.querySelectorAll('.nav-subitem');
-            for (var j = 0; j < navSubItems.length; j++) {
-                var subItem = navSubItems[j];
-                var subPath = subItem.getAttribute('data-path');
-                if (subPath && currentPath === subPath) {
-                    subItem.classList.add('active');
-                    var parent = subItem.closest('.nav-item');
-                    if (parent) {
-                        parent.classList.add('has-active-child');
+                // 处理一级菜单选中
+                var navItems = document.querySelectorAll('.nav-item');
+                for (var i = 0; i < navItems.length; i++) {
+                    var item = navItems[i];
+                    var itemPath = item.getAttribute('data-path');
+                    if (itemPath && currentPath === itemPath) {
+                        item.classList.add('active');
+                    }
+                    if (itemPath === '/' && (currentPath === '/' || currentPath === '/index.html' || currentPath === '/index')) {
+                        item.classList.add('active');
                     }
                 }
-            }
-        })();
-    </script>
-</div>
+
+                // 处理二级子菜单选中
+                var navSubItems = document.querySelectorAll('.nav-subitem');
+                for (var j = 0; j < navSubItems.length; j++) {
+                    var subItem = navSubItems[j];
+                    var subPath = subItem.getAttribute('data-path');
+                    if (subPath && currentPath === subPath) {
+                        subItem.classList.add('active');
+                        var parent = subItem.closest('.nav-item');
+                        if (parent) {
+                            parent.classList.add('has-active-child');
+                        }
+                    }
+                }
+            })();
+        </script>
+    </th:block>
+</th:block>

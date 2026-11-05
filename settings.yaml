@@ -24,6 +24,13 @@ spec:
     - group: layout
       label: 首页布局
       formSchema:
+        - $formkit: menuSelect
+          name: primary_menu
+          label: 站点主菜单
+          help: 从已有菜单中选择一个作为站点导航，需先在「菜单」中创建；留空则不显示导航菜单（不再自动使用系统主菜单）。删除已选中的菜单会导致导航渲染失败，删除后请回来重新选择
+          clearable: true
+          searchable: true
+          value: ""
         - $formkit: radio
           name: sidebar_toggle
           label: 左侧边栏
