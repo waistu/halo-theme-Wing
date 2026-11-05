@@ -1072,3 +1072,23 @@ html.dark .input-hint.error {
     flex-wrap: wrap;
   }
 }
+
+/* ========== 移动端与弱性能设备动画降级 ========== */
+/* 背景：backdrop-filter 毛玻璃卡片叠加大面积无限动画（涟漪/流光）在移动端
+   会持续触发重绘，是登录页闪烁与偶发白屏的主要诱因，小屏直接关闭 */
+@media (max-width: 768px) {
+  .ripple-container,
+  .border-beam-mask,
+  .border-beam {
+    display: none !important;
+  }
+}
+
+/* 用户系统设置了「减弱动态效果」时同样关闭 */
+@media (prefers-reduced-motion: reduce) {
+  .ripple-container,
+  .border-beam-mask,
+  .border-beam {
+    display: none !important;
+  }
+}

@@ -19,10 +19,9 @@
   <!-- 主题主样式（包含 CSS 变量定义 + gateway 样式） -->
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
 
-  <!-- Magic UI  -->
+  <!-- Magic UI -->
   <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/border-beam.css}" />
   <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/ripple.css}" />
-  <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/meteors.css}" />
 
   <!-- 自定义头部内容 -->
   <th:block th:if="${head != null}">
@@ -40,20 +39,6 @@
   <!-- Magic UI -->
   <script th:src="@{/assets/vendor/magic-ui/border-beam.js}"></script>
   <script th:src="@{/assets/vendor/magic-ui/ripple.js}"></script>
-  <script th:src="@{/assets/vendor/magic-ui/meteors.js}"></script>
-  <script>
-    // JS 方式初始化
-    document.addEventListener('DOMContentLoaded', () => {
-      // 蓝色主题 - JS 初始化
-      new Ripple(document.getElementById('blue-ripple'), {
-        mainCircleSize: 250,
-        mainCircleOpacity: 0.2,
-        numCircles: 7,
-        borderColor: 'rgba(59, 130, 246, 0.35)',
-        duration: 4,
-      });
-    });
-  </script>
 </body>
 
 </html>
