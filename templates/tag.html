@@ -11,7 +11,6 @@
 
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
@@ -62,7 +61,7 @@
   </div>
 
   <div th:replace="~{includes/components/footer :: footer}"></div>
-  <script th:src="@{/assets/dist/js/main.js}"></script>
+  <script th:src="@{/assets/dist/js/main.js}" defer></script>
 </body>
 
 </html>

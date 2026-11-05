@@ -79,6 +79,10 @@ jobs:
           
           # 更新 theme.yaml 版本号
           sed -i "s/version: \".*\"/version: \"$VERSION\"/" dist/pkg/theme.yaml
+
+          # 清理系统杂项与 sourcemap，避免打进发布包
+          find dist/pkg -name ".DS_Store" -delete
+          find dist/pkg -name "*.map" -delete
           
           # 创建 zip（直接将内容打入根，不套子目录）
           cd dist/pkg

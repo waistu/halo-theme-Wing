@@ -1,4 +1,6 @@
 /* Tailwind v4 基础导入 */
+/* normalize 并入主样式表，减少一个阻塞请求；置于 tailwindcss 之前保持原有层叠顺序 */
+@import "../../templates/assets/vendor/normalize.css";
 @import "tailwindcss";
 @import "./twikoo.css";
 @import "tw-animate-css";

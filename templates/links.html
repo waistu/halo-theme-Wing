@@ -8,7 +8,6 @@
     <title>友链丨[[${site.title}]]</title>
     <!-- 主题防闪烁初始化（必须在最前面） -->
     <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-    <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
     <!-- 主题配色方案 -->
     <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
@@ -21,10 +20,8 @@
             darkStart: /*[[${theme.config.style?.auto_theme_time?.dark_start ?: '22:00'}]]*/ '22:00'
         };
     </script>
-    <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
-    <script th:src="@{/assets/vendor/relativeTime.js}"></script>
-    <script th:src="@{/assets/vendor/zh-cn.js}"></script>
-    <!-- 打开搜索弹窗 -->
+  <script th:src="@{/assets/vendor/dayjs-bundle.min.js}" defer></script>
+<!-- 打开搜索弹窗 -->
     <script>
         if (window.location.hash === '#open-search') {
             setTimeout(() => {
@@ -32,7 +29,7 @@
             }, 100);
         }
     </script>
-    <script th:src="@{/assets/dist/js/main.js}"></script>
+    <script th:src="@{/assets/dist/js/main.js}" defer></script>
 </head>
 
 <body>
@@ -91,7 +88,7 @@
                                         target="_blank" rel="noopener noreferrer">
                                         <div class="link-logo">
                                             <img th:src="${link.spec.logo}" th:alt="${link.spec.displayName}"
-                                                th:onerror="|this.src='@{/assets/images/author-avatar.png}'|" />
+                                                th:onerror="|this.src='@{/assets/images/author-avatar.webp}'|" />
                                         </div>
                                         <div class="link-info">
                                             <h3 class="link-name" th:text="${link.spec.displayName}">网站名称</h3>

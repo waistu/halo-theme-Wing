@@ -26,20 +26,17 @@
 
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
-  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
-  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
-  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
-  <script>
+  <script th:src="@{/assets/vendor/dayjs-bundle.min.js}" defer></script>
+<script>
     if (window.location.hash === '#open-search') {
       setTimeout(() => { if (window.SearchWidget) SearchWidget.open(''); }, 100);
     }
   </script>
-  <script th:src="@{/assets/dist/js/main.js}"></script>
+  <script th:src="@{/assets/dist/js/main.js}" defer></script>
 </head>
 
 <body>

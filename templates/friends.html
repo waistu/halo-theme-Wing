@@ -8,15 +8,12 @@
     <title>朋友圈丨[[${site.title}]]</title>
     <!-- 主题防闪烁初始化（必须在最前面） -->
     <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-    <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
     <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
     <!-- 主题配色方案 -->
     <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
     <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
-    <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
-    <script th:src="@{/assets/vendor/relativeTime.js}"></script>
-    <script th:src="@{/assets/vendor/zh-cn.js}"></script>
-    <!-- 打开搜索弹窗 -->
+  <script th:src="@{/assets/vendor/dayjs-bundle.min.js}" defer></script>
+<!-- 打开搜索弹窗 -->
     <script>
         if (window.location.hash === '#open-search') {
             setTimeout(() => {
@@ -24,7 +21,7 @@
             }, 100);
         }
     </script>
-    <script th:src="@{/assets/dist/js/main.js}"></script>
+    <script th:src="@{/assets/dist/js/main.js}" defer></script>
 </head>
 
 <body>
@@ -69,7 +66,7 @@
                     <div class="friend-card">
                         <div class="friend-header">
                             <img class="friend-avatar" th:src="${friend.authorLogo}" th:alt="${friend.author}"
-                                th:onerror="|this.src='@{/assets/images/author-avatar.png}'|" />
+                                th:onerror="|this.src='@{/assets/images/author-avatar.webp}'|" />
                             <div class="friend-info">
                                 <a class="friend-author" th:href="${friend.authorUrl}" target="_blank"
                                     th:text="${friend.author}">作者</a>

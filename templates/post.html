@@ -11,7 +11,6 @@
 
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
@@ -27,9 +26,7 @@
   </script>
 
   <!-- 公共 vendor JS -->
-  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
-  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
-  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
+  <script th:src="@{/assets/vendor/dayjs-bundle.min.js}" defer></script>
 </head>
 
 <body>
@@ -231,9 +228,7 @@
 
   </script>
   <!-- 主脚本 -->
-  <script th:src="@{/assets/dist/js/main.js}"></script>
-  <!-- markdown-it 库（保留供备用） -->
-  <script th:src="@{/assets/vendor/markdown-it.min.js}"></script>
+  <script th:src="@{/assets/dist/js/main.js}" defer></script>
   <!-- 匿名评论功能 -->
   <script th:inline="javascript">
     (function() {

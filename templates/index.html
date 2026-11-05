@@ -25,16 +25,13 @@
 
   <!-- 主题防闪烁初始化（必须在最前面） -->
   <th:block th:replace="~{includes/head/theme-init :: theme-init}"></th:block>
-  <link rel="stylesheet" th:href="@{/assets/vendor/normalize.css}" />
   <link rel="stylesheet" th:href="@{/assets/dist/css/main.css}" />
   <link rel="stylesheet" th:href="@{/assets/vendor/magic-ui/meteors.css}" th:if="${theme.config.style.meteors_enabled != 'disabled'}" />
   <!-- 主题配色方案 -->
   <th:block th:replace="~{includes/color-scheme :: color-scheme}"></th:block>
   <link rel="stylesheet" th:href="@{/assets/fonts/caomei/style.css}">
-  <script th:src="@{/assets/vendor/dayjs.min.js}"></script>
-  <script th:src="@{/assets/vendor/relativeTime.js}"></script>
-  <script th:src="@{/assets/vendor/zh-cn.js}"></script>
-  <!-- 打开搜索弹窗 -->
+  <script th:src="@{/assets/vendor/dayjs-bundle.min.js}" defer></script>
+<!-- 打开搜索弹窗 -->
   <script>
     if (window.location.hash === '#open-search') {
       setTimeout(() => {
@@ -42,7 +39,7 @@
       }, 100);
     }
   </script>
-  <script th:src="@{/assets/dist/js/main.js}"></script>
+  <script th:src="@{/assets/dist/js/main.js}" defer></script>
   <script th:src="@{/assets/vendor/magic-ui/meteors.js}" th:if="${theme.config.style.meteors_enabled != 'disabled'}"></script>
 </head>
 

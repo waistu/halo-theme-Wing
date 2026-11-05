@@ -1,10 +1,6 @@
 @font-face {
   font-family: 'StrawberryIcon-Free';
-  src:  url('fonts/StrawberryIcon-Free.eot?83lfek');
-  src:  url('fonts/StrawberryIcon-Free.eot?83lfek#iefix') format('embedded-opentype'),
-    url('fonts/StrawberryIcon-Free.ttf?83lfek') format('truetype'),
-    url('fonts/StrawberryIcon-Free.woff?83lfek') format('woff'),
-    url('fonts/StrawberryIcon-Free.svg?83lfek#StrawberryIcon-Free') format('svg');
+  src:  url('fonts/StrawberryIcon-Free.woff2?83lfek') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
